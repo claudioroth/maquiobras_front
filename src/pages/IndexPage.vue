@@ -1,17 +1,23 @@
 <template>
   <!-- HEADER -->
   <div class="pt-header q-mt-md">
-    <div class="q-pa-md shadow-3 q-px-md q-mx-md">
-      <div class="bg-light flex">
+    <div class="q-mx-md">
+      <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
         <q-btn
-          class="q-mr-md"
+          class="q-mr-md q-px-lg"
           size="md"
+          color="grey-7"
           outline
           @click="open_dialog('create')"
           ><q-icon name="add_chart" class="q-mr-sm" /> Nuevo Retiro
         </q-btn>
-        <q-btn outline color="dark" icon="picture_as_pdf"/>
-        <q-btn outline color="dark" icon="post_add"/>
+        <!-- <q-btn outline color="grey-7" icon="picture_as_pdf"/>
+        <q-btn outline color="grey-7" icon="post_add"/> -->
+
+        <q-btn-group push class="no-shadow">
+      <q-btn outline color="grey-7" push icon="o_picture_as_pdf"  />
+      <q-btn outline color="grey-7" push icon="post_add" />
+    </q-btn-group>
         </div>
       </div>
   </div>
@@ -26,6 +32,8 @@
       :filter="filter"
       :separator="separator"
       color="primary"
+      class="no-shadow text-grey-7"
+      style="border: solid 1px #e0e0e0"
     >
       <template v-slot:top-right>
         <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
@@ -120,7 +128,7 @@ export default defineComponent({
 
     const columns = [
       //{ name: 'id', required: true, label: 'id', align: 'left', field: row => row.name,format: val => `${val}`,sortable: true},
-      { name: 'id', label: 'id', align: 'left', field: 'id', sortable: true },
+
       { name: 'retiro', align: 'center', label: 'retiro-cantidad', field: 'retiro', sortable: true },
       { name: 'nombre', label: 'nombre', field: 'nombre', align: 'left'},
       { name: 'producto', label: 'producto', field: 'producto', align: 'left'},

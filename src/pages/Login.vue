@@ -9,15 +9,15 @@
           <q-card-section horizontal style="height: 100%;">
             <q-card-section class="col-6 background-logo flex-center flex">
                 <transition appear @before-enter="animLogoEnter" @enter="animLogo">
-                  <q-img src="../assets/img/maquiobras.jpeg"/>
+                  <q-img src="../assets/img/logo_white.png" width="250px"/>
                 </transition>
               </q-card-section>
 
             <q-separator vertical />
 
             <q-card-section class="col-6">
-              <q-card-section align="center" style="top: 23px">
-                <div class="text-h5 sora-text" style="color: #000000; font-weight: 500;">Login</div>
+              <q-card-section align="center" style="top: 50px">
+                <div class="text-h5 sora-text" style="color: #000000; font-weight: 500;"></div>
               </q-card-section>
               <q-form @submit="onSubmit">
                 <q-card-section style="top: 42px" align="center">
@@ -52,18 +52,19 @@
                   </q-input>
                 </q-card-section>
 
-                <q-card-section align="center" style="top: 60px">
+                <q-card-section align="center" style="top: 50px">
                   <q-btn
-                    color="primary"
+                    color="#ff5b4e"
                     class="sora-text"
                     type="submit"
                     no-caps
+                    icon-right="login"
                     :loading="loading_access"
                     rounded
-                    style="height: 45px; width: 223px;"
+                    style="height: 56px; width: 249px; background-color: rgb(211 74 63);"
                     text-color="white"
                     >
-                    Acceso
+                    ACCESO
                   </q-btn>
                 </q-card-section>
               </q-form>
@@ -144,25 +145,25 @@ export default defineComponent({
   methods: {
     async onSubmit() {
       if(this.userForm.user != "" && this.userForm.password != ""){
-        this.loading_access = true;
+        // this.loading_access = true;
 
-        await api.post("/login", {user: this.userForm.user, password: this.userForm.password}).then((response) => {
-          //console.log("post response: ", response);
-          SessionStorage.set('user', response.data.user);
-          SessionStorage.set('password', response.data.password);
-          SessionStorage.set('is_admin', response.data.is_admin);
+        // await api.post("/login", {user: this.userForm.user, password: this.userForm.password}).then((response) => {
+
+        //   SessionStorage.set('user', response.data.user);
+        //   SessionStorage.set('password', response.data.password);
+        //   SessionStorage.set('is_admin', response.data.is_admin);
           this.$router.replace("/");
-          this.loading_access = true;
-        }).catch((error) => {
-          // console.log(error.message);
-          this.loading_access = false;
-          if (error.message == 'Request failed with status code 404') {
-            customNotify('Incorrect username or password');
-          } else {
-            handleCustomError(error.message);
-          }
-        this.loading_access = false;
-        });
+          // this.loading_access = true;
+        // }).catch((error) => {
+
+        //   this.loading_access = false;
+        //   if (error.message == 'Request failed with status code 404') {
+        //     customNotify('Incorrect username or password');
+        //   } else {
+        //     handleCustomError(error.message);
+        //   }
+        // this.loading_access = false;
+        // });
 
       }
     },
@@ -173,16 +174,18 @@ export default defineComponent({
 <style lang="scss">
 .background{
   //background-image: url("../assets/img/NCRAtleos_TeamsBkg_8.png");
-  background: cover;
-  background-size: cover;
-  background-repeat: no-repeat;
+background-color: #f4f4f4;
 }
 .background-logo{
   //background-color: #D1E0D7;
-  background-color: #FFFFFF;
+  background-color: #000000;
 }
 .btn-login{
   width: 253px;
   height: 70px;
+}
+
+#q-app > div > div > div > div > div > div:nth-child(3) > form > div:nth-child(2) > button > span.q-btn__content.text-center.col.items-center.q-anchor--skip.justify-center.row > i{
+  padding-left: 7px;
 }
 </style>

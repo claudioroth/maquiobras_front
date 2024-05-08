@@ -1,7 +1,8 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-1">
-    <q-header elevated class="bg-white text-grey-8 q-py-xs" height-hint="58">
+  <q-layout view="lhh lpR lFf" class="bg-grey-1">
+    <q-header  class="bg-grey-1 text-grey-8 q-py-xs" height-hint="58">
       <q-toolbar>
+
         <q-btn
           flat
           dense
@@ -10,14 +11,12 @@
           aria-label="Menu"
           icon="menu"
         />
-        <q-toolbar-title class="flex">
-          <div class="row items-center">
-            <q-img src="~assets/img/maquiobras.jpeg" style="width: 75px;"/>
-            <div class="text-grey" style="font-size: 19px; font-family: Sora; font-weight: 700;">
-              Maquiobras
-            </div>
+        <!-- <q-toolbar-title class="flex">
+          <div class="row items-center q-py-md">
+            <q-img src="~assets/img/logo_white.png" style="width: 150px;" />
+
           </div>
-        </q-toolbar-title>
+        </q-toolbar-title> -->
 
           <!-- <div class="YL__toolbar-input-container row no-wrap">
             <q-input dense outlined square v-model="search" placeholder="Buscar" class="bg-white col" />
@@ -43,25 +42,28 @@
         v-model="leftDrawerOpen"
         show-if-above
         bordered
-        class="bg-grey-2"
+        class="bg-black"
         :width="240"
       >
-      <q-scroll-area class="fit">
-        <q-list padding>
+      <div class="row q-py-xl justify-center">
+      <q-img src="~assets/img/logo_white.png" style="width: 150px;" />
+      </div>
+      <!-- <q-scroll-area class="fit"> -->
+        <q-list class="text-white">
           <q-item v-for="link in links1" :key="link.text" v-ripple clickable @click=links1>
             <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
+              <q-icon color="white" :name="link.icon" />
             </q-item-section>
-            <router-link style="text-decoration: none; color: inherit;" :to="link.toPage" replace>
-              <q-item-section>
-                <q-item-label>{{ link.text }}</q-item-label>
+            <router-link  style="text-decoration: none; color: inherit;align-content: center;" :to="link.toPage" replace>
+              <q-item-section class="align-center">
+                <q-item-label class="self-center text-grey-4">{{ link.text }}</q-item-label>
               </q-item-section>
             </router-link>
           </q-item>
 
           <q-separator class="q-my-md" />
       </q-list>
-    </q-scroll-area>
+    <!-- </q-scroll-area> -->
     </q-drawer>
 
 

@@ -7,7 +7,8 @@ const routes = [
       const useUser = SessionStorage.getItem('user');
       const usePassword = SessionStorage.getItem('password');
       const useAdmin = SessionStorage.getItem('is_admin');
-      !useUser && !usePassword && !useAdmin ? next({path: '/login'}) : next()
+     next()
+      // !useUser && !usePassword && !useAdmin ? next({path: '/login'}) : next()
     },
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -23,7 +24,8 @@ const routes = [
       const useUser = SessionStorage.getItem('user');
       const userPassword = SessionStorage.getItem('password');
       const useAdmin = SessionStorage.getItem('is_admin');
-      !useUser && !userPassword && !useAdmin ? next() : next(from.fullPath)
+      // !useUser && !userPassword && !useAdmin ? next() : next(from.fullPath)
+     next(from.fullPath)
     },
     name: 'Login',
     component: () => import('../pages/Login.vue'),
