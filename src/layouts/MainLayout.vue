@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lhh lpR lFf" class="bg-grey-1">
+  <q-layout view="lHr lpR fFf" class="bg-grey-1">
     <q-header  class="bg-grey-1 text-grey-8 q-py-xs" height-hint="58">
       <q-toolbar>
 
@@ -33,7 +33,7 @@
           {{ nameUser }}
         </div>
         <q-btn flat round dense icon="logout" @click="logoutUsr" style="margin-left: 20px;"/>
-
+        <!-- <q-btn dense flat round icon="menu" @click="toggleRightDrawer" /> -->
       </q-toolbar>
     </q-header>
 
@@ -42,12 +42,14 @@
         v-model="leftDrawerOpen"
         show-if-above
         bordered
-        class="bg-black"
+        class="bg-grey-7 no-outline"
         :width="240"
+        style="background: none;"
       >
       <div class="row q-py-xl justify-center">
       <q-img src="~assets/img/logo_white.png" style="width: 150px;" />
       </div>
+      <q-separator class="q-my-md" />
       <!-- <q-scroll-area class="fit"> -->
         <q-list class="text-white">
           <q-item v-for="link in links1" :key="link.text" v-ripple clickable @click=links1>
@@ -61,10 +63,16 @@
             </router-link>
           </q-item>
 
-          <q-separator class="q-my-md" />
+
       </q-list>
     <!-- </q-scroll-area> -->
     </q-drawer>
+
+
+    <!-- Drawer Right -->
+    <!-- <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered> -->
+      <!-- drawer content -->
+    <!-- </q-drawer> -->
 
 
 
@@ -87,6 +95,7 @@ export default defineComponent({
     const isAdmin = SessionStorage.getItem('is_admin');
 
     const leftDrawerOpen = ref(false)
+    // const rightDrawerOpen = ref(false)
     const search = ref('')
 
     console.log("nameUser: ", nameUser);
@@ -105,6 +114,10 @@ export default defineComponent({
       search,
 
       toggleLeftDrawer,
+      // rightDrawerOpen,
+      // toggleRightDrawer () {
+      //   rightDrawerOpen.value = !rightDrawerOpen.value
+      // },
 
       links1: [
         { icon: 'home', text: 'Planilla de Control', toPage: 'IndexPage' },
@@ -148,4 +161,10 @@ export default defineComponent({
 
     &:hover
       color: #000
+</style>
+
+<style>
+      .q-drawer--left.q-drawer--bordered {
+    border-right: 0px solid rgba(0, 0, 0, 0.12);
+}
 </style>

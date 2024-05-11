@@ -2,7 +2,10 @@
   <!-- HEADER -->
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
-      <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
+      <div
+        class="bg-white q-pa-md rounded-borders flex"
+        style="border: solid 1px #e0e0e0"
+      >
         <q-btn
           class="q-mr-md q-px-lg"
           size="md"
@@ -15,315 +18,335 @@
         <q-btn outline color="grey-7" icon="post_add"/> -->
 
         <q-btn-group push class="no-shadow">
-      <q-btn outline color="grey-7" push icon="o_picture_as_pdf"  />
-      <q-btn outline color="grey-7" push icon="post_add" />
-    </q-btn-group>
-        </div>
+          <q-btn outline color="grey-7" push icon="o_picture_as_pdf" />
+          <q-btn outline color="grey-7" push icon="post_add" />
+        </q-btn-group>
+        <q-space />
+        <q-input
+          dense
+          outlined
+          debounce="300"
+          v-model="filter"
+          placeholder="Buscar"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
       </div>
+    </div>
   </div>
 
   <!-- TABLA -->
   <div class="q-pa-md">
     <q-table
+      flat
+      bordered
       title="Planilla de Control"
       :rows="controles"
       :columns="columns"
       row-key="id"
       :filter="filter"
-      :separator="separator"
+      virtual-scroll
+      v-model:pagination="pagination"
+      :rows-per-page-options="[0]"
       color="primary"
       class="no-shadow text-grey-7"
-      style="border: solid 1px #e0e0e0"
+      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
     >
-      <template v-slot:top-right>
+      <!-- <template v-slot:top-right>
         <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
         </q-input>
+      </template> -->
+
+      <template v-slot:body-cell-retiro="props">
+        <q-td :props="props">
+          <div>
+            <q-badge color="red-7" :label="props.row.retiro" />
+          </div>
+        </q-td>
       </template>
 
-      <template v-slot:item="props">
-        <div
-          class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition"
-          :style="props.selected ? 'transform: scale(0.95);' : ''"
-        >
-          <q-card bordered flat :class="props.selected ? ($q.dark.isActive ? 'bg-grey-9' : 'bg-grey-2') : ''">
-            <q-card-section>
-              <q-checkbox dense v-model="props.selected" :label="props.row.name" />
-            </q-card-section>
-            <q-separator />
-            <q-list dense>
-              <q-item v-for="col in props.cols.filter(col => col.name !== 'desc')" :key="col.name">
-                <q-item-section>
-                  <q-item-label>{{ col.label }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-item-label caption>{{ col.value }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card>
-        </div>
+      <template v-slot:body-cell-fecha="props">
+        <q-td :props="props">
+          <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
+          <div>
+            <q-badge color="red-7">
+              {{ parse_datetime(props.row.fecha, "hours") }}
+            </q-badge>
+          </div>
+        </q-td>
       </template>
-
     </q-table>
   </div>
+
+  <!-- DIALOG -->
+  <q-dialog v-model="dialog" full-height position="right">
+    <q-card class="column full-height" style="width: 500px">
+      <!-- header -->
+      <q-card-section class="bg-grey-3">
+        <div class="text-grey-8">Nuevo Retiro</div>
+      </q-card-section>
+
+      <!-- body -->
+      <q-card-section class="col q-pa-lg">
+        <q-form
+          @submit="create_withdrawal"
+          @reset="onReset"
+          class="q-gutter-md"
+        >
+          <!-- Usuario -->
+          <q-select
+            outlined
+            v-model="user"
+            use-input
+            input-debounce="0"
+            label="Usuario"
+            :options="optionsSelectUsers"
+            @filter="filterFnUsers"
+            :rules="[(val) => !!val || 'Seleccione un usuario']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <!-- Herramienta a Retirar -->
+          <q-select
+            outlined
+            v-model="tool"
+            use-input
+            input-debounce="0"
+            label="Herramienta"
+            :options="optionsSelectTools"
+            @filter="filterFnTools"
+            :rules="[(val) => !!val || 'Seleccione una herramienta']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <q-input
+            v-model.number="amount"
+            type="number"
+            label="Cantidad"
+            outlined
+            :rules="[(val) => !!val || 'Seleccione una cantidad']"
+          />
+
+          <div>
+            <q-btn label="Completar Retiro" type="submit" unelevated  color="primary" />
+            <q-btn
+              label="Reset"
+              type="reset"
+              color="primary"
+              flat
+              class="q-ml-sm"
+            />
+          </div>
+        </q-form>
+      </q-card-section>
+
+      <q-inner-loading :showing="dialogLoading" class="bg-white">
+<q-spinner-puff size="50px" color="red-5"/>
+
+      </q-inner-loading>
+
+    </q-card>
+  </q-dialog>
 </template>
 
-
-<!-- <template>
-
-  <div class="pt-header q-mt-md">
-    <div class="q-pa-md shadow-3 q-px-md q-mx-md">
-      <div class="bg-light flex">
-        <q-btn
-          class="q-mr-md"
-          size="md"
-          outline
-          @click="open_dialog('create')"
-          ><q-icon name="person_add_alt" class="q-mr-sm" /> Nuevo Retiro
-        </q-btn>
-        </div>
-      </div>
-
-
-    <div class="q-pa-md">
-      <q-table
-        title="Planilla de Control"
-        :rows="controles"
-        :columns="columns"
-        row-key="id"
-      />
-        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-    </div>
-  </div>
-
-</template> -->
-
 <script>
-import { defineComponent, ref } from 'vue';
-import { date, SessionStorage } from 'quasar';
-import { useQuasar } from 'quasar';
-import { customNotify, handleCustomError } from 'src/helpers/errors';
-import * as XLSX from 'xlsx-js-style';
-import { api } from 'src/boot/axios';
-import axios from 'axios';
-// import * as ExcelJS from 'exceljs';
-//import XLSX from 'xlsx';
-
-
+import { defineComponent, ref, onMounted } from "vue";
+import { date, SessionStorage } from "quasar";
+import { customNotify, handleCustomError } from "src/helpers/errors";
+import * as XLSX from "xlsx-js-style";
+import { api } from "src/boot/axios";
+import axios from "axios";
 
 export default defineComponent({
-  name: 'IndexPage',
+  name: "IndexPage",
 
-  setup () {
-
+  setup() {
+    // VARIABLES
+    const dialog = ref(false)
+    const dialogLoading = ref(false)
     const controles = ref([]);
-    let fileName = "archivo"
+    const user = ref(null);
+    const tool = ref(null);
+    const amount = ref(null);
+    const selectUsers = ref([]);
+    const selectTools = ref([]);
+    const optionsSelectUsers = ref(selectUsers.value);
+    const optionsSelectTools = ref(selectTools.value);
+    const pagination = ref({
+        rowsPerPage: 0
+      })
+
+    let fileName = "archivo";
 
     const columns = [
-      //{ name: 'id', required: true, label: 'id', align: 'left', field: row => row.name,format: val => `${val}`,sortable: true},
+      { name: "nombre", label: "Nombre", field: "nombre", align: "center" },
+      {
+        name: "retiro",
+        align: "center",
+        label: "Retiro-Cantidad",
+        field: "retiro",
+        sortable: true,
+      },
+      {
+        name: "producto",
+        label: "Producto",
+        field: "producto",
+        align: "center",
+      },
+      {
+        name: "fecha",
+        label: "Fecha",
+        field: "fecha",
+        align: "center",
+        sortable: true,
+      },
+    ];
 
-      { name: 'retiro', align: 'center', label: 'retiro-cantidad', field: 'retiro', sortable: true },
-      { name: 'nombre', label: 'nombre', field: 'nombre', align: 'left'},
-      { name: 'producto', label: 'producto', field: 'producto', align: 'left'},
-      { name: 'fecha', label: 'fecha', field: 'fecha', align: 'left', sortable: true }
-    ]
+    // MOUNTED
+    onMounted(() => {
+      // Carga de Tabla
+      get_data()
 
+      // Carga los select
+      api.get("/api/controlmix").then((response) => {
+        response.data.user.forEach((d) => {
+          selectUsers.value.push({ label: d.user, value: d.id });
+        });
+        response.data.productos.forEach((d) => {
+          selectTools.value.push({ label: `(${d.nro != null ? d.nro : '-' })  ${d.descripcion}`, value: d.index });
+        });
+      });
 
+      console.log(selectTools.value);
+    });
 
-    // const convertUtfDate = (dataDate) => {
-    //   const objectDateTime = {
-    //     date: date.formatDate(new Date(`${dataDate} UTC`), "YYYY/MM/DD"),
-    //     time: date.formatDate(new Date(`${dataDate} UTC`), "HH:mm"),
-    //   };
-    //   return objectDateTime;
-    // };
-
-    api.get("/api/control")
+    // FUNCIONES
+    // Refresca la tabla principal
+    const get_data = () => {
+      api.get("/api/control")
         .then((response) => {
-          console.log(response.data);
           controles.value = response.data;
 
-          // if (controles.value.length > 0) {
-          //   controles.value.forEach((a) => {
-          //     a.fecha = convertUtfDate(a.created_at)
-          // });
-          // }
-          function exportExcel (controles) {
-            let data = XLSX.utils.json_to_sheet(controles)
-            const workbook = XLSX.utils.book_new()
-            const filename = 'devschile-admins'
-            XLSX.utils.book_append_sheet(workbook, data, filename)
-            XLSX.writeFile(workbook, `${filename}.xlsx`)
-          }
-          //exportExcel(response.data);
-
-        }).catch((error) => {
+        })
+        .catch((error) => {
           handleCustomError(error.message);
           console.log(error);
         });
+    }
 
+    // Abrir Dialog
+    const open_dialog = (action, data) => {
+      dialog.value = true;
+      user.value = null
+      tool.value = null
+      amount.value = null
+    }
+
+    // Retirar Herramienta
+    const create_withdrawal = () => {
+      dialogLoading.value = true
+      const data = {
+        retiro: amount.value,
+        id_user: user.value.value,
+        id_prod: tool.value.value,
+      };
+
+      api.post("/api/control", data).then((response) => {
+        console.log(response.data);
+        get_data()
+
+        dialog.value = false
+        dialogLoading.value = false
+      });
+    };
+
+    // Filtro Select Usuarios
+    const filterFnUsers = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsSelectUsers.value = selectUsers.value.filter((v) => {
+          return v.label.toLowerCase().indexOf(needle) > -1;
+        });
+      });
+    };
+
+    // Filtro Select Herramientas
+    const filterFnTools = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsSelectTools.value = selectTools.value.filter((v) => {
+          return v.label.toLowerCase().indexOf(needle) > -1;
+        });
+        console.log(optionsSelectTools.value);
+      });
+    };
 
     return {
-        columns,
-        controles,
-        filter: ref(''),
-        selected: ref([]),
-        separator: ref('vertical'),
-      }
-
+      columns,
+      controles,
+      user,
+      tool,
+      amount,
+      filter: ref(""),
+      dialog,
+      dialogLoading,
+      selectUsers,
+      optionsSelectUsers,
+      optionsSelectTools,
+      filterFnUsers,
+      filterFnTools,
+      create_withdrawal,
+      open_dialog,
+      pagination
+    };
   },
   methods: {
     async searchData() {
-      console.log("entre")
-      await api.get("/api/control")
+      console.log("entre");
+      await api
+        .get("/api/control")
         .then((response) => {
           console.log(response.data);
           controles.value = response.data;
-
-          // if (controles.value.length > 0) {
-          //   controles.value.forEach((a) => {
-          //     a.fecha = convertUtfDate(a.created_at)
-          // });
-          // }
-
-          //Generate XLSX
-          //this.generateXLSX(response.data, response.status);
           this.loading_report = false;
-        }).catch((error) => {
+        })
+        .catch((error) => {
           this.loading_report = false;
           handleCustomError(error.message);
           console.log(error);
         });
-
     },
 
-    open_dialog(action, data) {
-      this.dialog = true;
-      if (action == "create") {
-        this.title = "Nuevo";
-        this.name_button = "Crear";
-      } else if (action == "modify") {
-        let selected_institutions = [];
-
-        data.institutions.forEach((i) => {
-          this.list_institutions.forEach((institution) => {
-            if (i == institution.value) {
-              selected_institutions.push({
-                label: institution.label,
-                value: institution.value,
-              });
-            }
-          });
-        });
-
-        this.form_id = data.id_user;
-        this.form_fullname = data.name;
-        this.form_qlid = data.user_name;
-        this.form_profile = {
-          label: this.translations[data.profile],
-          value: data.profile,
-        };
-        this.form_institutions = selected_institutions;
-
-        this.name_button = "Guardar";
-        this.title = "Modificar";
+    parse_datetime(dateString, type) {
+      if (type == "date") {
+        return date.formatDate(dateString, "DD-MM-YYYY");
+      } else {
+        return date.formatDate(dateString, "HH:mm");
       }
     },
 
 
   },
-  // onMounted () {
-  //   this.searchData();
-  // },
-
-
-})
+});
 </script>
 
 <style lang="scss" scoped>
-.card-background {
-  height: 180px;
-  background-color: #D1E0D7 !important;
-  margin: 0px 45px 0px 45px;
-  padding: 0px;
-}
-.header-option{
-  background-color: #004E42;
-  text-align: center;
-  color: white;
-  padding-block: 15px;
-  font-size: 16px;
-  font-family: Sora;
-}
-.header-option-item{
-  background-color: #D1E0D7;
-  // text-align: center;
-  color: white;
-  padding-top: 5px;
-  padding-bottom: -5px;
-  padding-inline: 30px;
-  font-size: 12px;
-}
-.header-option-item2{
-  background-color: #D1E0D7;
-  // text-align: center;
-  color: white;
-  padding-inline: 30px;
-  font-size: 12px;
-}
-.radio-style{
-  height: 70%;
-  justify-content: center;
-  align-items: start;
-  font-family: Sora;
-}
-.card-move{
-  justify-content: center;
-  align-items: center;
-}
-.enter-filter{
-  margin-bottom: 10px;
-  font-weight: 500;
-  margin-top: 10px;
-  font-family: Sora;
-}
-.item-font{
-  color: black;
-  font-weight: 500;
-  font-family: Sora;
-}
-.card-section1{
-  height: 480px;
-  width: 430px;
-  border-radius: 5px;
-}
-.card-section2{
-  border-radius: 5px;
-  border-color: #D1E0D7;
-  width: 100%;
-  height: 94%;
-  border-style: solid;
-  border-width: 7px;
-  margin: 10px 35px;
-  min-height: 670px;
-}
-.title-section1{
-  font-weight: 450;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-.sora-alert{
-  justify-content: end;
-  color: red;
-  font-style: italic;
-  font-family: Sora;
-  font-size: 11px;
+.q-dialog__inner--minimized {
+  padding-top: 0px !important;
 }
 </style>
