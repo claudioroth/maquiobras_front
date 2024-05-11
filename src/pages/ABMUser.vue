@@ -214,12 +214,14 @@ import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
 import axios from "axios";
 import { user } from "fontawesome";
+import { useQuasar } from 'quasar'
 
 export default defineComponent({
   name: "IndexPage",
 
   setup() {
     // VARIABLES
+    const $q = useQuasar()
     const dialog = ref(false);
     const dialogLoading = ref(false);
     const dialogTitle = ref(null);
@@ -263,12 +265,12 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
-      get_data();
+      getData();
     });
 
     // FUNCIONES
     // Refresca la tabla principal
-    const get_data = () => {
+    const getData = () => {
       api
         .get("/api/users")
         .then((response) => {
@@ -306,13 +308,15 @@ export default defineComponent({
         password: password.value,
         is_admin: is_admin.value == true ? 1 : 0,
       };
-
-      console.log(data);
-
       api.post("/api/users", data).then((response) => {
         console.log(response.data);
-        get_data();
-
+        getData();
+        $q.notify({
+          icon:"person",
+          message: "El usuario se creo correctamente",
+          position: "bottom",
+          timeout: 2000
+        })
         dialog.value = false;
         dialogLoading.value = false;
       });
@@ -327,12 +331,15 @@ export default defineComponent({
         is_admin: is_admin.value,
         is_active: is_active.value,
       };
-
-      console.log(data);
-
       api.put("/api/users", data).then((response) => {
         console.log(response.data);
-        get_data();
+        getData();
+        $q.notify({
+          icon:"settings",
+          message: "El usuario se ha modificado correctamente",
+          position: "bottom",
+          timeout: 2000
+        })
 
         dialog.value = false;
         dialogLoading.value = false;
@@ -351,7 +358,13 @@ export default defineComponent({
 
       api.put("/api/users", data).then((response) => {
         console.log(response.data);
-        get_data();
+        getData();
+        $q.notify({
+          icon:"person_remove",
+          message: "Usuario Desactivado",
+          position: "bottom",
+          timeout: 2000
+        })
       });
     };
 
@@ -367,9 +380,21 @@ export default defineComponent({
 
       api.put("/api/users", data).then((response) => {
         console.log(response.data);
-        get_data();
+        getData();
+        $q.notify({
+          icon:"person_add",
+          message: "Usuario Activado",
+          position: "bottom",
+          timeout: 2000
+        })
       });
     };
+
+    const onReset = () => {
+      username.value = null
+      password.value = null
+      is_admin.value = false
+    }
 
     return {
       columns,
@@ -386,6 +411,7 @@ export default defineComponent({
       open_dialog,
       deactivateUser,
       activateUser,
+      onReset,
       pagination,
     };
   },

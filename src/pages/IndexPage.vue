@@ -170,6 +170,7 @@ import { date, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
+import { useQuasar } from 'quasar'
 import axios from "axios";
 
 export default defineComponent({
@@ -177,6 +178,7 @@ export default defineComponent({
 
   setup() {
     // VARIABLES
+    const $q = useQuasar()
     const dialog = ref(false)
     const dialogLoading = ref(false)
     const controles = ref([]);
@@ -257,6 +259,12 @@ export default defineComponent({
       amount.value = null
     }
 
+    const onReset = () => {
+      user.value = null
+      tool.value = null
+      amount.value = null
+    }
+
     // Retirar Herramienta
     const create_withdrawal = () => {
       dialogLoading.value = true
@@ -269,6 +277,12 @@ export default defineComponent({
       api.post("/api/control", data).then((response) => {
         console.log(response.data);
         get_data()
+        $q.notify({
+          icon:"done",
+          message: "Retiro completado",
+          position: "bottom",
+          timeout: 2000
+        })
 
         dialog.value = false
         dialogLoading.value = false
@@ -310,6 +324,7 @@ export default defineComponent({
       optionsSelectTools,
       filterFnUsers,
       filterFnTools,
+      onReset,
       create_withdrawal,
       open_dialog,
       pagination
