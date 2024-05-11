@@ -57,34 +57,60 @@
           </template>
         </q-input>
       </template> -->
-
-      <template v-slot:body-cell-retiro="props">
-        <q-td :props="props">
-          <div>
-            <q-badge color="red-7" :label="props.row.retiro" />
+      <!-- Username -->
+      <template v-slot:body-cell-user="props">
+        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
+          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
+            {{ props.row.user  }}
           </div>
         </q-td>
       </template>
 
-      <template v-slot:body-cell-actions="props">
-        <q-td :props="props">
+      <!-- Es admin -->
+      <template v-slot:body-cell-is_admin="props">
+        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
           <div>
-            <q-btn outline class="q-mr-sm" dense color="grey-7" icon="edit" />
-            <q-btn outline color="grey-7" dense icon="person_remove" />
+            <q-icon
+              :name="props.row.is_admin == '1' ? 'done' : 'minimize'"
+              :class="props.row.is_active == 0 ? 'text-grey-5' : props.row.is_admin == '1' ? 'text-red-5' : 'text-grey-8'"
+              size="2em"
+            />
           </div>
         </q-td>
       </template>
 
+      <!-- fecha -->
       <template v-slot:body-cell-fecha="props">
-        <q-td :props="props">
-          <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
+        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
+          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">{{ parse_datetime(props.row.fecha, "date") }}</div>
           <div>
-            <q-badge color="red-7">
+            <q-badge :color="props.row.is_active == 0 ? 'grey-5' : 'red-7'">
               {{ parse_datetime(props.row.fecha, "hours") }}
             </q-badge>
           </div>
         </q-td>
       </template>
+
+      <!-- Acciones -->
+      <template v-slot:body-cell-actions="props">
+        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
+          <div>
+            <q-btn outline class="q-mr-sm" dense  :color="props.row.is_active == 0 ? 'grey-5' : 'grey-7'" icon="edit" />
+            <q-btn
+              outline
+              @click="
+                props.row.is_active == 0
+                  ? activateUser(props.row)
+                  : deactivateUser(props.row)
+              "
+              color="grey-7"
+              dense
+              :icon="props.row.is_active == 0 ? 'person_add' : 'person_remove'"
+            />
+          </div>
+        </q-td>
+      </template>
+
     </q-table>
   </div>
 
@@ -101,13 +127,13 @@
         <q-form @submit="create_user" @reset="onReset" class="q-gutter-md">
           <q-input
             outlined
-            v-model="text"
+            v-model="username"
             label="Usuario"
             :rules="[(val) => !!val || 'Ingrese un nombre de usuario']"
           />
           <q-input
             outlined
-            v-model="text"
+            v-model="password"
             label="Contraseña"
             :rules="[(val) => !!val || 'Ingrese una contraseña']"
           />
@@ -122,7 +148,7 @@
             "
           >
             <div class="self-center">Usuario</div>
-            <q-toggle v-model="value" color="red" label="Administrador" />
+            <q-toggle v-model="is_admin" color="red" label="Administrador" />
           </div>
 
           <div>
@@ -166,13 +192,11 @@ export default defineComponent({
     const dialog = ref(false);
     const dialogLoading = ref(false);
     const controles = ref([]);
-    const user = ref(null);
-    const tool = ref(null);
-    const amount = ref(null);
-    const selectUsers = ref([]);
-    const selectTools = ref([]);
-    const optionsSelectUsers = ref(selectUsers.value);
-    const optionsSelectTools = ref(selectTools.value);
+
+    const username = ref(null);
+    const password = ref(null);
+    const is_admin = ref(false);
+
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -190,7 +214,7 @@ export default defineComponent({
       },
       {
         name: "fecha",
-        label: "Fecha de Alta",
+        label: "Fercha de Modificacion",
         field: "fecha",
         align: "center",
       },
@@ -206,21 +230,6 @@ export default defineComponent({
     onMounted(() => {
       // Carga de Tabla
       get_data();
-
-      // Carga los select
-      api.get("/api/controlmix").then((response) => {
-        response.data.user.forEach((d) => {
-          selectUsers.value.push({ label: d.user, value: d.id });
-        });
-        response.data.productos.forEach((d) => {
-          selectTools.value.push({
-            label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
-            value: d.index,
-          });
-        });
-      });
-
-      console.log(selectTools.value);
     });
 
     // FUNCIONES
@@ -240,21 +249,23 @@ export default defineComponent({
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      user.value = null;
-      tool.value = null;
-      amount.value = null;
+      username.value = null;
+      password.value = null;
+      is_admin.value = false;
     };
 
     // Retirar Herramienta
     const create_user = () => {
       dialogLoading.value = true;
       const data = {
-        retiro: amount.value,
-        id_user: user.value.value,
-        id_prod: tool.value.value,
+        user: username.value,
+        password: password.value,
+        is_admin: is_admin.value == true ? 1 : 0,
       };
 
-      api.post("/api/control", data).then((response) => {
+      console.log(data);
+
+      api.post("/api/users", data).then((response) => {
         console.log(response.data);
         get_data();
 
@@ -263,43 +274,51 @@ export default defineComponent({
       });
     };
 
-    // Filtro Select Usuarios
-    const filterFnUsers = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsSelectUsers.value = selectUsers.value.filter((v) => {
-          return v.label.toLowerCase().indexOf(needle) > -1;
-        });
+    const deactivateUser = (dataUser) => {
+      const data = {
+        id: dataUser.id,
+        user: dataUser.user,
+        password: dataUser.password,
+        is_admin: dataUser.is_admin,
+        is_active: 0,
+      };
+      console.log(data);
+
+      api.put("/api/users", data).then((response) => {
+        console.log(response.data);
+        get_data();
       });
     };
 
-    // Filtro Select Herramientas
-    const filterFnTools = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsSelectTools.value = selectTools.value.filter((v) => {
-          return v.label.toLowerCase().indexOf(needle) > -1;
-        });
-        console.log(optionsSelectTools.value);
+    const activateUser = (dataUser) => {
+      const data = {
+        id: dataUser.id,
+        user: dataUser.user,
+        password: dataUser.password,
+        is_admin: dataUser.is_admin,
+        is_active: 1,
+      };
+      console.log(data);
+
+      api.put("/api/users", data).then((response) => {
+        console.log(response.data);
+        get_data();
       });
     };
 
     return {
       columns,
       controles,
-      user,
-      tool,
-      amount,
+      username,
+      password,
+      is_admin,
       filter: ref(""),
       dialog,
       dialogLoading,
-      selectUsers,
-      optionsSelectUsers,
-      optionsSelectTools,
-      filterFnUsers,
-      filterFnTools,
       create_user,
       open_dialog,
+      deactivateUser,
+      activateUser,
       pagination,
     };
   },
