@@ -59,20 +59,32 @@
       </template> -->
       <!-- Username -->
       <template v-slot:body-cell-user="props">
-        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
+        <q-td
+          :props="props"
+          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
+        >
           <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
-            {{ props.row.user  }}
+            {{ props.row.user }}
           </div>
         </q-td>
       </template>
 
       <!-- Es admin -->
       <template v-slot:body-cell-is_admin="props">
-        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
+        <q-td
+          :props="props"
+          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
+        >
           <div>
             <q-icon
               :name="props.row.is_admin == '1' ? 'done' : 'minimize'"
-              :class="props.row.is_active == 0 ? 'text-grey-5' : props.row.is_admin == '1' ? 'text-red-5' : 'text-grey-8'"
+              :class="
+                props.row.is_active == 0
+                  ? 'text-grey-5'
+                  : props.row.is_admin == '1'
+                  ? 'text-red-5'
+                  : 'text-grey-8'
+              "
               size="2em"
             />
           </div>
@@ -81,8 +93,13 @@
 
       <!-- fecha -->
       <template v-slot:body-cell-fecha="props">
-        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
-          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">{{ parse_datetime(props.row.fecha, "date") }}</div>
+        <q-td
+          :props="props"
+          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
+        >
+          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
+            {{ parse_datetime(props.row.fecha, "date") }}
+          </div>
           <div>
             <q-badge :color="props.row.is_active == 0 ? 'grey-5' : 'red-7'">
               {{ parse_datetime(props.row.fecha, "hours") }}
@@ -93,9 +110,19 @@
 
       <!-- Acciones -->
       <template v-slot:body-cell-actions="props">
-        <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
+        <q-td
+          :props="props"
+          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
+        >
           <div>
-            <q-btn outline class="q-mr-sm" dense  :color="props.row.is_active == 0 ? 'grey-5' : 'grey-7'" icon="edit" />
+            <q-btn
+              outline
+              class="q-mr-sm"
+
+              @click="open_dialog('Modify', props.row)"
+              :color="props.row.is_active == 0 ? 'grey-5' : 'grey-7'"
+              icon="edit"
+            />
             <q-btn
               outline
               @click="
@@ -104,13 +131,12 @@
                   : deactivateUser(props.row)
               "
               color="grey-7"
-              dense
+
               :icon="props.row.is_active == 0 ? 'person_add' : 'person_remove'"
             />
           </div>
         </q-td>
       </template>
-
     </q-table>
   </div>
 
@@ -119,12 +145,12 @@
     <q-card class="column full-height" style="width: 500px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
-        <div class="text-grey-8">Nuevo Retiro</div>
+        <div class="text-grey-8">{{ dialogTitle }}</div>
       </q-card-section>
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form @submit="create_user" @reset="onReset" class="q-gutter-md">
+        <q-form @submit="dialogTitle == 'Nuevo Usuario' ? createUser() : modifyUser()" @reset="onReset" class="q-gutter-md">
           <q-input
             outlined
             v-model="username"
@@ -153,7 +179,11 @@
 
           <div>
             <q-btn
-              label="Crear Usuario"
+              :label="
+                dialogTitle == 'Nuevo Usuario'
+                  ? 'Crear Usuario'
+                  : 'Modificar Usuario'
+              "
               type="submit"
               unelevated
               color="primary"
@@ -183,6 +213,7 @@ import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
 import axios from "axios";
+import { user } from "fontawesome";
 
 export default defineComponent({
   name: "IndexPage",
@@ -191,11 +222,14 @@ export default defineComponent({
     // VARIABLES
     const dialog = ref(false);
     const dialogLoading = ref(false);
+    const dialogTitle = ref(null);
     const controles = ref([]);
 
+    const id = ref(null);
     const username = ref(null);
     const password = ref(null);
     const is_admin = ref(false);
+    const is_active = ref(null);
 
     const pagination = ref({
       rowsPerPage: 0,
@@ -249,13 +283,23 @@ export default defineComponent({
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      username.value = null;
-      password.value = null;
-      is_admin.value = false;
+      if (action == "create") {
+        dialogTitle.value = "Nuevo Usuario";
+        username.value = null;
+        password.value = null;
+        is_admin.value = false;
+      } else {
+        dialogTitle.value = "Modificar Usuario";
+        id.value = data.id;
+        username.value = data.user;
+        password.value = data.password;
+        is_admin.value = data.is_admin == 1 ? true : false;
+        is_active.value = data.is_active;
+      }
     };
 
-    // Retirar Herramienta
-    const create_user = () => {
+    // Crear Usuario
+    const createUser = () => {
       dialogLoading.value = true;
       const data = {
         user: username.value,
@@ -266,6 +310,27 @@ export default defineComponent({
       console.log(data);
 
       api.post("/api/users", data).then((response) => {
+        console.log(response.data);
+        get_data();
+
+        dialog.value = false;
+        dialogLoading.value = false;
+      });
+    };
+
+    const modifyUser = () => {
+      dialogLoading.value = true;
+      const data = {
+        id: id.value,
+        user: username.value,
+        password: password.value,
+        is_admin: is_admin.value,
+        is_active: is_active.value,
+      };
+
+      console.log(data);
+
+      api.put("/api/users", data).then((response) => {
         console.log(response.data);
         get_data();
 
@@ -315,7 +380,9 @@ export default defineComponent({
       filter: ref(""),
       dialog,
       dialogLoading,
-      create_user,
+      dialogTitle,
+      createUser,
+      modifyUser,
       open_dialog,
       deactivateUser,
       activateUser,
