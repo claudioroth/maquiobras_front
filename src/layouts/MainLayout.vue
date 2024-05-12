@@ -29,7 +29,7 @@
 
         <q-space />
 
-        <div class="q-mr-md sora-text">
+        <div class="sora-text">
           {{ nameUser }}
         </div>
         <q-btn flat round dense icon="logout" @click="logoutUsr" style="margin-left: 20px;"/>
@@ -52,10 +52,12 @@
       <q-separator class="q-my-md" />
       <!-- <q-scroll-area class="fit"> -->
         <q-list class="text-white">
-          <q-item v-for="link in links1" :key="link.text" v-ripple clickable @click=links1>
+          <q-item v-for="link in rolMenu()" :key="link.text" v-ripple clickable :to="link.toPage">
+
             <q-item-section avatar>
               <q-icon color="white" :name="link.icon" />
             </q-item-section>
+
             <router-link  style="text-decoration: none; color: inherit;align-content: center;" :to="link.toPage" replace>
               <q-item-section class="align-center">
                 <q-item-label class="self-center text-grey-4">{{ link.text }}</q-item-label>
@@ -95,35 +97,35 @@ export default defineComponent({
     const isAdmin = SessionStorage.getItem('is_admin');
 
     const leftDrawerOpen = ref(false)
-    // const rightDrawerOpen = ref(false)
     const search = ref('')
-
-    console.log("nameUser: ", nameUser);
-    console.log("isAdmin: ", isAdmin);
 
     function toggleLeftDrawer () {
       leftDrawerOpen.value = !leftDrawerOpen.value
+    }
+
+    const rolMenu = () => {
+      var data= [
+        { icon: 'home', text: 'Planilla de Control', toPage: 'IndexPage' },
+        { icon: 'flag', text: 'ABM Productos', toPage: 'ABMProd' },
+      ]
+      isAdmin == 1 ? data.push( { icon: 'settings', text: 'ABM Usuarios' , toPage: 'ABMUser'}) : null
+      return data
     }
 
     return {
       nameUser,
       isAdmin,
       fabYoutube,
-
       leftDrawerOpen,
       search,
-
+      rolMenu,
       toggleLeftDrawer,
       // rightDrawerOpen,
       // toggleRightDrawer () {
       //   rightDrawerOpen.value = !rightDrawerOpen.value
       // },
 
-      links1: [
-        { icon: 'home', text: 'Planilla de Control', toPage: 'IndexPage' },
-        { icon: 'flag', text: 'ABM Productos', toPage: 'ABMProd' },
-        { icon: 'settings', text: 'ABM Usuarios' , toPage: 'ABMUser'}
-      ]
+
     }
   },
   methods: {

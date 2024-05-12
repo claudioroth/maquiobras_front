@@ -11,6 +11,7 @@
           size="md"
           color="grey-7"
           outline
+          :disable="loadingScreen"
           @click="open_dialog('create')"
           ><q-icon name="o_person_add" class="q-mr-sm" /> Nuevo Usuario
         </q-btn>
@@ -23,6 +24,7 @@
           outlined
           debounce="300"
           v-model="filter"
+          :disable="loadingScreen"
           placeholder="Buscar"
         >
           <template v-slot:append>
@@ -37,10 +39,12 @@
   <div class="q-pa-md">
     <q-table
       flat
+      v-if="!loadingScreen"
       bordered
       title="ABM Usuarios"
       :rows="controles"
       :columns="columns"
+      :loading="loadingTable"
       row-key="id"
       :filter="filter"
       virtual-scroll
@@ -138,6 +142,20 @@
         </q-td>
       </template>
     </q-table>
+
+      <!-- LOADING SCREEN -->
+      <q-inner-loading
+      v-else
+      :showing="loadingScreen"
+      class="bg-white"
+      :style="`height:${
+        $q.screen.height - 190
+      }px; top:164px; right:16px; left:${
+        $q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
+    >
+      <q-spinner-puff size="50px" color="red-5" />
+    </q-inner-loading>
   </div>
 
   <!-- DIALOG -->
@@ -226,7 +244,8 @@ export default defineComponent({
     const dialogLoading = ref(false);
     const dialogTitle = ref(null);
     const controles = ref([]);
-
+    const loadingScreen = ref(true)
+    const loadingTable = ref(false)
     const id = ref(null);
     const username = ref(null);
     const password = ref(null);
@@ -265,7 +284,17 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
-      getData();
+      api
+        .get("/api/users")
+        .then((response) => {
+          controles.value = response.data;
+          loadingScreen.value = false
+        })
+        .catch((error) => {
+          handleCustomError(error.message);
+
+        });
+
     });
 
     // FUNCIONES
@@ -275,10 +304,11 @@ export default defineComponent({
         .get("/api/users")
         .then((response) => {
           controles.value = response.data;
+          loadingTable.value = false
         })
         .catch((error) => {
           handleCustomError(error.message);
-          console.log(error);
+
         });
     };
 
@@ -309,7 +339,8 @@ export default defineComponent({
         is_admin: is_admin.value == true ? 1 : 0,
       };
       api.post("/api/users", data).then((response) => {
-        console.log(response.data);
+        loadingTable.value = true
+
         getData();
         $q.notify({
           icon:"person",
@@ -332,7 +363,7 @@ export default defineComponent({
         is_active: is_active.value,
       };
       api.put("/api/users", data).then((response) => {
-        console.log(response.data);
+        loadingTable.value = true
         getData();
         $q.notify({
           icon:"settings",
@@ -354,10 +385,10 @@ export default defineComponent({
         is_admin: dataUser.is_admin,
         is_active: 0,
       };
-      console.log(data);
+
 
       api.put("/api/users", data).then((response) => {
-        console.log(response.data);
+        loadingTable.value = true
         getData();
         $q.notify({
           icon:"person_remove",
@@ -376,10 +407,8 @@ export default defineComponent({
         is_admin: dataUser.is_admin,
         is_active: 1,
       };
-      console.log(data);
-
       api.put("/api/users", data).then((response) => {
-        console.log(response.data);
+        loadingTable.value = true
         getData();
         $q.notify({
           icon:"person_add",
@@ -397,6 +426,8 @@ export default defineComponent({
     }
 
     return {
+      loadingScreen,
+      loadingTable,
       columns,
       controles,
       username,
@@ -417,18 +448,17 @@ export default defineComponent({
   },
   methods: {
     async searchData() {
-      console.log("entre");
       await api
         .get("/api/control")
         .then((response) => {
-          console.log(response.data);
+
           controles.value = response.data;
           this.loading_report = false;
         })
         .catch((error) => {
           this.loading_report = false;
           handleCustomError(error.message);
-          console.log(error);
+
         });
     },
 

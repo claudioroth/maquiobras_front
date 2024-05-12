@@ -7,24 +7,39 @@
         style="border: solid 1px #e0e0e0"
       >
         <q-btn
+          v-if="useAdmin"
           class="q-mr-md q-px-lg"
           size="md"
           color="grey-7"
           outline
+          :disable="loadingScreen"
           @click="open_dialog('create')"
-          ><q-icon name="add_chart" class="q-mr-sm" /> Nuevo Retiro
+          ><q-icon name="construction" class="q-mr-sm" /> Nuevo Retiro
         </q-btn>
         <!-- <q-btn outline color="grey-7" icon="picture_as_pdf"/>
         <q-btn outline color="grey-7" icon="post_add"/> -->
 
-        <q-btn-group push class="no-shadow">
-          <q-btn outline color="grey-7" push icon="o_picture_as_pdf" />
-          <q-btn outline color="grey-7" push icon="post_add" />
+        <q-btn-group v-if="useAdmin" push class="no-shadow">
+          <q-btn
+            :disable="loadingScreen"
+            outline
+            color="grey-7"
+            push
+            icon="o_picture_as_pdf"
+          />
+          <q-btn
+            :disable="loadingScreen"
+            outline
+            color="grey-7"
+            push
+            icon="post_add"
+          />
         </q-btn-group>
         <q-space />
         <q-input
           dense
           outlined
+          :disable="loadingScreen"
           debounce="300"
           v-model="filter"
           placeholder="Buscar"
@@ -40,7 +55,9 @@
   <!-- TABLA -->
   <div class="q-pa-md">
     <q-table
+      v-if="!loadingScreen"
       flat
+      :loading="loadingTable"
       bordered
       title="Planilla de Control"
       :rows="controles"
@@ -81,6 +98,20 @@
         </q-td>
       </template>
     </q-table>
+
+    <!-- LOADING SCREEN -->
+    <q-inner-loading
+      v-else
+      :showing="loadingScreen"
+      class="bg-white"
+      :style="`height:${
+        $q.screen.height - 190
+      }px; top:164px; right:16px; left:${
+        $q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
+    >
+      <q-spinner-puff size="50px" color="red-5" />
+    </q-inner-loading>
   </div>
 
   <!-- DIALOG -->
@@ -143,7 +174,12 @@
           />
 
           <div>
-            <q-btn label="Completar Retiro" type="submit" unelevated  color="primary" />
+            <q-btn
+              label="Completar Retiro"
+              type="submit"
+              unelevated
+              color="primary"
+            />
             <q-btn
               label="Reset"
               type="reset"
@@ -156,10 +192,8 @@
       </q-card-section>
 
       <q-inner-loading :showing="dialogLoading" class="bg-white">
-<q-spinner-puff size="50px" color="red-5"/>
-
+        <q-spinner-puff size="50px" color="red-5" />
       </q-inner-loading>
-
     </q-card>
   </q-dialog>
 </template>
@@ -170,17 +204,18 @@ import { date, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
-import { useQuasar } from 'quasar'
-import axios from "axios";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "IndexPage",
 
   setup() {
     // VARIABLES
-    const $q = useQuasar()
-    const dialog = ref(false)
-    const dialogLoading = ref(false)
+    const $q = useQuasar();
+    const loadingScreen = ref(true);
+    const loadingTable = ref(false)
+    const dialog = ref(false);
+    const dialogLoading = ref(false);
     const controles = ref([]);
     const user = ref(null);
     const tool = ref(null);
@@ -189,9 +224,10 @@ export default defineComponent({
     const selectTools = ref([]);
     const optionsSelectUsers = ref(selectUsers.value);
     const optionsSelectTools = ref(selectTools.value);
+    const useAdmin = SessionStorage.getItem("is_admin");
     const pagination = ref({
-        rowsPerPage: 0
-      })
+      rowsPerPage: 0,
+    });
 
     let fileName = "archivo";
 
@@ -222,7 +258,16 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
-      get_data()
+      api
+        .get("/api/control")
+        .then((response) => {
+          controles.value = response.data;
+          loadingScreen.value = false;
+        })
+        .catch((error) => {
+          handleCustomError(error.message);
+
+        });
 
       // Carga los select
       api.get("/api/controlmix").then((response) => {
@@ -230,44 +275,49 @@ export default defineComponent({
           selectUsers.value.push({ label: d.user, value: d.id });
         });
         response.data.productos.forEach((d) => {
-          selectTools.value.push({ label: `(${d.nro != null ? d.nro : '-' })  ${d.descripcion}`, value: d.index });
+          selectTools.value.push({
+            label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
+            value: d.index,
+          });
         });
       });
 
-      console.log(selectTools.value);
+
     });
 
     // FUNCIONES
     // Refresca la tabla principal
     const get_data = () => {
-      api.get("/api/control")
+      api
+        .get("/api/control")
         .then((response) => {
           controles.value = response.data;
-
+          loadingTable.value = false
         })
         .catch((error) => {
           handleCustomError(error.message);
-          console.log(error);
+
         });
-    }
+    };
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      user.value = null
-      tool.value = null
-      amount.value = null
-    }
+      user.value = null;
+      tool.value = null;
+      amount.value = null;
+    };
 
     const onReset = () => {
-      user.value = null
-      tool.value = null
-      amount.value = null
-    }
+      user.value = null;
+      tool.value = null;
+      amount.value = null;
+    };
 
     // Retirar Herramienta
     const create_withdrawal = () => {
-      dialogLoading.value = true
+      dialogLoading.value = true;
+
       const data = {
         retiro: amount.value,
         id_user: user.value.value,
@@ -275,17 +325,18 @@ export default defineComponent({
       };
 
       api.post("/api/control", data).then((response) => {
-        console.log(response.data);
-        get_data()
+
+        loadingTable.value = true
+        get_data();
         $q.notify({
-          icon:"done",
+          icon: "done",
           message: "Retiro completado",
           position: "bottom",
-          timeout: 2000
-        })
+          timeout: 2000,
+        });
 
-        dialog.value = false
-        dialogLoading.value = false
+        dialog.value = false;
+        dialogLoading.value = false;
       });
     };
 
@@ -306,12 +357,14 @@ export default defineComponent({
         optionsSelectTools.value = selectTools.value.filter((v) => {
           return v.label.toLowerCase().indexOf(needle) > -1;
         });
-        console.log(optionsSelectTools.value);
+
       });
     };
 
     return {
       columns,
+      loadingScreen,
+      loadingTable,
       controles,
       user,
       tool,
@@ -327,23 +380,24 @@ export default defineComponent({
       onReset,
       create_withdrawal,
       open_dialog,
-      pagination
+      pagination,
+      useAdmin,
     };
   },
   methods: {
     async searchData() {
-      console.log("entre");
+
       await api
         .get("/api/control")
         .then((response) => {
-          console.log(response.data);
+
           controles.value = response.data;
           this.loading_report = false;
         })
         .catch((error) => {
           this.loading_report = false;
           handleCustomError(error.message);
-          console.log(error);
+
         });
     },
 
@@ -354,8 +408,6 @@ export default defineComponent({
         return date.formatDate(dateString, "HH:mm");
       }
     },
-
-
   },
 });
 </script>

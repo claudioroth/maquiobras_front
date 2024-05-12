@@ -6,7 +6,6 @@
         class="bg-white q-pa-md rounded-borders flex"
         style="border: solid 1px #e0e0e0"
       >
-
         <q-space />
         <q-input
           dense
@@ -14,6 +13,7 @@
           debounce="300"
           v-model="filter"
           placeholder="Buscar"
+          :disable="loadingScreen"
         >
           <template v-slot:append>
             <q-icon name="search" />
@@ -26,12 +26,14 @@
   <!-- TABLA -->
   <div class="q-pa-md">
     <q-table
+      v-if="!loadingScreen"
       flat
       bordered
       title="ABM de Productos"
       :rows="dataTable"
       :columns="columns"
       row-key="id"
+      :loading="loadingTable"
       :filter="filter"
       virtual-scroll
       v-model:pagination="pagination"
@@ -67,8 +69,21 @@
         </q-td>
       </template>
     </q-table>
-  </div>
 
+    <!-- LOADING SCREEN -->
+    <q-inner-loading
+      v-else
+      :showing="loadingScreen"
+      class="bg-white"
+      :style="`height:${
+        $q.screen.height - 190
+      }px; top:164px; right:16px; left:${
+        $q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
+    >
+      <q-spinner-puff size="50px" color="red-5" />
+    </q-inner-loading>
+  </div>
 </template>
 
 <script>
@@ -84,6 +99,8 @@ export default defineComponent({
 
   setup() {
     // VARIABLES
+    const loadingScreen = ref(true);
+    const loadingTable = ref(false)
     const dataTable = ref([]);
     const columns = [
       {
@@ -224,11 +241,11 @@ export default defineComponent({
         field: "venta_oferta",
         align: "center",
         sortable: true,
-      }
+      },
     ];
     const pagination = ref({
-        rowsPerPage: 0
-      })
+      rowsPerPage: 0,
+    });
 
     // MOUNTED
     onMounted(() => {
@@ -237,6 +254,7 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
+          loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
             const workbook = XLSX.utils.book_new();
@@ -248,30 +266,24 @@ export default defineComponent({
         })
         .catch((error) => {
           handleCustomError(error.message);
-          console.log(error);
         });
+    });
 
-      })
-
-      const parse_datetime = (dateString, type) => {
+    const parse_datetime = (dateString, type) => {
       if (type == "date") {
         return date.formatDate(dateString, "DD-MM-YYYY");
       } else {
         return date.formatDate(dateString, "HH:mm");
       }
-    }
-
+    };
 
     return {
       columns,
       dataTable,
       parse_datetime,
-      filter: ref("")
-    }
-
-
-
-
+      filter: ref(""),
+      loadingScreen,
+    };
   },
 });
 </script>

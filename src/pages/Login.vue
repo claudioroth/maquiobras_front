@@ -7,7 +7,7 @@
       <transition appear @before-enter="animForm" @enter="animatForm">
         <q-card class="shadow-20" style="height: 470px; width: 780px; border-radius: 5px">
           <q-card-section horizontal style="height: 100%;">
-            <q-card-section class="col-6 background-logo flex-center flex">
+            <q-card-section class="col-6 bg-grey-7 flex-center flex">
                 <transition appear @before-enter="animLogoEnter" @enter="animLogo">
                   <q-img src="../assets/img/logo_white.png" width="250px"/>
                 </transition>
@@ -17,7 +17,7 @@
 
             <q-card-section class="col-6">
               <q-card-section align="center" style="top: 50px">
-                <div class="text-h5 sora-text" style="color: #000000; font-weight: 500;"></div>
+                <div class="text-h5 sora-text" style="font-weight: 500;"></div>
               </q-card-section>
               <q-form @submit="onSubmit">
                 <q-card-section style="top: 42px" align="center">
@@ -27,9 +27,9 @@
                     label="User"
                     class="btn-login sora-text"
                     rounded
+                    :rules="[(val) => !!val || '']"
                     >
-                    <!-- :rules="[vqid, vreq]"
-                    lazy-rules -->
+
                     <template v-slot:prepend>
                       <q-icon name="person" color="grey-14" />
                     </template>
@@ -43,9 +43,9 @@
                     rounded
                     class="btn-login sora-text"
                     style="margin-top: 25px"
+                    :rules="[(val) => !!val || '']"
                     >
-                    <!-- :rules="[vreq]"
-                    lazy-rules -->
+
                     <template v-slot:prepend>
                       <q-icon name="lock" color="grey-14" />
                     </template>
@@ -54,14 +54,14 @@
 
                 <q-card-section align="center" style="top: 50px">
                   <q-btn
-                    color="#ff5b4e"
+                    color="red-7"
                     class="sora-text"
                     type="submit"
                     no-caps
                     icon-right="login"
                     :loading="loading_access"
                     rounded
-                    style="height: 56px; width: 249px; background-color: rgb(211 74 63);"
+                    style="height: 56px; width: 249px;"
                     text-color="white"
                     >
                     ACCESO
@@ -144,28 +144,27 @@ export default defineComponent({
 
   methods: {
     async onSubmit() {
-      if(this.userForm.user != "" && this.userForm.password != ""){
-        // this.loading_access = true;
+        this.loading_access = true;
 
-        // await api.post("/login", {user: this.userForm.user, password: this.userForm.password}).then((response) => {
+        await api.post("/login", {user: this.userForm.user, password: this.userForm.password}).then((response) => {
 
-        //   SessionStorage.set('user', response.data.user);
-        //   SessionStorage.set('password', response.data.password);
-        //   SessionStorage.set('is_admin', response.data.is_admin);
+          SessionStorage.set('user', response.data.user);
+          SessionStorage.set('password', response.data.password);
+          SessionStorage.set('is_admin', response.data.is_admin);
           this.$router.replace("/");
-          // this.loading_access = true;
-        // }).catch((error) => {
+          this.loading_access = true;
+        }).catch((error) => {
 
-        //   this.loading_access = false;
-        //   if (error.message == 'Request failed with status code 404') {
-        //     customNotify('Incorrect username or password');
-        //   } else {
-        //     handleCustomError(error.message);
-        //   }
-        // this.loading_access = false;
-        // });
+          this.loading_access = false;
+          if (error.message == 'Request failed with status code 404') {
+            customNotify('Incorrect username or password');
+          } else {
+            handleCustomError(error.message);
+          }
+        this.loading_access = false;
+        });
 
-      }
+
     },
   },
 })

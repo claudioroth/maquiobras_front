@@ -7,8 +7,7 @@ const routes = [
       const useUser = SessionStorage.getItem('user');
       const usePassword = SessionStorage.getItem('password');
       const useAdmin = SessionStorage.getItem('is_admin');
-     next()
-      // !useUser && !usePassword && !useAdmin ? next({path: '/login'}) : next()
+      !useUser && !usePassword && !useAdmin ? next({path: '/login'}) : next()
     },
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -24,27 +23,13 @@ const routes = [
       const useUser = SessionStorage.getItem('user');
       const userPassword = SessionStorage.getItem('password');
       const useAdmin = SessionStorage.getItem('is_admin');
-      // !useUser && !userPassword && !useAdmin ? next() : next(from.fullPath)
-     next(from.fullPath)
+      !useUser && !userPassword && !useAdmin ? next() : next(from.fullPath)
     },
     name: 'Login',
     component: () => import('../pages/Login.vue'),
   },
-  // {
-  //   path: '/',
-  //   component: () => import('layouts/MainLayout.vue'),
-  //   children: [
-  //     { path: '', component: () => import('pages/IndexPage.vue') }
-  //   ]
-  // },
-  // {
-  //   path: '/login',
-  //   name: 'Login',
-  //   component: () => import('../pages/Login.vue'),
-  // },
 
-  // Always leave this as last one,
-  // but you can also remove it
+
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue')
