@@ -359,7 +359,7 @@ export default defineComponent({
         id: id.value,
         user: username.value,
         password: password.value,
-        is_admin: is_admin.value,
+        is_admin: is_admin.value == true ? 1 : 0,
         is_active: is_active.value,
       };
       api.put("/api/users", data).then((response) => {
