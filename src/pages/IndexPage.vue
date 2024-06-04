@@ -156,6 +156,7 @@
             label="Herramienta"
             :options="optionsSelectTools"
             @filter="filterFnTools"
+            :hint="tool ? `Hay ${tool.amount} en stock` : null"
             :rules="[(val) => !!val || 'Seleccione una herramienta']"
           >
             <template v-slot:no-option>
@@ -165,13 +166,40 @@
             </template>
           </q-select>
 
-          <q-input
-            v-model.number="amount"
-            type="number"
-            label="Cantidad"
+          <!-- Cantidad -->
+          <q-select
             outlined
+            v-model="amount"
+            :disable="tool ? tool.amount == 0 ? true : false : true"
+            input-debounce="0"
+            label="Cantidad"
+            :options="tool ? createNumberList(tool.amount) : null"
             :rules="[(val) => !!val || 'Seleccione una cantidad']"
-          />
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <!-- createNumberList -->
+
+          <!-- Sucursal -->
+          <q-select
+            outlined
+            v-model="branch"
+            input-debounce="0"
+            label="Sucursal"
+            :options="selectBranch"
+            :rules="[(val) => !!val || 'Seleccione una sucursal']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
 
           <div>
             <q-btn
@@ -199,7 +227,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, watch } from "vue";
 import { date, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
@@ -213,15 +241,17 @@ export default defineComponent({
     // VARIABLES
     const $q = useQuasar();
     const loadingScreen = ref(true);
-    const loadingTable = ref(false)
+    const loadingTable = ref(false);
     const dialog = ref(false);
     const dialogLoading = ref(false);
     const controles = ref([]);
     const user = ref(null);
     const tool = ref(null);
     const amount = ref(null);
+    const branch = ref(null);
     const selectUsers = ref([]);
     const selectTools = ref([]);
+    const selectAmount = ref();
     const optionsSelectUsers = ref(selectUsers.value);
     const optionsSelectTools = ref(selectTools.value);
     const useAdmin = SessionStorage.getItem("is_admin");
@@ -238,6 +268,13 @@ export default defineComponent({
         align: "center",
         label: "Retiro-Cantidad",
         field: "retiro",
+        sortable: true,
+      },
+      {
+        name: "local",
+        align: "center",
+        label: "Sucursal",
+        field: "local",
         sortable: true,
       },
       {
@@ -266,8 +303,47 @@ export default defineComponent({
         })
         .catch((error) => {
           handleCustomError(error.message);
-
         });
+    });
+
+    // WATCH
+    watch(tool, (newValue, OldValue) => {
+      amount.value = null;
+    });
+
+    // FUNCIONES
+    // Crea una lista segun el numero en el stock
+    const createNumberList = (until) => {
+      const list = [];
+      for (let i = 1; i <= until; i++) {
+        list.push(i);
+      }
+      return list;
+    };
+
+    // Refresca la tabla principal
+    const get_data = () => {
+      api
+        .get("/api/control")
+        .then((response) => {
+          controles.value = response.data;
+          loadingTable.value = false;
+        })
+        .catch((error) => {
+          handleCustomError(error.message);
+        });
+    };
+
+    // Abrir Dialog
+    const open_dialog = (action, data) => {
+      dialogLoading.value = true;
+      dialog.value = true;
+      user.value = null;
+      tool.value = null;
+      amount.value = null;
+      branch.value = null;
+      selectUsers.value = []
+      selectTools.value = []
 
       // Carga los select
       api.get("/api/controlmix").then((response) => {
@@ -278,40 +354,18 @@ export default defineComponent({
           selectTools.value.push({
             label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
             value: d.index,
+            amount: d.stock,
           });
         });
+        dialogLoading.value = false;
       });
-
-
-    });
-
-    // FUNCIONES
-    // Refresca la tabla principal
-    const get_data = () => {
-      api
-        .get("/api/control")
-        .then((response) => {
-          controles.value = response.data;
-          loadingTable.value = false
-        })
-        .catch((error) => {
-          handleCustomError(error.message);
-
-        });
-    };
-
-    // Abrir Dialog
-    const open_dialog = (action, data) => {
-      dialog.value = true;
-      user.value = null;
-      tool.value = null;
-      amount.value = null;
     };
 
     const onReset = () => {
       user.value = null;
       tool.value = null;
       amount.value = null;
+      branch.value = null;
     };
 
     // Retirar Herramienta
@@ -322,11 +376,12 @@ export default defineComponent({
         retiro: amount.value,
         id_user: user.value.value,
         id_prod: tool.value.value,
+        local: branch.value,
       };
+      console.log(data);
 
       api.post("/api/control", data).then((response) => {
-
-        loadingTable.value = true
+        loadingTable.value = true;
         get_data();
         $q.notify({
           icon: "done",
@@ -357,7 +412,6 @@ export default defineComponent({
         optionsSelectTools.value = selectTools.value.filter((v) => {
           return v.label.toLowerCase().indexOf(needle) > -1;
         });
-
       });
     };
 
@@ -369,6 +423,7 @@ export default defineComponent({
       user,
       tool,
       amount,
+      branch,
       filter: ref(""),
       dialog,
       dialogLoading,
@@ -380,24 +435,24 @@ export default defineComponent({
       onReset,
       create_withdrawal,
       open_dialog,
+      createNumberList,
       pagination,
       useAdmin,
+      selectBranch: ["Deposito", "Local Galicia", "Local Juan B Justo"],
+      selectAmount,
     };
   },
   methods: {
     async searchData() {
-
       await api
         .get("/api/control")
         .then((response) => {
-
           controles.value = response.data;
           this.loading_report = false;
         })
         .catch((error) => {
           this.loading_report = false;
           handleCustomError(error.message);
-
         });
     },
 
