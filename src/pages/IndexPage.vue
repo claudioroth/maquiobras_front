@@ -59,11 +59,13 @@
       flat
       :loading="loadingTable"
       bordered
+      dense
       title="Planilla de Control"
       :rows="controles"
       :columns="columns"
       row-key="id"
       :filter="filter"
+      separator="cell"
       virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
@@ -243,7 +245,7 @@ export default defineComponent({
     const loadingScreen = ref(true);
     const loadingTable = ref(false);
     const dialog = ref(false);
-    const dialogLoading = ref(false);
+    const dialogLoading = ref(true);
     const controles = ref([]);
     const user = ref(null);
     const tool = ref(null);
@@ -311,6 +313,15 @@ export default defineComponent({
       amount.value = null;
     });
 
+    watch(dialog, (newValue, OldValue) => {
+      console.log(newValue)
+      if(newValue == false){
+        dialogLoading.value = true;
+      }
+    });
+
+
+
     // FUNCIONES
     // Crea una lista segun el numero en el stock
     const createNumberList = (until) => {
@@ -336,7 +347,7 @@ export default defineComponent({
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
-      dialogLoading.value = true;
+
       dialog.value = true;
       user.value = null;
       tool.value = null;
