@@ -82,7 +82,14 @@
 
       <template v-slot:body-cell-modify="props">
         <q-td :props="props">
-        <q-btn flat round color="primary" size="10px" icon="edit" @click="open_dialog()" />
+          <q-btn
+            flat
+            round
+            color="primary"
+            size="10px"
+            icon="edit"
+            @click="open_dialog('modify', props.row)"
+          />
         </q-td>
       </template>
 
@@ -110,7 +117,7 @@
       <template v-slot:body-cell-iva_21="props">
         <q-td :props="props">
           <div>
-            {{  props.row.iva_21 ? "$" + parse_decimal(props.row.iva_21) : "-" }}
+            {{ props.row.iva_21 ? "$" + parse_decimal(props.row.iva_21) : "-" }}
           </div>
         </q-td>
       </template>
@@ -119,7 +126,7 @@
       <template v-slot:body-cell-iva_10="props">
         <q-td :props="props">
           <div>
-            {{  props.row.iva_10 ? "$" + parse_decimal(props.row.iva_10) : "-" }}
+            {{ props.row.iva_10 ? "$" + parse_decimal(props.row.iva_10) : "-" }}
           </div>
         </q-td>
       </template>
@@ -325,15 +332,15 @@
 
   <!-- DIALOG -->
   <q-dialog v-model="dialog" full-height position="right">
-    <q-card class="column full-height" style="width: 500px">
+    <q-card class="column full-height" style="width: 600px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
-        <div class="text-grey-8">Nuevo Retiro</div>
+        <div class="text-grey-8">{{ dialogTitle }}</div>
       </q-card-section>
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form @submit="create_product" @reset="onReset" class="q-gutter-md">
+        <q-form @submit="dialogTitle == 'Nuevo Producto' ? create_product : modify_product" @reset="onReset" class="q-gutter-md">
           <!-- Nro -->
           <q-select
             outlined
@@ -577,7 +584,7 @@
 
           <div>
             <q-btn
-              label="Completar Retiro"
+              :label="dialogButton"
               type="submit"
               unelevated
               color="primary"
@@ -601,7 +608,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, watch } from "vue";
 import { date, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
@@ -618,6 +625,8 @@ export default defineComponent({
     const loadingTable = ref(false);
     const dataTable = ref([]);
     const dialog = ref(false);
+    const dialogTitle = ref();
+    const dialogButton = ref();
     const columnFilter = ref(false);
 
     const nro = ref();
@@ -634,7 +643,7 @@ export default defineComponent({
     const stock = ref();
 
     const columns = [
-    {
+      {
         name: "modify",
         align: "left",
         label: "",
@@ -652,7 +661,7 @@ export default defineComponent({
         name: "descripcion",
         label: "Descripcion",
         field: "descripcion",
-        align: "left",
+        align: "center",
         sortable: true,
       },
       {
@@ -666,21 +675,21 @@ export default defineComponent({
         name: "importe_sin_iva",
         label: "Importe sin IVA",
         field: "importe_sin_iva",
-        align: "left",
+        align: "center",
         sortable: true,
       },
       {
         name: "iva_21",
         label: "IVA 21",
         field: "iva_21",
-        align: "left",
+        align: "center",
         sortable: true,
       },
       {
         name: "iva_10",
         label: "IVA 10",
         field: "iva_10",
-        align: "left",
+        align: "center",
         sortable: true,
       },
       {
@@ -761,15 +770,34 @@ export default defineComponent({
         });
     });
 
-    const parse_decimal = (value) => {
-  console.log(value);
-  var result = parseFloat(value);
-  if (result % 1 !== 0) {  // Check if there is a fractional part
-    return result.toFixed(2);
-  }
-  return result.toFixed(0); // Return as integer if there is no fractional part
-};
+    // WATCH
+    watch(dialog, (newValue, OldValue) => {
+      if (newValue == false) {
+        nro.value = null;
+        description.value = null;
+        amountWithoutIva.value = null;
+        iva21.value = null;
+        iva10.value = null;
+        offerWithoutIva.value = null;
+        increases.value = null;
+        lastModification.value = null;
+        offerCost.value = null;
+        lowestCost.value = null;
+        costEffectiveness.value = null;
+        stock.value = null;
+      }
+    });
 
+    // FUNCIONES
+    const parse_decimal = (value) => {
+      console.log(value);
+      var result = parseFloat(value);
+      if (result % 1 !== 0) {
+        // Check if there is a fractional part
+        return result.toFixed(2);
+      }
+      return result.toFixed(0); // Return as integer if there is no fractional part
+    };
 
     const parse_datetime = (dateString, type) => {
       if (type == "date") {
@@ -786,19 +814,25 @@ export default defineComponent({
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
+      dialogTitle.value = "Nuevo Producto";
+      dialogButton.value = "Crear Producto";
       dialog.value = true;
-      nro.value = null;
-      description.value = null;
-      amountWithoutIva.value = null;
-      iva21.value = null;
-      iva10.value = null;
-      offerWithoutIva.value = null;
-      increases.value = null;
-      lastModification.value = null;
-      offerCost.value = null;
-      lowestCost.value = null;
-      costEffectiveness.value = null;
-      stock.value = null;
+      if (action == "modify") {
+        dialogTitle.value = "Modificar Producto";
+        dialogButton.value = "Modificar Producto";
+        dialog.value = true;
+
+        nro.value = null;
+        description.value = data.descripcion;
+        amountWithoutIva.value = data.importe_sin_iva;
+        offerWithoutIva.value = data.oferta_sin_iva;
+        increases.value = data.aumento;
+        lastModification.value = data.ultimo_modif;
+        offerCost.value = data.oferta_costo;
+        lowestCost.value = data.costo_mas_bajo;
+        costEffectiveness.value = data.rentabilidad;
+        stock.value = data.stock;
+      }
     };
 
     // Crear Producto
@@ -823,7 +857,7 @@ export default defineComponent({
         rentabilidad: costEffectiveness.value,
         stock: stock.value ? parseInt(stock.value) : 0,
       };
-      console.log(data);
+
 
       api.post("/api/product_detail", data).then((response) => {
         console.log(response.data);
@@ -841,11 +875,18 @@ export default defineComponent({
       });
     };
 
+    const modify_product = () => {
+      console.log("modificacion")
+    }
+
     return {
       columns,
       dialog,
+      dialogTitle,
+      dialogButton,
       open_dialog,
       create_product,
+      modify_product,
       dataTable,
       parse_datetime,
       parse_decimal,
