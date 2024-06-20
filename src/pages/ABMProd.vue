@@ -73,13 +73,7 @@
         </q-input>
       </template> -->
 
-      <!-- Venta IVA -->
-      <!-- <template v-slot:body-cell-venta_iva="props">
-        <q-td :props="props">
-            {{ props.row.venta_iva ? props.row.venta_iva : "-"  }}
-        </q-td>
-      </template> -->
-
+      <!-- Modify -->
       <template v-slot:body-cell-modify="props">
         <q-td :props="props">
           <q-btn
@@ -90,6 +84,28 @@
             icon="edit"
             @click="open_dialog('modify', props.row)"
           />
+        </q-td>
+      </template>
+
+      <!-- Delete -->
+      <template v-slot:body-cell-delete="props">
+        <q-td :props="props">
+          <q-btn
+            flat
+            round
+            color="primary"
+            size="10px"
+            icon="delete"
+            @click="open_dialog_delete(props.row)"
+          />
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-descripcion="props">
+        <q-td :props="props">
+          <div style="font-size: 10px;">
+            {{ props.row.descripcion }}
+          </div>
         </q-td>
       </template>
 
@@ -136,7 +152,7 @@
         <q-td v-if="props.row.aumento" :props="props">
           <div>{{ parse_datetime(props.row.aumento, "date") }}</div>
           <div>
-            <q-badge color="red-7">
+            <q-badge color="bluegrey">
               {{ parse_datetime(props.row.aumento, "hours") }}
             </q-badge>
           </div>
@@ -149,7 +165,7 @@
         <q-td v-if="props.row.ultimo_modif" :props="props">
           <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div>
           <div>
-            <q-badge color="red-7">
+            <q-badge color="bluegrey">
               {{ parse_datetime(props.row.ultimo_modif, "hours") }}
             </q-badge>
           </div>
@@ -158,71 +174,43 @@
       </template>
 
       <!-- Oferta -->
-      <!-- <template v-slot:body-cell-oferta_costo="props">
+      <template v-slot:body-cell-oferta_costo="props">
         <q-td :props="props">
           <div>
-             {{ props.row.oferta_costo ? parse_decimal(props.row.oferta_costo) : "-" }}
+            {{
+              props.row.oferta_costo
+                ? "$" + parse_decimal(props.row.oferta_costo)
+                : "-"
+            }}
           </div>
         </q-td>
-      </template> -->
-
-      <!-- Proveedor1 -->
-      <!-- <template v-slot:body-cell-prov1="props">
-        <q-td :props="props">
-          <div>
-            {{ props.row.prov1 ? "$" + parse_decimal(props.row.prov1) : "-" }}
-          </div>
-        </q-td>
-      </template> -->
-
-      <!-- Proveedor2 -->
-      <!-- <template v-slot:body-cell-prov2="props">
-        <q-td :props="props">
-          <div>
-            {{ props.row.prov2 ? "$" + parse_decimal(props.row.prov2) : "-" }}
-          </div>
-        </q-td>
-      </template> -->
-
-      <!-- Proveedor3 -->
-      <!-- <template v-slot:body-cell-prov3="props">
-        <q-td :props="props">
-          <div>
-            {{ props.row.prov3 ? "$" + parse_decimal(props.row.prov3) : "-" }}
-          </div>
-        </q-td>
-      </template> -->
+      </template>
 
       <!-- Costo Bajo -->
-      <!-- <template v-slot:body-cell-costo_bajo="props">
+      <template v-slot:body-cell-costo_mas_bajo="props">
         <q-td :props="props">
           <div>
             {{
-              props.row.costo_bajo ? "$" + parse_decimal(props.row.costo_bajo) : "-"
+              props.row.costo_mas_bajo
+                ? "$" + parse_decimal(props.row.costo_mas_bajo)
+                : "-"
             }}
           </div>
         </q-td>
-      </template> -->
+      </template>
 
-      <!-- Costo Bajo 1 -->
-      <!-- <template v-slot:body-cell-costo_bajo1="props">
+      <!-- Oferta sin IVA -->
+      <template v-slot:body-cell-oferta_sin_iva="props">
         <q-td :props="props">
           <div>
             {{
-              props.row.costo_bajo1 ? "$" + parse_decimal(props.row.costo_bajo1) : "-"
+              props.row.oferta_sin_iva
+                ? "$" + parse_decimal(props.row.oferta_sin_iva)
+                : "-"
             }}
           </div>
         </q-td>
-      </template> -->
-
-      <!-- Venta -->
-      <!-- <template v-slot:body-cell-venta="props">
-        <q-td :props="props">
-          <div>
-            {{ parse_decimal(props.row.venta) }}
-          </div>
-        </q-td>
-      </template> -->
+      </template>
 
       <!-- Rentab -->
       <!-- <template v-slot:body-cell-rentab="props">
@@ -340,7 +328,15 @@
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form @submit="dialogTitle == 'Nuevo Producto' ? create_product : modify_product" @reset="onReset" class="q-gutter-md">
+        <q-form
+          @submit="
+            dialogTitle == 'Nuevo Producto'
+              ? create_product()
+              : modify_product()
+          "
+          @reset="onReset"
+          class="q-gutter-md"
+        >
           <!-- Nro -->
           <q-select
             outlined
@@ -351,7 +347,6 @@
             input-debounce="0"
             label="Nro"
             :options="suppliers"
-            :rules="[(val) => !!val || 'Seleccione un usuario']"
           >
             <template v-slot:no-option>
               <q-item>
@@ -605,11 +600,26 @@
       </q-inner-loading>
     </q-card>
   </q-dialog>
+
+  <!-- DIALOG DELETE -->
+  <q-dialog v-model="dialogDelete" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="warning" color="primary" text-color="white" />
+          <span class="q-ml-sm">Esta seguro que desea eliminar este producto</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" v-close-popup />
+          <q-btn flat label="Eliminar" color="primary" @click="delete_product()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 </template>
 
 <script>
 import { defineComponent, ref, onMounted, watch } from "vue";
-import { date, SessionStorage } from "quasar";
+import { date, LocalStorage, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
@@ -625,10 +635,13 @@ export default defineComponent({
     const loadingTable = ref(false);
     const dataTable = ref([]);
     const dialog = ref(false);
+    const dialogDelete = ref(false)
     const dialogTitle = ref();
     const dialogButton = ref();
+    const dialogLoading = ref(false);
     const columnFilter = ref(false);
 
+    const index = ref();
     const nro = ref();
     const description = ref();
     const amountWithoutIva = ref();
@@ -641,15 +654,9 @@ export default defineComponent({
     const lowestCost = ref();
     const costEffectiveness = ref();
     const stock = ref();
+    const visibleColumns = ref([]);
 
     const columns = [
-      {
-        name: "modify",
-        align: "left",
-        label: "",
-        field: "modify",
-        sortable: true,
-      },
       {
         name: "nro",
         align: "center",
@@ -742,6 +749,21 @@ export default defineComponent({
         align: "center",
         sortable: true,
       },
+      {
+        name: "modify",
+        align: "center",
+        label: "",
+        field: "modify",
+        sortable: true,
+      },
+      {
+        name: "delete",
+        align: "center",
+        label: "",
+        field: "delete",
+        sortable: true,
+      },
+
     ];
     const pagination = ref({
       rowsPerPage: 0,
@@ -749,12 +771,14 @@ export default defineComponent({
 
     // MOUNTED
     onMounted(() => {
+      // Trae las columnas filtradas guardadas en el Local Storage
+      visibleColumns.value = LocalStorage.getItem("prodColFilters");
+
       // Carga de Tabla
       api
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
-          console.log(dataTable.value);
           loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
@@ -773,6 +797,7 @@ export default defineComponent({
     // WATCH
     watch(dialog, (newValue, OldValue) => {
       if (newValue == false) {
+        index.value = null;
         nro.value = null;
         description.value = null;
         amountWithoutIva.value = null;
@@ -788,9 +813,31 @@ export default defineComponent({
       }
     });
 
+    watch(dialogDelete, (newValue, OldValue) => {
+      if (newValue == false) {
+        index.value = null;
+        nro.value = null;
+        description.value = null;
+        amountWithoutIva.value = null;
+        iva21.value = null;
+        iva10.value = null;
+        offerWithoutIva.value = null;
+        increases.value = null;
+        lastModification.value = null;
+        offerCost.value = null;
+        lowestCost.value = null;
+        costEffectiveness.value = null;
+        stock.value = null;
+      }
+    });
+
+    watch(visibleColumns, (newValue, OldValue) => {
+      LocalStorage.set("prodColFilters", visibleColumns.value);
+    });
+
     // FUNCIONES
+
     const parse_decimal = (value) => {
-      console.log(value);
       var result = parseFloat(value);
       if (result % 1 !== 0) {
         // Check if there is a fractional part
@@ -812,6 +859,12 @@ export default defineComponent({
       columnFilter.value = true;
     };
 
+    // Abrir Dialog de borrar producto
+    const open_dialog_delete = (props) => {
+      index.value = props.index
+      dialogDelete.value = true
+    }
+
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialogTitle.value = "Nuevo Producto";
@@ -822,7 +875,20 @@ export default defineComponent({
         dialogButton.value = "Modificar Producto";
         dialog.value = true;
 
-        nro.value = null;
+        const nroList = [];
+
+        if (data.nro) {
+          suppliers.forEach((s) => {
+            data.nro.split(" ").forEach((n) => {
+              if (n == s.value) {
+                nroList.push(s);
+              }
+            });
+          });
+        }
+
+        index.value = data.index;
+        nro.value = nroList;
         description.value = data.descripcion;
         amountWithoutIva.value = data.importe_sin_iva;
         offerWithoutIva.value = data.oferta_sin_iva;
@@ -837,11 +903,14 @@ export default defineComponent({
 
     // Crear Producto
     const create_product = () => {
-      // dialogLoading.value = true;
+      dialogLoading.value = true;
       const nroList = [];
-      nro.value.forEach((n) => {
-        nroList.push(n.value);
-      });
+
+      if (nro.value) {
+        nro.value.forEach((n) => {
+          nroList.push(n.value);
+        });
+      }
 
       const data = {
         nro: nroList.join(" "),
@@ -858,9 +927,14 @@ export default defineComponent({
         stock: stock.value ? parseInt(stock.value) : 0,
       };
 
-
       api.post("/api/product_detail", data).then((response) => {
         console.log(response.data);
+
+        api.get("/api/product_detail").then((response) => {
+          dataTable.value = response.data;
+          dialog.value = false;
+          dialogLoading.value = false;
+        });
         // loadingTable.value = true;
         // get_data();
         // $q.notify({
@@ -875,18 +949,79 @@ export default defineComponent({
       });
     };
 
+    // Modificar Producto
     const modify_product = () => {
-      console.log("modificacion")
+      console.log("modificacion");
+      dialogLoading.value = true;
+      const nroList = [];
+      nro.value.forEach((n) => {
+        nroList.push(n.value);
+      });
+
+      const data = {
+        index: index.value,
+        nro: nroList.join(" "),
+        descripcion: description.value,
+        importe_sin_iva: amountWithoutIva.value,
+        iva_21: amountWithoutIva.value * 1.21,
+        iva_10: amountWithoutIva.value * 1.105,
+        oferta_sin_iva: offerWithoutIva.value,
+        aumento: increases.value,
+        ultimo_modif: lastModification.value,
+        oferta_costo: offerCost.value,
+        costo_mas_bajo: lowestCost.value,
+        rentabilidad: costEffectiveness.value,
+        stock: stock.value ? parseInt(stock.value) : 0,
+      };
+      console.log(data);
+
+      api.put("/api/product_detail", data).then((response) => {
+        console.log(response.data);
+
+        api.get("/api/product_detail").then((response) => {
+          dataTable.value = response.data;
+          dialog.value = false;
+          dialogLoading.value = false;
+        });
+        // loadingTable.value = true;
+        // get_data();
+        // $q.notify({
+        //   icon: "done",
+        //   message: "Retiro completado",
+        //   position: "bottom",
+        //   timeout: 2000,
+        // });
+
+        // dialog.value = false;
+        // dialogLoading.value = false;
+      });
+    };
+
+    // Borrar Producto
+    const delete_product = (props) => {
+      console.log(index.value)
+      api.delete("/api/product_detail", props).then((response) => {
+        console.log(response.data)
+        api.get("/api/product_detail").then((response) => {
+          dataTable.value = response.data;
+          dialogDelete.value = false;
+        });
+      })
     }
+
+
 
     return {
       columns,
       dialog,
       dialogTitle,
       dialogButton,
+      dialogLoading,
+      dialogDelete,
       open_dialog,
       create_product,
       modify_product,
+      delete_product,
       dataTable,
       parse_datetime,
       parse_decimal,
@@ -907,21 +1042,8 @@ export default defineComponent({
       suppliers,
       columnFilter,
       open_dialog_column_filters,
-      visibleColumns: ref([
-        "modify",
-        "nro",
-        "descripcion",
-        "importe_sin_iva",
-        "iva_21",
-        "iva_10",
-        "oferta_sin_iva",
-        "aumento",
-        "ultimo_modif",
-        "oferta_costo",
-        "costo_mas_bajo",
-        "rentabilidad",
-        "stock",
-      ]),
+      open_dialog_delete,
+      visibleColumns,
     };
   },
 });
@@ -933,33 +1055,102 @@ export default defineComponent({
 }
 </style>
 
-<style lang="sass">
+<!-- <style lang="sass">
 .my-sticky-header-last-column-table
-
-  td:nth-child(11), td:nth-child(12), td:nth-child(13)
-    /* bg color is important for td; just specify one */
-    background-color: #f7f7f7
-
-.my-sticky-header-table
   /* height or max-height is important */
   height: 310px
 
-  .q-table__top,
-  .q-table__bottom,
-  thead tr:first-child th
-    /* bg color is important for th; just specify one */
-    background-color: white
+  /* specifying max-width so the example can
+    highlight the sticky column on any browser window */
 
-  thead tr th
+
+  td:last-child
+    /* bg color is important for td; just specify one */
+    background-color: #ffffff
+
+  tr th
     position: sticky
-    z-index: 1
-  thead tr:first-child th
-    top: 0
+    /* higher than z-index for td below */
+    z-index: 2
+    /* bg color is important; just specify one */
+    background: #ffffff
 
-  /* this is when the loading indicator appears */
-  &.q-table--loading thead tr:last-child th
+  /* this will be the loading indicator */
+  thead tr:last-child th
     /* height of all previous header rows */
     top: 48px
+    /* highest z-index */
+    z-index: 3
+  thead tr:first-child th
+    top: 0
+    z-index: 1
+  tr:last-child th:last-child
+    /* highest z-index */
+    z-index: 3
+
+  td:last-child
+    z-index: 1
+
+  td:last-child, th:last-child
+    position: sticky
+    right: 0
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
+</style> -->
+
+
+<style lang="sass">
+.my-sticky-header-last-column-table
+  /* height or max-height is important */
+  height: 310px
+
+  /* specifying max-width so the example can
+    highlight the sticky column on any browser window */
+
+  td:last-child,
+  th:last-child
+    /* bg color is important for td; just specify one */
+    background-color: #ffffff
+    position: sticky
+    right: 0
+    z-index: 2
+
+  td:nth-last-child(2),
+  th:nth-last-child(2)
+    background-color: #ffffff
+    position: sticky
+    right: 52px /* ajustar este valor según el ancho de la última columna */
+    z-index: 1
+
+  tr th
+    position: sticky
+    /* higher than z-index for td below */
+    z-index: 3
+    /* bg color is important; just specify one */
+    background: #ffffff
+
+  /* this will be the loading indicator */
+  thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+    /* highest z-index */
+    z-index: 4
+
+  thead tr:first-child th
+    top: 0
+    z-index: 2
+
+  tr:last-child th:last-child,
+  tr:last-child th:nth-last-child(2)
+    /* highest z-index */
+    z-index: 4
+
+  td:last-child,
+  td:nth-last-child(2)
+    z-index: 2
 
   /* prevent scrolling behind sticky top row on focus */
   tbody
