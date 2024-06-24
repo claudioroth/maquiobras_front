@@ -103,7 +103,7 @@
 
       <template v-slot:body-cell-descripcion="props">
         <q-td :props="props">
-          <div style="font-size: 10px;">
+          <div style="font-size: 10px">
             {{ props.row.descripcion }}
           </div>
         </q-td>
@@ -603,18 +603,25 @@
 
   <!-- DIALOG DELETE -->
   <q-dialog v-model="dialogDelete" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="warning" color="primary" text-color="white" />
-          <span class="q-ml-sm">Esta seguro que desea eliminar este producto</span>
-        </q-card-section>
+    <q-card>
+      <q-card-section class="row items-center">
+        <q-avatar icon="warning" color="primary" text-color="white" />
+        <span class="q-ml-sm"
+          >Esta seguro que desea eliminar este producto</span
+        >
+      </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" v-close-popup />
-          <q-btn flat label="Eliminar" color="primary" @click="delete_product()" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+      <q-card-actions align="right">
+        <q-btn flat label="Cancelar" color="primary" v-close-popup />
+        <q-btn
+          flat
+          label="Eliminar"
+          color="primary"
+          @click="delete_product()"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -635,7 +642,7 @@ export default defineComponent({
     const loadingTable = ref(false);
     const dataTable = ref([]);
     const dialog = ref(false);
-    const dialogDelete = ref(false)
+    const dialogDelete = ref(false);
     const dialogTitle = ref();
     const dialogButton = ref();
     const dialogLoading = ref(false);
@@ -763,7 +770,6 @@ export default defineComponent({
         field: "delete",
         sortable: true,
       },
-
     ];
     const pagination = ref({
       rowsPerPage: 0,
@@ -861,9 +867,9 @@ export default defineComponent({
 
     // Abrir Dialog de borrar producto
     const open_dialog_delete = (props) => {
-      index.value = props.index
-      dialogDelete.value = true
-    }
+      index.value = props.index;
+      dialogDelete.value = true;
+    };
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
@@ -998,18 +1004,19 @@ export default defineComponent({
     };
 
     // Borrar Producto
-    const delete_product = (props) => {
-      console.log(index.value)
-      api.delete("/api/product_detail", props).then((response) => {
-        console.log(response.data)
-        api.get("/api/product_detail").then((response) => {
-          dataTable.value = response.data;
-          dialogDelete.value = false;
+    const delete_product = () => {
+      // const objIndex = {
+      //   index: index.value
+      // };
+      api.delete(`/api/product_detail/${index.value}`)
+        .then((response) => {
+          console.log(response.data);
+          api.get("/api/product_detail").then((response) => {
+            dataTable.value = response.data;
+            dialogDelete.value = false;
+          });
         });
-      })
-    }
-
-
+    };
 
     return {
       columns,
@@ -1100,7 +1107,6 @@ export default defineComponent({
     /* height of all previous header rows */
     scroll-margin-top: 48px
 </style> -->
-
 
 <style lang="sass">
 .my-sticky-header-last-column-table

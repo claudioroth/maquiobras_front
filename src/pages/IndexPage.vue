@@ -387,6 +387,7 @@ export default defineComponent({
         retiro: amount.value,
         id_user: user.value.value,
         id_prod: tool.value.value,
+        descripcion: tool.value.label,
         local: branch.value,
       };
       console.log(data);
