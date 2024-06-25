@@ -105,10 +105,10 @@ export default defineComponent({
 
     const rolMenu = () => {
       var data= [
-        { icon: 'home', text: 'Planilla de Control', toPage: 'IndexPage' },
-        { icon: 'flag', text: 'ABM Productos', toPage: 'ABMProd' },
+        { icon: 'o_inventory', text: 'Planilla de Control', toPage: 'IndexPage' },
+        { icon: 'construction', text: 'ABM Productos', toPage: 'ABMProd' },
       ]
-      isAdmin == 1 ? data.push( { icon: 'settings', text: 'ABM Usuarios' , toPage: 'ABMUser'}) : null
+      isAdmin == 1 ? data.push( { icon: 'person', text: 'ABM Usuarios' , toPage: 'ABMUser'}) : null
       return data
     }
 

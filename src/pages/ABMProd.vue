@@ -18,7 +18,7 @@
 
         <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
           <q-popup-proxy>
-            <q-banner class="q-my-md" style="max-width: 260px;">
+            <q-banner class="q-my-md" style="max-width: 260px">
               <div v-if="$q.screen.gt.xs" class="col row">
                 <!-- <q-toggle v-model="visibleColumns" val="nro" label="Calories" /> -->
                 <!-- <q-toggle v-model="visibleColumns" val="descripcion" label="Fat" /> -->
@@ -196,24 +196,69 @@
       <!-- Importe sin IVA -->
       <template v-slot:body-cell-importe_sin_iva="props">
         <q-td :props="props">
-          <div>$ {{ props.row.importe_sin_iva }}</div>
-        </q-td>
-      </template>
-
-      <!-- Iva 21 -->
-      <template v-slot:body-cell-iva_21="props">
-        <q-td :props="props">
           <div>
-            {{ props.row.iva_21 ? "$" + parse_decimal(props.row.iva_21) : "-" }}
+            <!-- {{ props.row.importe_sin_iva }} -->
+            {{
+              props.row.importe_sin_iva
+                ? "$" + formatNumber(parse_decimal(props.row.importe_sin_iva))
+                : "-"
+            }}
           </div>
         </q-td>
       </template>
 
-      <!-- Iva 10 -->
+      <!-- Iva 21 -->
+      <!-- <template v-slot:body-cell-iva_21="props">
+        <q-td :props="props">
+          <div>
+            <q-badge v-if="props.row.iva_21 || props.row.iva_21 >= 0" color="white text-grey-7 text-weight-bold">
+              {{ "$" + parse_decimal(props.row.iva_21) }}
+            </q-badge>
+
+            <div v-else>
+              {{ "-" }}
+            </div>
+          </div>
+        </q-td>
+      </template> -->
+
+      <template v-slot:body-cell-iva_21="props">
+        <q-td :props="props">
+          <div>
+            <q-badge
+              v-if="props.row.iva_21 != 0"
+              color="white"
+              class="text-grey-7 text-weight-bold"
+            >
+              {{ "$" + formatNumber(parse_decimal(props.row.iva_21)) }}
+            </q-badge>
+            <div v-else>
+              {{ "-" }}
+            </div>
+          </div>
+        </q-td>
+      </template>
+
+      <!-- Iva 10.5 -->
       <template v-slot:body-cell-iva_10="props">
         <q-td :props="props">
           <div>
-            {{ props.row.iva_10 ? "$" + parse_decimal(props.row.iva_10) : "-" }}
+            <!-- <q-badge color="white text-grey-7 text-weight-bold">
+              {{
+                props.row.iva_10 ? "$" + parse_decimal(props.row.iva_10) : "-"
+              }}
+            </q-badge> -->
+
+            <q-badge
+              v-if="props.row.iva_10 != 0"
+              color="white"
+              class="text-grey-7 text-weight-bold"
+            >
+              {{ "$" + formatNumber(parse_decimal(props.row.iva_10)) }}
+            </q-badge>
+            <div v-else>
+              {{ "-" }}
+            </div>
           </div>
         </q-td>
       </template>
@@ -221,10 +266,10 @@
       <!-- Aumento -->
       <template v-slot:body-cell-aumento="props">
         <q-td v-if="props.row.aumento" :props="props">
-          <div>{{ parse_datetime(props.row.aumento, "date") }}</div>
+          <!-- <div>{{ parse_datetime(props.row.aumento, "date") }}</div> -->
           <div>
-            <q-badge color="bluegrey">
-              {{ parse_datetime(props.row.aumento, "hours") }}
+            <q-badge color="grey-3 text-grey-7">
+              {{ parse_datetime(props.row.aumento, "date") }}
             </q-badge>
           </div>
         </q-td>
@@ -234,10 +279,10 @@
       <!-- Ultima Modificacion -->
       <template v-slot:body-cell-ultimo_modif="props">
         <q-td v-if="props.row.ultimo_modif" :props="props">
-          <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div>
+          <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
           <div>
-            <q-badge color="bluegrey">
-              {{ parse_datetime(props.row.ultimo_modif, "hours") }}
+            <q-badge color="grey-3 text-grey-7">
+              {{ parse_datetime(props.row.ultimo_modif, "date") }}
             </q-badge>
           </div>
         </q-td>
@@ -248,11 +293,16 @@
       <template v-slot:body-cell-oferta_costo="props">
         <q-td :props="props">
           <div>
-            {{
-              props.row.oferta_costo
-                ? "$" + parse_decimal(props.row.oferta_costo)
-                : "-"
-            }}
+            <q-badge
+              v-if="props.row.oferta_costo"
+              color="white"
+              class="text-red"
+            >
+              {{ "$" + formatNumber(parse_decimal(props.row.oferta_costo)) }}
+            </q-badge>
+            <div v-else>
+              {{ "-" }}
+            </div>
           </div>
         </q-td>
       </template>
@@ -263,7 +313,7 @@
           <div>
             {{
               props.row.costo_mas_bajo
-                ? "$" + parse_decimal(props.row.costo_mas_bajo)
+                ? "$" + formatNumber(parse_decimal(props.row.costo_mas_bajo))
                 : "-"
             }}
           </div>
@@ -274,44 +324,19 @@
       <template v-slot:body-cell-oferta_sin_iva="props">
         <q-td :props="props">
           <div>
-            {{
-              props.row.oferta_sin_iva
-                ? "$" + parse_decimal(props.row.oferta_sin_iva)
-                : "-"
-            }}
+            <q-badge
+              v-if="props.row.oferta_sin_iva"
+              color="white"
+              class="text-red"
+            >
+              {{ "$" + formatNumber(parse_decimal(props.row.oferta_sin_iva)) }}
+            </q-badge>
+            <div v-else>
+              {{ "-" }}
+            </div>
           </div>
         </q-td>
       </template>
-
-      <!-- Rentab -->
-      <!-- <template v-slot:body-cell-rentab="props">
-        <q-td :props="props">
-          <div>
-            <q-badge
-              v-if="props.row.rentab"
-              color="red-7"
-              :label="props.row.rentab ? props.row.rentab : '-'"
-            />
-            <div v-else>-</div>
-          </div>
-        </q-td>
-      </template> -->
-
-      <!-- Venta IVA -->
-      <!-- <template v-slot:body-cell-un_18="props">
-        <q-td :props="props">
-            {{ props.row.un_18 ? props.row.un_18 : "-"  }}
-        </q-td>
-      </template> -->
-
-      <!-- Venta Oferta -->
-      <!-- <template v-slot:body-cell-venta_oferta="props">
-        <q-td :props="props">
-          <div>
-            {{ parse_decimal(props.row.venta_oferta) }}
-          </div>
-        </q-td>
-      </template> -->
     </q-table>
 
     <!-- LOADING SCREEN -->
@@ -420,21 +445,19 @@
             <q-input
               outlined
               dense
-              clear-icon="close"
-              clearable
               readonly
               class="col q-mr-md"
               v-model="increases"
               label="Aumento"
             >
-              <template v-slot:prepend>
+              <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
                     cover
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-model="increases" mask="YYYY-MM-DD HH:mm">
+                    <q-date v-model="increases" mask="DD-MM-YYYY">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
@@ -447,48 +470,15 @@
                   </q-popup-proxy>
                 </q-icon>
               </template>
-
-              <template v-slot:append>
-                <q-icon
-                  v-if="increases"
-                  name="cancel"
-                  @click.stop.prevent="increases = null"
-                  class="cursor-pointer"
-                />
-
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time
-                      v-model="increases"
-                      mask="YYYY-MM-DD HH:mm"
-                      format24h
-                    >
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
             </q-input>
 
             <!-- Ultima Modificacion -->
-            <q-input
+
+            <!-- <q-input
+              filled
               outlined
               dense
-              class="col"
-              clear-icon="close"
-              clearable
-              readonly
+              mask="DD-MM-YYYY"
               v-model="lastModification"
               label="Ultima Modificacion"
             >
@@ -499,7 +489,37 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-model="lastModification" mask="YYYY-MM-DD HH:mm">
+                    <q-date v-model="lastModification" mask="DD-MM-YYYY">
+                      <div class="row items-center justify-end">
+                        <q-btn
+                          v-close-popup
+                          label="Close"
+                          color="primary"
+                          flat
+                        ></q-btn>
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input> -->
+
+            <q-input
+              outlined
+              dense
+              readonly
+              class="col"
+              v-model="lastModification"
+              label="Ultima Modificacion"
+            >
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    cover
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date v-model="lastModification" mask="DD-MM-YYYY">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
@@ -509,38 +529,6 @@
                         />
                       </div>
                     </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-
-              <template v-slot:append>
-                <q-icon
-                  v-if="lastModification"
-                  name="cancel"
-                  @click.stop.prevent="lastModification = null"
-                  class="cursor-pointer"
-                />
-
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time
-                      v-model="lastModification"
-                      mask="YYYY-MM-DD HH:mm"
-                      format24h
-                    >
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
                   </q-popup-proxy>
                 </q-icon>
               </template>
@@ -712,7 +700,7 @@ export default defineComponent({
       },
       {
         name: "iva_10",
-        label: "IVA 10",
+        label: "IVA 10.5",
         field: "iva_10",
         align: "center",
         sortable: true,
@@ -796,6 +784,7 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
+          console.log(dataTable.value)
           loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
@@ -854,6 +843,18 @@ export default defineComponent({
 
     // FUNCIONES
 
+  const convertDateFormat = (dateString) => {
+  const [day, month, year] = dateString.split('-');
+  return `${year}-${month}-${day}`;
+};
+
+    const formatNumber = (number) => {
+      return new Intl.NumberFormat("es-ES", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(number);
+    };
+
     const parse_decimal = (value) => {
       var result = parseFloat(value);
       if (result % 1 !== 0) {
@@ -865,12 +866,11 @@ export default defineComponent({
 
     const parse_datetime = (dateString, type) => {
       if (type == "date") {
-        return date.formatDate(dateString, "DD-MM-YYYY");
+        return date.formatDate(dateString, "DD/MM/YYYY");
       } else {
         return date.formatDate(dateString, "HH:mm");
       }
     };
-
 
     // Abrir Dialog de borrar producto
     const open_dialog_delete = (props) => {
@@ -971,6 +971,8 @@ export default defineComponent({
         nroList.push(n.value);
       });
 
+      console.log(lastModification.value)
+
       const data = {
         index: index.value,
         nro: nroList.join(" "),
@@ -1056,6 +1058,7 @@ export default defineComponent({
       columnFilter,
       open_dialog_delete,
       visibleColumns,
+      formatNumber
     };
   },
 });
