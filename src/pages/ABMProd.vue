@@ -16,14 +16,85 @@
           ><q-icon name="construction" class="q-mr-sm" /> Nuevo Producto
         </q-btn>
 
-        <q-btn
-          class="q-mr-md q-px-lg"
-          size="md"
-          color="grey-7"
-          outline
-          :disable="loadingScreen"
-          @click="open_dialog_column_filters()"
-          ><q-icon name="filter_alt" class="q-mr-sm" /> filtro columnas
+        <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
+          <q-popup-proxy>
+            <q-banner class="q-my-md" style="max-width: 260px;">
+              <div v-if="$q.screen.gt.xs" class="col row">
+                <!-- <q-toggle v-model="visibleColumns" val="nro" label="Calories" /> -->
+                <!-- <q-toggle v-model="visibleColumns" val="descripcion" label="Fat" /> -->
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="importe_sin_iva"
+                  label="Importe sin IVA"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="iva_21"
+                  label="IVA 21%"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="iva_10"
+                  label="IVA10%"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="oferta_sin_iva"
+                  label="Oferta sin IVA"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="aumento"
+                  label="Aumento"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="ultimo_modif"
+                  label="Ultima modificacion"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="oferta_costo"
+                  label="Oferta costo"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="costo_mas_bajo"
+                  label="Costo mas bajo"
+                />
+                <q-toggle
+                  class="col-12"
+                  v-model="visibleColumns"
+                  val="rentabilidad"
+                  label="Rentabilidad"
+                />
+                <!-- <q-toggle v-model="visibleColumns" val="stock" label="Iron" /> -->
+              </div>
+              <q-select
+                v-else
+                v-model="visibleColumns"
+                multiple
+                borderless
+                dense
+                options-dense
+                :display-value="$q.lang.table.columns"
+                emit-value
+                map-options
+                :options="columns"
+                option-value="name"
+                style="min-width: 150px"
+              />
+            </q-banner>
+          </q-popup-proxy>
+          <q-icon name="filter_alt" class="q-mr-sm" /> filtro columnas
         </q-btn>
 
         <q-space />
@@ -257,66 +328,6 @@
       <q-spinner-puff size="50px" color="red-5" />
     </q-inner-loading>
   </div>
-
-  <!-- DIALOG FILTER -->
-  <q-dialog v-model="columnFilter">
-    <q-card style="width: 300px" class="q-px-sm q-pb-md">
-      <q-card-section>
-        <div v-if="$q.screen.gt.xs" class="col">
-          <!-- <q-toggle v-model="visibleColumns" val="nro" label="Calories" /> -->
-          <!-- <q-toggle v-model="visibleColumns" val="descripcion" label="Fat" /> -->
-          <q-toggle
-            v-model="visibleColumns"
-            val="importe_sin_iva"
-            label="Importe sin IVA"
-          />
-          <q-toggle v-model="visibleColumns" val="iva_21" label="IVA 21%" />
-          <q-toggle v-model="visibleColumns" val="iva_10" label="IVA10%" />
-          <q-toggle
-            v-model="visibleColumns"
-            val="oferta_sin_iva"
-            label="Oferta sin IVA"
-          />
-          <q-toggle v-model="visibleColumns" val="aumento" label="Aumento" />
-          <q-toggle
-            v-model="visibleColumns"
-            val="ultimo_modif"
-            label="Ultima modificacion"
-          />
-          <q-toggle
-            v-model="visibleColumns"
-            val="oferta_costo"
-            label="Oferta costo"
-          />
-          <q-toggle
-            v-model="visibleColumns"
-            val="costo_mas_bajo"
-            label="Costo mas bajo"
-          />
-          <q-toggle
-            v-model="visibleColumns"
-            val="rentabilidad"
-            label="Rentabilidad"
-          />
-          <!-- <q-toggle v-model="visibleColumns" val="stock" label="Iron" /> -->
-        </div>
-        <q-select
-          v-else
-          v-model="visibleColumns"
-          multiple
-          borderless
-          dense
-          options-dense
-          :display-value="$q.lang.table.columns"
-          emit-value
-          map-options
-          :options="columns"
-          option-value="name"
-          style="min-width: 150px"
-        />
-      </q-card-section>
-    </q-card>
-  </q-dialog>
 
   <!-- DIALOG -->
   <q-dialog v-model="dialog" full-height position="right">
@@ -860,10 +871,6 @@ export default defineComponent({
       }
     };
 
-    // Abrir Dialog Filters
-    const open_dialog_column_filters = () => {
-      columnFilter.value = true;
-    };
 
     // Abrir Dialog de borrar producto
     const open_dialog_delete = (props) => {
@@ -1008,14 +1015,13 @@ export default defineComponent({
       // const objIndex = {
       //   index: index.value
       // };
-      api.delete(`/api/product_detail/${index.value}`)
-        .then((response) => {
-          console.log(response.data);
-          api.get("/api/product_detail").then((response) => {
-            dataTable.value = response.data;
-            dialogDelete.value = false;
-          });
+      api.delete(`/api/product_detail/${index.value}`).then((response) => {
+        console.log(response.data);
+        api.get("/api/product_detail").then((response) => {
+          dataTable.value = response.data;
+          dialogDelete.value = false;
         });
+      });
     };
 
     return {
@@ -1048,7 +1054,6 @@ export default defineComponent({
       stock,
       suppliers,
       columnFilter,
-      open_dialog_column_filters,
       open_dialog_delete,
       visibleColumns,
     };
