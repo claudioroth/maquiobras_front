@@ -253,7 +253,7 @@
           <!-- <div>{{ parse_datetime(props.row.aumento, "date") }}</div> -->
           <div>
             <q-badge color="grey-3 text-grey-7">
-              {{ parse_datetime(props.row.aumento, "date") }}
+              {{ props.row.aumento }}
             </q-badge>
           </div>
         </q-td>
@@ -266,7 +266,7 @@
           <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
           <div>
             <q-badge color="grey-3 text-grey-7">
-              {{ parse_datetime(props.row.ultimo_modif, "date") }}
+              {{ props.row.ultimo_modif }}
             </q-badge>
           </div>
         </q-td>
@@ -328,7 +328,6 @@
           <div v-else>-</div>
         </q-td>
       </template>
-
     </q-table>
 
     <!-- LOADING SCREEN -->
@@ -381,7 +380,6 @@
             v-model="nro"
             use-chips
             use-input
-            dense
             input-debounce="0"
             label="Nro"
             multiple
@@ -397,14 +395,13 @@
 
           <!-- Descripcion -->
           <q-input
-            dense
             outlined
             v-model="description"
             label="Descripcion"
-            :rules="[(val) => !!val || 'Describa el producto']"
+            :rules="[(val) => !!val || '']"
           />
 
-          <div class="row">
+          <div class="q-pa-md row" style="border: 1px solid rgb(206 206 206); border-radius: 4px; ">
             <!-- Aumento -->
             <q-input
               outlined
@@ -468,9 +465,9 @@
             </q-input>
           </div>
 
-          <div class="row"></div>
+          <div class="q-pa-md" style="border: 1px solid rgb(206 206 206); border-radius: 4px; ">
 
-          <div class="row">
+          <div class="row q-mb-md">
             <!-- Importe sin IVA -->
             <q-input
               type="number"
@@ -496,7 +493,7 @@
             />
           </div>
 
-          <div class="row">
+          <div class="row q-mb-md">
             <!-- Oferta Costo -->
             <q-input
               type="number"
@@ -529,7 +526,7 @@
               step="any"
               type="number"
               class="col-4 q-mr-md"
-              dense
+              stack-label
               v-model="costEffectiveness"
               label="Rentabilidad"
             />
@@ -538,12 +535,14 @@
             <q-input
               outlined
               class="col"
-              dense
+              stack-label
               type="number"
               v-model="stock"
               label="Cantidad"
             />
           </div>
+
+        </div>
 
           <div>
             <q-btn
@@ -557,6 +556,7 @@
               type="reset"
               color="primary"
               flat
+              @click="onReset"
               class="q-ml-sm"
             />
           </div>
@@ -855,6 +855,19 @@ export default defineComponent({
       }
     };
 
+    const onReset = () => {
+      nro.value = []
+      description.value = null
+      amountWithoutIva.value = null
+      offerWithoutIva.value = null
+      increases.value = null
+      lastModification.value = null
+      offerCost.value = null
+      lowestCost.value = null
+      costEffectiveness.value = null
+      stock.value = null
+    }
+
     // Abrir Dialog de borrar producto
     const open_dialog_delete = (props) => {
       index.value = props.index;
@@ -918,7 +931,9 @@ export default defineComponent({
       offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
       offerCost.value = offerCost.value ? offerCost.value : 0;
       lowestCost.value = lowestCost.value ? lowestCost.value : 0;
-      costEffectiveness.value = costEffectiveness.value ? costEffectiveness.value : 0;
+      costEffectiveness.value = costEffectiveness.value
+        ? costEffectiveness.value
+        : 0;
 
       const data = {
         nro: nroList.join(" "),
@@ -975,7 +990,9 @@ export default defineComponent({
       offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
       offerCost.value = offerCost.value ? offerCost.value : 0;
       lowestCost.value = lowestCost.value ? lowestCost.value : 0;
-      costEffectiveness.value = costEffectiveness.value ? costEffectiveness.value : 0;
+      costEffectiveness.value = costEffectiveness.value
+        ? costEffectiveness.value
+        : 0;
 
       const data = {
         index: index.value,
@@ -1067,6 +1084,7 @@ export default defineComponent({
       formatNumber,
       filterFnSuppliers,
       optionsSelectSuppliers,
+      onReset
     };
   },
 });
@@ -1075,6 +1093,10 @@ export default defineComponent({
 <style lang="scss" scoped>
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
+}
+
+.q-field--with-bottom {
+    padding-bottom: 0;
 }
 </style>
 

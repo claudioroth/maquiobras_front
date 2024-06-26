@@ -101,12 +101,12 @@
           :props="props"
           :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
         >
-          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
+          <!-- <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
             {{ parse_datetime(props.row.fecha, "date") }}
-          </div>
+          </div> -->
           <div>
-            <q-badge :color="props.row.is_active == 0 ? 'grey-5' : 'red-7'">
-              {{ parse_datetime(props.row.fecha, "hours") }}
+            <q-badge :color="props.row.is_active == 0 ? 'grey-4 text-grey-5' : 'grey-3 text-grey-7'">
+              {{ props.row.fecha }}
             </q-badge>
           </div>
         </q-td>
@@ -122,7 +122,7 @@
             <q-btn
               outline
               class="q-mr-sm"
-
+              :disable="props.row.is_active == 0"
               @click="open_dialog('Modify', props.row)"
               :color="props.row.is_active == 0 ? 'grey-5' : 'grey-7'"
               icon="edit"
