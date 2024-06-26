@@ -15,7 +15,7 @@ const api = axios.create({
   headers: {
     "Cache-Control": "no-cache, must-revalidate",
     "Pragma": "no-cache",
-    "Access-Control-Allow-Origin": "*",
+    // "Access-Control-Allow-Origin": "*",
     "content-type": "application/json",
     "responseType": "application/vnd.ms-excel",
   },

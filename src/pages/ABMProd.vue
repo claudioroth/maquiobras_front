@@ -172,6 +172,7 @@
         </q-td>
       </template>
 
+      <!-- Descripcion -->
       <template v-slot:body-cell-descripcion="props">
         <q-td :props="props">
           <div style="font-size: 10px">
@@ -180,6 +181,7 @@
         </q-td>
       </template>
 
+      <!-- stock -->
       <template v-slot:body-cell-stock="props">
         <q-td :props="props">
           <div>
@@ -196,32 +198,14 @@
       <!-- Importe sin IVA -->
       <template v-slot:body-cell-importe_sin_iva="props">
         <q-td :props="props">
-          <div>
-            <!-- {{ props.row.importe_sin_iva }} -->
-            {{
-              props.row.importe_sin_iva
-                ? "$" + formatNumber(parse_decimal(props.row.importe_sin_iva))
-                : "-"
-            }}
+          <div v-if="props.row.importe_sin_iva != 0">
+            {{ "$" + formatNumber(parse_decimal(props.row.importe_sin_iva)) }}
           </div>
+          <div v-else>-</div>
         </q-td>
       </template>
 
       <!-- Iva 21 -->
-      <!-- <template v-slot:body-cell-iva_21="props">
-        <q-td :props="props">
-          <div>
-            <q-badge v-if="props.row.iva_21 || props.row.iva_21 >= 0" color="white text-grey-7 text-weight-bold">
-              {{ "$" + parse_decimal(props.row.iva_21) }}
-            </q-badge>
-
-            <div v-else>
-              {{ "-" }}
-            </div>
-          </div>
-        </q-td>
-      </template> -->
-
       <template v-slot:body-cell-iva_21="props">
         <q-td :props="props">
           <div>
@@ -294,7 +278,7 @@
         <q-td :props="props">
           <div>
             <q-badge
-              v-if="props.row.oferta_costo"
+              v-if="props.row.oferta_costo != 0"
               color="white"
               class="text-red"
             >
@@ -310,13 +294,10 @@
       <!-- Costo Bajo -->
       <template v-slot:body-cell-costo_mas_bajo="props">
         <q-td :props="props">
-          <div>
-            {{
-              props.row.costo_mas_bajo
-                ? "$" + formatNumber(parse_decimal(props.row.costo_mas_bajo))
-                : "-"
-            }}
+          <div v-if="props.row.costo_mas_bajo != 0">
+            {{ "$" + formatNumber(parse_decimal(props.row.costo_mas_bajo)) }}
           </div>
+          <div v-else>-</div>
         </q-td>
       </template>
 
@@ -325,7 +306,7 @@
         <q-td :props="props">
           <div>
             <q-badge
-              v-if="props.row.oferta_sin_iva"
+              v-if="props.row.oferta_sin_iva != 0"
               color="white"
               class="text-red"
             >
@@ -337,6 +318,17 @@
           </div>
         </q-td>
       </template>
+
+      <!-- Rentabilidad -->
+      <template v-slot:body-cell-rentabilidad="props">
+        <q-td :props="props">
+          <div v-if="props.row.rentabilidad != 0">
+            {{ props.row.rentabilidad }}
+          </div>
+          <div v-else>-</div>
+        </q-td>
+      </template>
+
     </q-table>
 
     <!-- LOADING SCREEN -->
@@ -355,11 +347,21 @@
   </div>
 
   <!-- DIALOG -->
-  <q-dialog v-model="dialog" full-height position="right">
+  <q-dialog v-model="dialog" persistent full-height position="right">
     <q-card class="column full-height" style="width: 600px">
       <!-- header -->
-      <q-card-section class="bg-grey-3">
+      <q-card-section class="bg-grey-3 row">
         <div class="text-grey-8">{{ dialogTitle }}</div>
+        <q-space />
+        <q-btn
+          class="text-grey-9"
+          flat
+          round
+          dense
+          icon="close"
+          v-close-popup
+          size="sm"
+        />
       </q-card-section>
 
       <!-- body -->
@@ -376,13 +378,15 @@
           <!-- Nro -->
           <q-select
             outlined
-            dense
             v-model="nro"
+            use-chips
             use-input
-            multiple
+            dense
             input-debounce="0"
             label="Nro"
-            :options="suppliers"
+            multiple
+            :options="optionsSelectSuppliers"
+            @filter="filterFnSuppliers"
           >
             <template v-slot:no-option>
               <q-item>
@@ -397,48 +401,8 @@
             outlined
             v-model="description"
             label="Descripcion"
-            :rules="[(val) => !!val || 'Seleccione una herramienta']"
+            :rules="[(val) => !!val || 'Describa el producto']"
           />
-
-          <div class="row"></div>
-
-          <div class="row">
-            <!-- Importe sin IVA -->
-            <q-input
-              dense
-              outlined
-              class="col q-mr-md"
-              v-model="amountWithoutIva"
-              label="Importe sin IVA"
-            />
-
-            <!-- Oferta sin IVA -->
-            <q-input
-              dense
-              outlined
-              v-model="offerWithoutIva"
-              class="col q-mr-md"
-              label="Oferta sin IVA"
-            />
-
-            <!-- Iva 21 -->
-            <!-- <q-input
-              dense
-              outlined
-              v-model="iva21"
-              label="IVA 21"
-              class="col q-mr-md"
-            /> -->
-
-            <!-- Iva 10 -->
-            <!-- <q-input
-              dense
-              outlined
-              v-model="iva10"
-              label="IVA 10"
-              class="col"
-            /> -->
-          </div>
 
           <div class="row">
             <!-- Aumento -->
@@ -473,37 +437,6 @@
             </q-input>
 
             <!-- Ultima Modificacion -->
-
-            <!-- <q-input
-              filled
-              outlined
-              dense
-              mask="DD-MM-YYYY"
-              v-model="lastModification"
-              label="Ultima Modificacion"
-            >
-              <template v-slot:prepend>
-                <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-date v-model="lastModification" mask="DD-MM-YYYY">
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        ></q-btn>
-                      </div>
-                    </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input> -->
-
             <q-input
               outlined
               dense
@@ -535,11 +468,42 @@
             </q-input>
           </div>
 
+          <div class="row"></div>
+
+          <div class="row">
+            <!-- Importe sin IVA -->
+            <q-input
+              type="number"
+              outlined
+              step="any"
+              stack-label
+              prefix="$"
+              class="col q-mr-md"
+              v-model="amountWithoutIva"
+              label="Importe sin IVA"
+            />
+
+            <!-- Oferta sin IVA -->
+            <q-input
+              type="number"
+              outlined
+              step="any"
+              stack-label
+              prefix="$"
+              v-model="offerWithoutIva"
+              class="col"
+              label="Oferta sin IVA"
+            />
+          </div>
+
           <div class="row">
             <!-- Oferta Costo -->
             <q-input
-              dense
+              type="number"
               outlined
+              step="any"
+              stack-label
+              prefix="$"
               class="col q-mr-md"
               v-model="offerCost"
               label="Oferta Costo"
@@ -548,7 +512,10 @@
             <!-- Costo mas bajo -->
             <q-input
               outlined
-              dense
+              stack-label
+              step="any"
+              prefix="$"
+              type="number"
               class="col"
               v-model="lowestCost"
               label="Costo mas bajo"
@@ -559,6 +526,8 @@
             <!-- Rentabilidad -->
             <q-input
               outlined
+              step="any"
+              type="number"
               class="col-4 q-mr-md"
               dense
               v-model="costEffectiveness"
@@ -646,6 +615,9 @@ export default defineComponent({
     const dialogButton = ref();
     const dialogLoading = ref(false);
     const columnFilter = ref(false);
+
+    const selectSuppliers = ref([]);
+    const optionsSelectSuppliers = ref(selectSuppliers.value);
 
     const index = ref();
     const nro = ref();
@@ -784,7 +756,6 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
-          console.log(dataTable.value)
           loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
@@ -816,6 +787,7 @@ export default defineComponent({
         lowestCost.value = null;
         costEffectiveness.value = null;
         stock.value = null;
+        selectSuppliers.value = [];
       }
     });
 
@@ -843,10 +815,21 @@ export default defineComponent({
 
     // FUNCIONES
 
-  const convertDateFormat = (dateString) => {
-  const [day, month, year] = dateString.split('-');
-  return `${year}-${month}-${day}`;
-};
+    const filterFnSuppliers = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase();
+        console.log(optionsSelectSuppliers.value);
+        selectSuppliers.value = optionsSelectSuppliers.value.filter((v) => {
+          // console.log("esto " + v.label.toLowerCase().indexOf(needle))
+          return v.label.toLowerCase().indexOf(needle) > -1;
+        });
+      });
+    };
+
+    const convertDateFormat = (dateString) => {
+      const [day, month, year] = dateString.split("-");
+      return `${year}-${month}-${day}`;
+    };
 
     const formatNumber = (number) => {
       return new Intl.NumberFormat("es-ES", {
@@ -883,25 +866,29 @@ export default defineComponent({
       dialogTitle.value = "Nuevo Producto";
       dialogButton.value = "Crear Producto";
       dialog.value = true;
+      optionsSelectSuppliers.value = suppliers;
       if (action == "modify") {
         dialogTitle.value = "Modificar Producto";
         dialogButton.value = "Modificar Producto";
         dialog.value = true;
 
-        const nroList = [];
+        selectSuppliers.value = [];
 
         if (data.nro) {
           suppliers.forEach((s) => {
             data.nro.split(" ").forEach((n) => {
               if (n == s.value) {
-                nroList.push(s);
+                console.log(s);
+                selectSuppliers.value.push(s);
               }
             });
           });
         }
 
+        // selectSuppliers.value = nroList
+
         index.value = data.index;
-        nro.value = nroList;
+        nro.value = selectSuppliers.value;
         description.value = data.descripcion;
         amountWithoutIva.value = data.importe_sin_iva;
         offerWithoutIva.value = data.oferta_sin_iva;
@@ -925,6 +912,14 @@ export default defineComponent({
         });
       }
 
+      amountWithoutIva.value = amountWithoutIva.value
+        ? amountWithoutIva.value
+        : 0;
+      offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
+      offerCost.value = offerCost.value ? offerCost.value : 0;
+      lowestCost.value = lowestCost.value ? lowestCost.value : 0;
+      costEffectiveness.value = costEffectiveness.value ? costEffectiveness.value : 0;
+
       const data = {
         nro: nroList.join(" "),
         descripcion: description.value,
@@ -932,13 +927,17 @@ export default defineComponent({
         iva_21: amountWithoutIva.value * 1.21,
         iva_10: amountWithoutIva.value * 1.105,
         oferta_sin_iva: offerWithoutIva.value,
-        aumento: increases.value,
-        ultimo_modif: lastModification.value,
+        aumento: increases.value ? convertDateFormat(increases.value) : null,
+        ultimo_modif: lastModification.value
+          ? convertDateFormat(lastModification.value)
+          : null,
         oferta_costo: offerCost.value,
         costo_mas_bajo: lowestCost.value,
         rentabilidad: costEffectiveness.value,
         stock: stock.value ? parseInt(stock.value) : 0,
       };
+
+      console.log(data);
 
       api.post("/api/product_detail", data).then((response) => {
         console.log(response.data);
@@ -964,14 +963,19 @@ export default defineComponent({
 
     // Modificar Producto
     const modify_product = () => {
-      console.log("modificacion");
       dialogLoading.value = true;
       const nroList = [];
       nro.value.forEach((n) => {
         nroList.push(n.value);
       });
 
-      console.log(lastModification.value)
+      amountWithoutIva.value = amountWithoutIva.value
+        ? amountWithoutIva.value
+        : 0;
+      offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
+      offerCost.value = offerCost.value ? offerCost.value : 0;
+      lowestCost.value = lowestCost.value ? lowestCost.value : 0;
+      costEffectiveness.value = costEffectiveness.value ? costEffectiveness.value : 0;
 
       const data = {
         index: index.value,
@@ -981,20 +985,22 @@ export default defineComponent({
         iva_21: amountWithoutIva.value * 1.21,
         iva_10: amountWithoutIva.value * 1.105,
         oferta_sin_iva: offerWithoutIva.value,
-        aumento: increases.value,
-        ultimo_modif: lastModification.value,
+        aumento: increases.value ? convertDateFormat(increases.value) : null,
+        ultimo_modif: lastModification.value
+          ? convertDateFormat(lastModification.value)
+          : null,
         oferta_costo: offerCost.value,
         costo_mas_bajo: lowestCost.value,
         rentabilidad: costEffectiveness.value,
         stock: stock.value ? parseInt(stock.value) : 0,
       };
-      console.log(data);
 
       api.put("/api/product_detail", data).then((response) => {
         console.log(response.data);
 
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
+          console.log(dataTable.value);
           dialog.value = false;
           dialogLoading.value = false;
         });
@@ -1058,7 +1064,9 @@ export default defineComponent({
       columnFilter,
       open_dialog_delete,
       visibleColumns,
-      formatNumber
+      formatNumber,
+      filterFnSuppliers,
+      optionsSelectSuppliers,
     };
   },
 });
