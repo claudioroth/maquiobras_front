@@ -401,7 +401,10 @@
             :rules="[(val) => !!val || '']"
           />
 
-          <div class="q-pa-md row" style="border: 1px solid rgb(206 206 206); border-radius: 4px; ">
+          <div
+            class="q-pa-md row"
+            style="border: 1px solid rgb(206 206 206); border-radius: 4px"
+          >
             <!-- Aumento -->
             <q-input
               outlined
@@ -411,9 +414,13 @@
               v-model="increases"
               label="Aumento"
             >
-
               <template v-slot:append>
-                <q-icon v-if="increases != null" name="close" @click.stop.prevent="increases = null" class="cursor-pointer" />
+                <q-icon
+                  v-if="increases != null"
+                  name="close"
+                  @click.stop.prevent="increases = null"
+                  class="cursor-pointer"
+                />
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
                     cover
@@ -445,7 +452,12 @@
               label="Ultima Modificacion"
             >
               <template v-slot:append>
-                <q-icon v-if="lastModification != null" name="close" @click.stop.prevent="lastModification = null" class="cursor-pointer" />
+                <q-icon
+                  v-if="lastModification != null"
+                  name="close"
+                  @click.stop.prevent="lastModification = null"
+                  class="cursor-pointer"
+                />
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
                     cover
@@ -468,84 +480,85 @@
             </q-input>
           </div>
 
-          <div class="q-pa-md" style="border: 1px solid rgb(206 206 206); border-radius: 4px; ">
+          <div
+            class="q-pa-md"
+            style="border: 1px solid rgb(206 206 206); border-radius: 4px"
+          >
+            <div class="row q-mb-md">
+              <!-- Importe sin IVA -->
+              <q-input
+                type="number"
+                outlined
+                step="any"
+                stack-label
+                prefix="$"
+                class="col q-mr-md"
+                v-model="amountWithoutIva"
+                label="Importe sin IVA"
+              />
 
-          <div class="row q-mb-md">
-            <!-- Importe sin IVA -->
-            <q-input
-              type="number"
-              outlined
-              step="any"
-              stack-label
-              prefix="$"
-              class="col q-mr-md"
-              v-model="amountWithoutIva"
-              label="Importe sin IVA"
-            />
+              <!-- Oferta sin IVA -->
+              <q-input
+                type="number"
+                outlined
+                step="any"
+                stack-label
+                prefix="$"
+                v-model="offerWithoutIva"
+                class="col"
+                label="Oferta sin IVA"
+              />
+            </div>
 
-            <!-- Oferta sin IVA -->
-            <q-input
-              type="number"
-              outlined
-              step="any"
-              stack-label
-              prefix="$"
-              v-model="offerWithoutIva"
-              class="col"
-              label="Oferta sin IVA"
-            />
+            <div class="row q-mb-md">
+              <!-- Oferta Costo -->
+              <q-input
+                type="number"
+                outlined
+                step="any"
+                stack-label
+                prefix="$"
+                class="col q-mr-md"
+                v-model="offerCost"
+                label="Oferta Costo"
+              />
+
+              <!-- Costo mas bajo -->
+              <q-input
+                outlined
+                stack-label
+                step="any"
+                prefix="$"
+                type="number"
+                class="col"
+                v-model="lowestCost"
+                label="Costo mas bajo"
+              />
+            </div>
+
+            <div class="row">
+              <!-- Rentabilidad -->
+              <q-input
+                outlined
+                step="any"
+                type="number"
+                class="col-4 q-mr-md"
+                stack-label
+                v-model="costEffectiveness"
+                label="Rentabilidad"
+              />
+
+              <!-- Stock -->
+              <q-input
+                outlined
+                class="col"
+                stack-label
+                type="number"
+                v-model="stock"
+                label="Cantidad"
+              />
+            </div>
           </div>
-
-          <div class="row q-mb-md">
-            <!-- Oferta Costo -->
-            <q-input
-              type="number"
-              outlined
-              step="any"
-              stack-label
-              prefix="$"
-              class="col q-mr-md"
-              v-model="offerCost"
-              label="Oferta Costo"
-            />
-
-            <!-- Costo mas bajo -->
-            <q-input
-              outlined
-              stack-label
-              step="any"
-              prefix="$"
-              type="number"
-              class="col"
-              v-model="lowestCost"
-              label="Costo mas bajo"
-            />
-          </div>
-
-          <div class="row">
-            <!-- Rentabilidad -->
-            <q-input
-              outlined
-              step="any"
-              type="number"
-              class="col-4 q-mr-md"
-              stack-label
-              v-model="costEffectiveness"
-              label="Rentabilidad"
-            />
-
-            <!-- Stock -->
-            <q-input
-              outlined
-              class="col"
-              stack-label
-              type="number"
-              v-model="stock"
-              label="Cantidad"
-            />
-          </div>
-
-        </div>
 
           <div>
             <q-btn
@@ -574,23 +587,40 @@
 
   <!-- DIALOG DELETE -->
   <q-dialog v-model="dialogDelete" persistent>
-    <q-card>
-      <q-card-section class="row items-center">
-        <q-avatar icon="warning" color="primary" text-color="white" />
-        <span class="q-ml-sm"
-          >Esta seguro que desea eliminar este producto</span
-        >
+    <q-card style="width: 330px; border-radius: 10px">
+      <q-card-section class="row justify-center text-grey-8">
+        <span style="font-size: 16px;font-weight: 500; margin-bottom: 3px;">Eliminar producto</span>
+        <div class="text-center" style="width: 250px; font-size: 12px;">
+          Está seguro que quiere eliminar el producto? Esa acción es
+          irreversible
+        </div>
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat label="Cancelar" color="primary" v-close-popup />
+      <q-card-actions class="row q-pa-none">
+        <q-btn
+          class="col"
+          flat
+          label="Cancelar"
+          color="primary"
+          v-close-popup
+          style="border-top: 1px solid rgb(196, 196, 196); border-radius: 0;"
+        />
         <q-btn
           flat
+          class="col"
           label="Eliminar"
-          color="primary"
+          style="
+            margin-left: 0px;
+            border-top: 1px solid rgb(196, 196, 196);
+            border-left: 1px solid rgb(196, 196, 196);border-radius: 0;
+          "
+          color="red"
           @click="delete_product()"
         />
       </q-card-actions>
+      <q-inner-loading :showing="dialogLoadingDelete" class="bg-white">
+        <q-spinner-puff size="30px" color="red-5" />
+      </q-inner-loading>
     </q-card>
   </q-dialog>
 </template>
@@ -603,17 +633,20 @@ import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
 import axios from "axios";
 import { suppliers } from "src/helpers/suppliers";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "IndexPage",
 
   setup() {
     // VARIABLES
+    const $q = useQuasar();
     const loadingScreen = ref(true);
     const loadingTable = ref(false);
     const dataTable = ref([]);
     const dialog = ref(false);
     const dialogDelete = ref(false);
+    const dialogLoadingDelete = ref(false);
     const dialogTitle = ref();
     const dialogButton = ref();
     const dialogLoading = ref(false);
@@ -821,9 +854,7 @@ export default defineComponent({
     const filterFnSuppliers = (val, update) => {
       update(() => {
         const needle = val.toLowerCase();
-        console.log(selectSuppliers.value);
         optionsSelectSuppliers.value = suppliers.filter((v) => {
-          // console.log("esto " + v.label.toLowerCase().indexOf(needle))
           return v.label.toLowerCase().indexOf(needle) > -1;
         });
       });
@@ -859,17 +890,17 @@ export default defineComponent({
     };
 
     const onReset = () => {
-      nro.value = []
-      description.value = null
-      amountWithoutIva.value = null
-      offerWithoutIva.value = null
-      increases.value = null
-      lastModification.value = null
-      offerCost.value = null
-      lowestCost.value = null
-      costEffectiveness.value = null
-      stock.value = null
-    }
+      nro.value = [];
+      description.value = null;
+      amountWithoutIva.value = null;
+      offerWithoutIva.value = null;
+      increases.value = null;
+      lastModification.value = null;
+      offerCost.value = null;
+      lowestCost.value = null;
+      costEffectiveness.value = null;
+      stock.value = null;
+    };
 
     // Abrir Dialog de borrar producto
     const open_dialog_delete = (props) => {
@@ -959,12 +990,20 @@ export default defineComponent({
       console.log(data);
 
       api.post("/api/product_detail", data).then((response) => {
-        console.log(response.data);
+        // loadingScreen.value = true
 
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialog.value = false;
+
+          $q.notify({
+            icon: "done",
+            message: "El producto se creo correctamente",
+            position: "bottom",
+            timeout: 2000,
+          });
           dialogLoading.value = false;
+          // loadingScreen.value = false
         });
         // loadingTable.value = true;
         // get_data();
@@ -1044,11 +1083,13 @@ export default defineComponent({
       // const objIndex = {
       //   index: index.value
       // };
+      dialogLoadingDelete.value = true
       api.delete(`/api/product_detail/${index.value}`).then((response) => {
         console.log(response.data);
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialogDelete.value = false;
+          dialogLoadingDelete.value = false
         });
       });
     };
@@ -1069,6 +1110,7 @@ export default defineComponent({
       parse_decimal,
       filter: ref(""),
       loadingScreen,
+      loadingTable,
       nro,
       description,
       amountWithoutIva,
@@ -1088,7 +1130,8 @@ export default defineComponent({
       formatNumber,
       filterFnSuppliers,
       optionsSelectSuppliers,
-      onReset
+      dialogLoadingDelete,
+      onReset,
     };
   },
 });
@@ -1100,7 +1143,7 @@ export default defineComponent({
 }
 
 .q-field--with-bottom {
-    padding-bottom: 0;
+  padding-bottom: 0;
 }
 </style>
 
