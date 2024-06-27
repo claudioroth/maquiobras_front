@@ -411,7 +411,9 @@
               v-model="increases"
               label="Aumento"
             >
+
               <template v-slot:append>
+                <q-icon v-if="increases != null" name="close" @click.stop.prevent="increases = null" class="cursor-pointer" />
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
                     cover
@@ -443,6 +445,7 @@
               label="Ultima Modificacion"
             >
               <template v-slot:append>
+                <q-icon v-if="lastModification != null" name="close" @click.stop.prevent="lastModification = null" class="cursor-pointer" />
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
                     cover
@@ -617,7 +620,7 @@ export default defineComponent({
     const columnFilter = ref(false);
 
     const selectSuppliers = ref([]);
-    const optionsSelectSuppliers = ref(selectSuppliers.value);
+    const optionsSelectSuppliers = ref(suppliers);
 
     const index = ref();
     const nro = ref();
@@ -818,8 +821,8 @@ export default defineComponent({
     const filterFnSuppliers = (val, update) => {
       update(() => {
         const needle = val.toLowerCase();
-        console.log(optionsSelectSuppliers.value);
-        selectSuppliers.value = optionsSelectSuppliers.value.filter((v) => {
+        console.log(selectSuppliers.value);
+        optionsSelectSuppliers.value = suppliers.filter((v) => {
           // console.log("esto " + v.label.toLowerCase().indexOf(needle))
           return v.label.toLowerCase().indexOf(needle) > -1;
         });
@@ -879,7 +882,8 @@ export default defineComponent({
       dialogTitle.value = "Nuevo Producto";
       dialogButton.value = "Crear Producto";
       dialog.value = true;
-      optionsSelectSuppliers.value = suppliers;
+      // optionsSelectSuppliers.value = suppliers;
+
       if (action == "modify") {
         dialogTitle.value = "Modificar Producto";
         dialogButton.value = "Modificar Producto";
