@@ -16,10 +16,8 @@
           @click="open_dialog('create')"
           ><q-icon name="construction" class="q-mr-sm" /> Nuevo Retiro
         </q-btn>
-        <!-- <q-btn outline color="grey-7" icon="picture_as_pdf"/>
-        <q-btn outline color="grey-7" icon="post_add"/> -->
 
-        <q-btn-group v-if="useAdmin" push class="no-shadow">
+        <!-- <q-btn-group v-if="useAdmin" push class="no-shadow">
           <q-btn
             :disable="loadingScreen"
             outline
@@ -34,7 +32,7 @@
             push
             icon="post_add"
           />
-        </q-btn-group>
+        </q-btn-group> -->
         <q-space />
         <q-input
           dense
