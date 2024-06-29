@@ -1,8 +1,7 @@
 <template>
   <q-layout view="lHr lpR fFf" class="bg-grey-1">
-    <q-header  class="bg-grey-1 text-grey-8 q-py-xs" height-hint="58">
+    <q-header class="bg-grey-1 text-grey-8 q-py-xs" height-hint="58">
       <q-toolbar>
-
         <q-btn
           flat
           dense
@@ -18,7 +17,7 @@
           </div>
         </q-toolbar-title> -->
 
-          <!-- <div class="YL__toolbar-input-container row no-wrap">
+        <!-- <div class="YL__toolbar-input-container row no-wrap">
             <q-input dense outlined square v-model="search" placeholder="Buscar" class="bg-white col" />
             <q-btn class="YL__toolbar-input-btn" color="grey-3" text-color="grey-8" icon="search" unelevated />
           </div>
@@ -32,51 +31,64 @@
         <div class="sora-text">
           {{ nameUser }}
         </div>
-        <q-btn flat round dense icon="logout" @click="logoutUsr" style="margin-left: 20px;"/>
+        <q-btn
+          flat
+          round
+          dense
+          icon="logout"
+          @click="logoutUsr"
+          style="margin-left: 20px"
+        />
         <!-- <q-btn dense flat round icon="menu" @click="toggleRightDrawer" /> -->
       </q-toolbar>
     </q-header>
 
     <!--<q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>-->
     <q-drawer
-        v-model="leftDrawerOpen"
-        show-if-above
-        bordered
-        class="bg-grey-7 no-outline"
-        :width="240"
-        style="background: none;"
-      >
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      class="bg-grey-7 no-outline"
+      :width="240"
+      style="background: none"
+    >
       <div class="row q-py-xl justify-center">
-      <q-img src="~assets/img/logo_white.png" style="width: 150px;" />
+        <q-img src="~assets/img/logo_white.png" style="width: 150px" />
       </div>
       <q-separator class="q-my-md" />
       <!-- <q-scroll-area class="fit"> -->
-        <q-list class="text-white">
-          <q-item v-for="link in rolMenu()" :key="link.text" v-ripple clickable :to="link.toPage">
+      <q-list class="text-white">
+        <q-item
+          v-for="link in rolMenu()"
+          :key="link.text"
+          v-ripple
+          clickable
+          :to="link.toPage"
+        >
+          <q-item-section avatar>
+            <q-icon color="white" :name="link.icon" />
+          </q-item-section>
 
-            <q-item-section avatar>
-              <q-icon color="white" :name="link.icon" />
+          <router-link
+            style="text-decoration: none; color: inherit; align-content: center"
+            :to="link.toPage"
+            replace
+          >
+            <q-item-section class="align-center">
+              <q-item-label class="self-center text-grey-4">{{
+                link.text
+              }}</q-item-label>
             </q-item-section>
-
-            <router-link  style="text-decoration: none; color: inherit;align-content: center;" :to="link.toPage" replace>
-              <q-item-section class="align-center">
-                <q-item-label class="self-center text-grey-4">{{ link.text }}</q-item-label>
-              </q-item-section>
-            </router-link>
-          </q-item>
-
-
+          </router-link>
+        </q-item>
       </q-list>
-    <!-- </q-scroll-area> -->
+      <!-- </q-scroll-area> -->
     </q-drawer>
-
 
     <!-- Drawer Right -->
     <!-- <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered> -->
-      <!-- drawer content -->
+    <!-- drawer content -->
     <!-- </q-drawer> -->
-
-
 
     <q-page-container>
       <router-view />
@@ -85,32 +97,42 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
-import { LocalStorage, SessionStorage } from 'quasar';
-import { fabYoutube } from '@quasar/extras/fontawesome-v6'
+import { defineComponent, ref } from "vue";
+import { LocalStorage, SessionStorage } from "quasar";
+import { fabYoutube } from "@quasar/extras/fontawesome-v6";
 
 export default defineComponent({
-  name: 'MainLayout',
+  name: "MainLayout",
 
-  setup () {
-    const nameUser = SessionStorage.getItem('user');
-    const isAdmin = SessionStorage.getItem('is_admin');
+  setup() {
+    const nameUser = SessionStorage.getItem("user");
+    const isAdmin = SessionStorage.getItem("is_admin");
 
-    const leftDrawerOpen = ref(false)
-    const search = ref('')
+    const leftDrawerOpen = ref(false);
+    const search = ref("");
 
-    function toggleLeftDrawer () {
-      leftDrawerOpen.value = !leftDrawerOpen.value
+    function toggleLeftDrawer() {
+      leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
     const rolMenu = () => {
-      var data= [
-        { icon: 'o_inventory', text: 'Planilla de Control', toPage: 'IndexPage' },
-        { icon: 'construction', text: 'ABM Productos', toPage: 'ABMProd' },
-      ]
-      isAdmin == 1 ? data.push( { icon: 'person', text: 'ABM Usuarios' , toPage: 'ABMUser'}) : null
-      return data
-    }
+      var data = [
+        {
+          icon: "o_inventory",
+          text: "Planilla de Control",
+          toPage: "IndexPage",
+        },
+        // { icon: "construction", text: "ABM Productos", toPage: "ABMProd" },
+      ];
+      isAdmin == 1
+        ? data.push(
+          { icon: "construction", text: "ABM Productos", toPage: "ABMProd" },
+            { icon: "person", text: "ABM Usuarios", toPage: "ABMUser" }
+
+          )
+        : null;
+      return data;
+    };
 
     return {
       nameUser,
@@ -124,20 +146,16 @@ export default defineComponent({
       // toggleRightDrawer () {
       //   rightDrawerOpen.value = !rightDrawerOpen.value
       // },
-
-
-    }
+    };
   },
   methods: {
-    logoutUsr(){
+    logoutUsr() {
       SessionStorage.clear();
-      this.$router.replace("/login")
+      this.$router.replace("/login");
     },
-
-  }
-})
+  },
+});
 </script>
-
 
 <style lang="sass">
 .YL
@@ -165,7 +183,7 @@ export default defineComponent({
 </style>
 
 <style>
-      .q-drawer--left.q-drawer--bordered {
-    border-right: 0px solid rgba(0, 0, 0, 0.12);
+.q-drawer--left.q-drawer--bordered {
+  border-right: 0px solid rgba(0, 0, 0, 0.12);
 }
 </style>

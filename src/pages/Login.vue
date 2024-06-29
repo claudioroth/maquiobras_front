@@ -180,7 +180,7 @@ export default defineComponent({
         .catch((error) => {
           this.loading_access = false;
           if (error.message == "Request failed with status code 404") {
-            customNotify("Incorrect username or password");
+            customNotify("Nombre de usuario o contraseña incorrectos");
           } else {
             handleCustomError(error.message);
           }
