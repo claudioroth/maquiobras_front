@@ -417,6 +417,8 @@
           @reset="onReset"
           class="q-gutter-md"
         >
+
+
           <!-- Nro -->
           <q-select
             outlined
@@ -451,10 +453,13 @@
             </template>
           </q-select>
 
+
+          <div class="row">
           <!-- Descripcion -->
           <q-input
             outlined
             dense
+            class="col-8 q-mr-md"
             v-model="description"
             label="Descripcion"
             :rules="[(val) => !!val || '']"
@@ -465,10 +470,12 @@
             outlined
             step="any"
             type="number"
+            class="col inputNumber"
             dense
             v-model="costEffectiveness"
             label="Rentabilidad"
           />
+        </div>
 
           <div
             class="q-pa-md row"
@@ -1285,53 +1292,10 @@ export default defineComponent({
 }
 </style>
 
-<!-- <style lang="sass">
-.my-sticky-header-last-column-table
-  /* height or max-height is important */
-  height: 310px
 
-  /* specifying max-width so the example can
-    highlight the sticky column on any browser window */
-
-
-  td:last-child
-    /* bg color is important for td; just specify one */
-    background-color: #ffffff
-
-  tr th
-    position: sticky
-    /* higher than z-index for td below */
-    z-index: 2
-    /* bg color is important; just specify one */
-    background: #ffffff
-
-  /* this will be the loading indicator */
-  thead tr:last-child th
-    /* height of all previous header rows */
-    top: 48px
-    /* highest z-index */
-    z-index: 3
-  thead tr:first-child th
-    top: 0
-    z-index: 1
-  tr:last-child th:last-child
-    /* highest z-index */
-    z-index: 3
-
-  td:last-child
-    z-index: 1
-
-  td:last-child, th:last-child
-    position: sticky
-    right: 0
-
-  /* prevent scrolling behind sticky top row on focus */
-  tbody
-    /* height of all previous header rows */
-    scroll-margin-top: 48px
-</style> -->
 
 <style lang="sass">
+
 .my-sticky-header-last-column-table
   /* height or max-height is important */
   height: 310px

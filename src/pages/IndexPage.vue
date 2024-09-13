@@ -309,7 +309,6 @@ export default defineComponent({
 
     // WATCH
     watch(dialog, (newValue, OldValue) => {
-      console.log(newValue);
       if (newValue == false) {
         dialogLoading.value = true;
       }
@@ -340,10 +339,17 @@ export default defineComponent({
       if(selectSuc){
       api.get(`/api/controlmix/${selectSuc}`).then((response) => {
         response.data.forEach((d) => {
+
+          const obj = {
+            suc1:d.suc1,
+            suc2:d.suc2,
+            depo:d.depo
+          }
+
           selectTools.value.push({
             label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
             value: d.index,
-            amount: d.stock,
+            amount: obj[selectSuc]
           });
         });
       });
@@ -410,7 +416,6 @@ export default defineComponent({
         descripcion: tool.value.label,
         local: branch.value,
       };
-      console.log(data);
 
       api.post("/api/control", data).then((response) => {
         loadingTable.value = true;
