@@ -22,6 +22,7 @@
               <div v-if="$q.screen.gt.xs" class="col row">
                 <!-- <q-toggle v-model="visibleColumns" val="nro" label="Calories" /> -->
                 <!-- <q-toggle v-model="visibleColumns" val="descripcion" label="Fat" /> -->
+
                 <q-toggle
                   class="col-12"
                   v-model="visibleColumns"
@@ -189,6 +190,48 @@
               v-if="props.row.stock"
               color="red-7"
               :label="props.row.stock ? props.row.stock : '-'"
+            />
+            <div v-else>-</div>
+          </div>
+        </q-td>
+      </template>
+
+      <!-- Stock Deposito -->
+      <template v-slot:body-cell-depo="props">
+        <q-td :props="props">
+          <div>
+            <q-badge
+              v-if="props.row.depo"
+              color="red-7"
+              :label="props.row.depo ? props.row.depo : '-'"
+            />
+            <div v-else>-</div>
+          </div>
+        </q-td>
+      </template>
+
+      <!-- Stock Galicia -->
+      <template v-slot:body-cell-suc1="props">
+        <q-td :props="props">
+          <div>
+            <q-badge
+              v-if="props.row.suc1"
+              color="red-7"
+              :label="props.row.suc1 ? props.row.suc1 : '-'"
+            />
+            <div v-else>-</div>
+          </div>
+        </q-td>
+      </template>
+
+      <!-- Stock Juan B. Justo -->
+      <template v-slot:body-cell-suc2="props">
+        <q-td :props="props">
+          <div>
+            <q-badge
+              v-if="props.row.suc2"
+              color="red-7"
+              :label="props.row.suc2 ? props.row.suc2 : '-'"
             />
             <div v-else>-</div>
           </div>
@@ -380,12 +423,27 @@
             v-model="nro"
             use-chips
             use-input
+            dense
             input-debounce="0"
             label="Nro"
             multiple
             :options="optionsSelectSuppliers"
             @filter="filterFnSuppliers"
           >
+            <template v-slot:selected-item="scope">
+              <q-chip
+                removable
+                @remove="scope.removeAtIndex(scope.index)"
+                :tabindex="scope.tabindex"
+                :color="scope.opt.color"
+                text-color="grey-10"
+                class=""
+                size="sm"
+              >
+                {{ scope.opt.label }}
+              </q-chip>
+            </template>
+
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
@@ -396,9 +454,20 @@
           <!-- Descripcion -->
           <q-input
             outlined
+            dense
             v-model="description"
             label="Descripcion"
             :rules="[(val) => !!val || '']"
+          />
+
+          <!-- Rentabilidad -->
+          <q-input
+            outlined
+            step="any"
+            type="number"
+            dense
+            v-model="costEffectiveness"
+            label="Rentabilidad"
           />
 
           <div
@@ -480,8 +549,9 @@
             </q-input>
           </div>
 
+          <!-- Importes/Costos -->
           <div
-            class="q-pa-md"
+            class="q-px-md q-pt-md"
             style="border: 1px solid rgb(206 206 206); border-radius: 4px"
           >
             <div class="row q-mb-md">
@@ -490,6 +560,7 @@
                 type="number"
                 outlined
                 step="any"
+                dense
                 stack-label
                 prefix="$"
                 class="col q-mr-md"
@@ -501,6 +572,7 @@
               <q-input
                 type="number"
                 outlined
+                dense
                 step="any"
                 stack-label
                 prefix="$"
@@ -515,6 +587,7 @@
               <q-input
                 type="number"
                 outlined
+                dense
                 step="any"
                 stack-label
                 prefix="$"
@@ -527,6 +600,7 @@
               <q-input
                 outlined
                 stack-label
+                dense
                 step="any"
                 prefix="$"
                 type="number"
@@ -535,31 +609,66 @@
                 label="Costo mas bajo"
               />
             </div>
+          </div>
 
-            <div class="row">
-              <!-- Rentabilidad -->
+          <!-- Stock Sucursales -->
+          <div
+            class="q-px-md q-pt-md"
+            style="border: 1px solid rgb(206 206 206); border-radius: 4px"
+          >
+            <div class="row q-mb-md">
+              <!-- Stock Deposito -->
               <q-input
+                type="number"
                 outlined
                 step="any"
-                type="number"
-                class="col-4 q-mr-md"
                 stack-label
-                v-model="costEffectiveness"
-                label="Rentabilidad"
+                dense
+                class="col q-mr-md"
+                v-model="depo"
+                label="Stock - Deposito"
               />
 
-              <!-- Stock -->
+              <!-- Stock Galicia -->
+              <q-input
+                type="number"
+                outlined
+                step="any"
+                stack-label
+                dense
+                v-model="suc1"
+                class="col"
+                label="Stock - Galicia"
+              />
+            </div>
+
+            <div class="row q-mb-md">
+              <!-- Stock Juan B. Justo -->
+              <q-input
+                type="number"
+                outlined
+                step="any"
+                stack-label
+                dense
+                class="col q-mr-md"
+                v-model="suc2"
+                label="Stock - Juan B. Justo"
+              />
+
+              <!-- Stock Total -->
               <q-input
                 outlined
                 class="col"
                 stack-label
                 type="number"
+                dense
                 v-model="stock"
-                label="Cantidad"
+                label="Stock - Total"
               />
             </div>
           </div>
 
+          <!-- Buttons -->
           <div>
             <q-btn
               :label="dialogButton"
@@ -589,8 +698,10 @@
   <q-dialog v-model="dialogDelete" persistent>
     <q-card style="width: 330px; border-radius: 10px">
       <q-card-section class="row justify-center text-grey-8">
-        <span style="font-size: 16px;font-weight: 500; margin-bottom: 3px;">Eliminar producto</span>
-        <div class="text-center" style="width: 250px; font-size: 12px;">
+        <span style="font-size: 16px; font-weight: 500; margin-bottom: 3px"
+          >Eliminar producto</span
+        >
+        <div class="text-center" style="width: 250px; font-size: 12px">
           Está seguro que quiere eliminar el producto? Esa acción es
           irreversible
         </div>
@@ -603,7 +714,7 @@
           label="Cancelar"
           color="primary"
           v-close-popup
-          style="border-top: 1px solid rgb(196, 196, 196); border-radius: 0;"
+          style="border-top: 1px solid rgb(196, 196, 196); border-radius: 0"
         />
         <q-btn
           flat
@@ -612,7 +723,8 @@
           style="
             margin-left: 0px;
             border-top: 1px solid rgb(196, 196, 196);
-            border-left: 1px solid rgb(196, 196, 196);border-radius: 0;
+            border-left: 1px solid rgb(196, 196, 196);
+            border-radius: 0;
           "
           color="red"
           @click="delete_product()"
@@ -668,6 +780,9 @@ export default defineComponent({
     const lowestCost = ref();
     const costEffectiveness = ref();
     const stock = ref();
+    const suc1 = ref();
+    const suc2 = ref();
+    const depo = ref();
     const visibleColumns = ref([]);
 
     const columns = [
@@ -687,8 +802,29 @@ export default defineComponent({
       },
       {
         name: "stock",
-        label: "Stock",
+        label: "Stock Total",
         field: "stock",
+        align: "center",
+        sortable: true,
+      },
+      {
+        name: "depo",
+        label: "Stock Deposito",
+        field: "depo",
+        align: "center",
+        sortable: true,
+      },
+      {
+        name: "suc1",
+        label: "Stock Galicia",
+        field: "suc1",
+        align: "center",
+        sortable: true,
+      },
+      {
+        name: "suc2",
+        label: "Stock Juan B. Justo",
+        field: "suc2",
         align: "center",
         sortable: true,
       },
@@ -792,6 +928,7 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
+          console.log(dataTable.value);
           loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
@@ -1021,7 +1158,7 @@ export default defineComponent({
 
     // Modificar Producto
     const modify_product = () => {
-      dialogLoading.value = true;
+      // dialogLoading.value = true;
       const nroList = [];
       nro.value.forEach((n) => {
         nroList.push(n.value);
@@ -1053,29 +1190,23 @@ export default defineComponent({
         costo_mas_bajo: lowestCost.value,
         rentabilidad: costEffectiveness.value,
         stock: stock.value ? parseInt(stock.value) : 0,
+        suc1: suc1.value ? parseInt(suc1.value) : 0,
+        suc2: suc2.value ? parseInt(suc2.value) : 0,
+        depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      api.put("/api/product_detail", data).then((response) => {
-        console.log(response.data);
+      console.log(data)
 
-        api.get("/api/product_detail").then((response) => {
-          dataTable.value = response.data;
-          console.log(dataTable.value);
-          dialog.value = false;
-          dialogLoading.value = false;
-        });
-        // loadingTable.value = true;
-        // get_data();
-        // $q.notify({
-        //   icon: "done",
-        //   message: "Retiro completado",
-        //   position: "bottom",
-        //   timeout: 2000,
-        // });
+      // api.put("/api/product_detail", data).then((response) => {
+      //   console.log(response.data);
 
-        // dialog.value = false;
-        // dialogLoading.value = false;
-      });
+      //   api.get("/api/product_detail").then((response) => {
+      //     dataTable.value = response.data;
+      //     console.log(dataTable.value);
+      //     dialog.value = false;
+      //     dialogLoading.value = false;
+      //   });
+      // });
     };
 
     // Borrar Producto
@@ -1083,13 +1214,13 @@ export default defineComponent({
       // const objIndex = {
       //   index: index.value
       // };
-      dialogLoadingDelete.value = true
+      dialogLoadingDelete.value = true;
       api.delete(`/api/product_detail/${index.value}`).then((response) => {
         console.log(response.data);
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialogDelete.value = false;
-          dialogLoadingDelete.value = false
+          dialogLoadingDelete.value = false;
         });
       });
     };
@@ -1123,6 +1254,9 @@ export default defineComponent({
       lowestCost,
       costEffectiveness,
       stock,
+      suc1,
+      suc2,
+      depo,
       suppliers,
       columnFilter,
       open_dialog_delete,
@@ -1140,6 +1274,10 @@ export default defineComponent({
 <style lang="scss" scoped>
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
+}
+
+.q-dialog__inner--minimized {
+  padding: 0px !important;
 }
 
 .q-field--with-bottom {

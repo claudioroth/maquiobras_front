@@ -168,6 +168,9 @@ export default defineComponent({
             "descripcion",
             "iva_10",
             "stock",
+            "depo",
+            "suc1",
+            "suc2",
             "iva_21",
             "importe_sin_iva",
           ]);

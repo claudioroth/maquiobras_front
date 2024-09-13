@@ -147,11 +147,28 @@
             </template>
           </q-select>
 
+          <!-- Sucursal -->
+          <q-select
+            outlined
+            v-model="branch"
+            input-debounce="0"
+            label="Sucursal"
+            :options="selectBranch"
+            :rules="[(val) => !!val || 'Seleccione una sucursal']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
           <!-- Herramienta a Retirar -->
           <q-select
             outlined
             v-model="tool"
             use-input
+            :disable="branch ? false : true"
             input-debounce="0"
             label="Herramienta"
             :options="optionsSelectTools"
@@ -170,7 +187,7 @@
           <q-select
             outlined
             v-model="amount"
-            :disable="tool ? tool.amount == 0 ? true : false : true"
+            :disable="tool ? (tool.amount == 0 ? true : false) : true"
             input-debounce="0"
             label="Cantidad"
             :options="tool ? createNumberList(tool.amount) : null"
@@ -184,22 +201,6 @@
           </q-select>
 
           <!-- createNumberList -->
-
-          <!-- Sucursal -->
-          <q-select
-            outlined
-            v-model="branch"
-            input-debounce="0"
-            label="Sucursal"
-            :options="selectBranch"
-            :rules="[(val) => !!val || 'Seleccione una sucursal']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
 
           <div>
             <q-btn
@@ -307,18 +308,47 @@ export default defineComponent({
     });
 
     // WATCH
-    watch(tool, (newValue, OldValue) => {
-      amount.value = null;
-    });
-
     watch(dialog, (newValue, OldValue) => {
-      console.log(newValue)
-      if(newValue == false){
+      console.log(newValue);
+      if (newValue == false) {
         dialogLoading.value = true;
       }
     });
 
+    watch(tool, (newValue, OldValue) => {
+      amount.value = null;
+    });
 
+    // Carga el selector de herramientas segun el local
+    watch(branch, (newValue, OldValue) => {
+      selectTools.value = [];
+      tool.value = null;
+      let selectSuc = null;
+      switch (newValue) {
+        case "Local Galicia":
+          selectSuc = "suc1";
+          break;
+        case "Local Juan B Justo":
+          selectSuc = "suc2";
+          break;
+        case "Deposito":
+          selectSuc = "depo";
+          break;
+        default:
+        selectSuc = null;
+      }
+      if(selectSuc){
+      api.get(`/api/controlmix/${selectSuc}`).then((response) => {
+        response.data.forEach((d) => {
+          selectTools.value.push({
+            label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
+            value: d.index,
+            amount: d.stock,
+          });
+        });
+      });
+    }
+    });
 
     // FUNCIONES
     // Crea una lista segun el numero en el stock
@@ -345,26 +375,18 @@ export default defineComponent({
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
-
       dialog.value = true;
       user.value = null;
       tool.value = null;
       amount.value = null;
       branch.value = null;
-      selectUsers.value = []
-      selectTools.value = []
+      selectUsers.value = [];
+      selectTools.value = [];
 
-      // Carga los select
+      // Carga select Usuarios
       api.get("/api/controlmix").then((response) => {
         response.data.user.forEach((d) => {
           selectUsers.value.push({ label: d.user, value: d.id });
-        });
-        response.data.productos.forEach((d) => {
-          selectTools.value.push({
-            label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
-            value: d.index,
-            amount: d.stock,
-          });
         });
         dialogLoading.value = false;
       });
