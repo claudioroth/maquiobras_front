@@ -151,6 +151,7 @@ export default defineComponent({
   methods: {
     logoutUsr() {
       SessionStorage.clear();
+      LocalStorage.clear();
       this.$router.replace("/login");
     },
   },

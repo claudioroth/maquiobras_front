@@ -198,11 +198,11 @@
 
       <!-- Stock Deposito -->
       <template v-slot:body-cell-depo="props">
-        <q-td :props="props">
+        <q-td class="bg-grey-1" :props="props">
           <div>
             <q-badge
               v-if="props.row.depo"
-              color="red-7"
+              color="grey-7"
               :label="props.row.depo ? props.row.depo : '-'"
             />
             <div v-else>-</div>
@@ -212,11 +212,11 @@
 
       <!-- Stock Galicia -->
       <template v-slot:body-cell-suc1="props">
-        <q-td :props="props">
+        <q-td class="bg-grey-1" :props="props">
           <div>
             <q-badge
               v-if="props.row.suc1"
-              color="red-7"
+              color="grey-7"
               :label="props.row.suc1 ? props.row.suc1 : '-'"
             />
             <div v-else>-</div>
@@ -226,11 +226,11 @@
 
       <!-- Stock Juan B. Justo -->
       <template v-slot:body-cell-suc2="props">
-        <q-td :props="props">
+        <q-td class="bg-grey-1" :props="props">
           <div>
             <q-badge
               v-if="props.row.suc2"
-              color="red-7"
+              color="grey-7"
               :label="props.row.suc2 ? props.row.suc2 : '-'"
             />
             <div v-else>-</div>
@@ -483,7 +483,7 @@
               outlined
               dense
               readonly
-              class="col q-mr-md"
+              class="col q-mr-md custom-readonly-input-g"
               v-model="increases"
               label="Aumento"
             >
@@ -520,7 +520,7 @@
               outlined
               dense
               readonly
-              class="col"
+              class="col custom-readonly-input-g"
               v-model="lastModification"
               label="Ultima Modificacion"
             >
@@ -556,15 +556,32 @@
           <!-- Importes/Costos -->
           <div
             class="q-px-md q-pt-md"
-            style="border: 1px solid rgb(206 206 206); border-radius: 4px"
+            style="
+              border: 1px solid rgb(206 206 206);
+              border-radius: 4px;
+              position: relative;
+            "
           >
+            <div
+              style="
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: -9px;
+                padding: 0 10px;
+                font-size: 11px;
+                color: #9b9b9b;
+                background-color: white;
+              "
+            >
+              IMPORTES / COSTOS
+            </div>
             <div class="row q-mb-md">
               <!-- Importe sin IVA -->
               <q-input
                 type="number"
                 outlined
                 step="any"
-                dense
                 stack-label
                 prefix="$"
                 class="col q-mr-md"
@@ -576,7 +593,6 @@
               <q-input
                 type="number"
                 outlined
-                dense
                 step="any"
                 stack-label
                 prefix="$"
@@ -591,7 +607,6 @@
               <q-input
                 type="number"
                 outlined
-                dense
                 step="any"
                 stack-label
                 prefix="$"
@@ -604,7 +619,6 @@
               <q-input
                 outlined
                 stack-label
-                dense
                 step="any"
                 prefix="$"
                 type="number"
@@ -618,8 +632,26 @@
           <!-- Stock Sucursales -->
           <div
             class="q-px-md q-pt-md"
-            style="border: 1px solid rgb(206 206 206); border-radius: 4px"
+            style="
+              border: 1px solid rgb(206 206 206);
+              border-radius: 4px;
+              position: relative;
+            "
           >
+            <div
+              style="
+                position: absolute;
+                left: 50%; /* Mover el elemento al 50% desde el borde izquierdo */
+                transform: translateX(-50%);
+                top: -9px;
+                padding: 0 10px;
+                font-size: 11px;
+                color: #9b9b9b;
+                background-color: white;
+              "
+            >
+              STOCK SUCURSALES
+            </div>
             <div class="row q-mb-md">
               <!-- Stock Deposito -->
               <q-input
@@ -631,6 +663,10 @@
                 class="col q-mr-md"
                 v-model="depo"
                 label="Stock - Deposito"
+                fill-input
+                min="0"
+                @focus="clearIfZero('depo')"
+                @blur="restoreIfEmpty('depo')"
               />
 
               <!-- Stock Galicia -->
@@ -643,6 +679,10 @@
                 v-model="suc1"
                 class="col"
                 label="Stock - Galicia"
+                fill-input
+                min="0"
+                @focus="clearIfZero('suc1')"
+                @blur="restoreIfEmpty('suc1')"
               />
             </div>
 
@@ -657,14 +697,18 @@
                 class="col q-mr-md"
                 v-model="suc2"
                 label="Stock - Juan B. Justo"
+                fill-input
+                min="0"
+                @focus="clearIfZero('suc2')"
+                @blur="restoreIfEmpty('suc2')"
               />
 
               <!-- Stock Total -->
               <q-input
                 outlined
-                class="col"
+                class="col custom-readonly-input"
                 stack-label
-                disable
+                readonly
                 type="number"
                 dense
                 v-model="stock"
@@ -784,7 +828,6 @@ export default defineComponent({
     const offerCost = ref();
     const lowestCost = ref();
     const costEffectiveness = ref();
-    // const stock = ref();
     const suc1 = ref(0);
     const suc2 = ref(0);
     const depo = ref(0);
@@ -933,8 +976,7 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
-          console.log(dataTable.value);
-          loadingScreen.value = false;
+                   loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
             const workbook = XLSX.utils.book_new();
@@ -964,7 +1006,7 @@ export default defineComponent({
         offerCost.value = null;
         lowestCost.value = null;
         costEffectiveness.value = null;
-        stock.value = null;
+        // stock.value = null;
         suc1.value = 0;
         suc2.value = 0;
         depo.value = 0;
@@ -986,7 +1028,7 @@ export default defineComponent({
         offerCost.value = null;
         lowestCost.value = null;
         costEffectiveness.value = null;
-        stock.value = null;
+        // stock.value = null;
         suc1.value = 0;
         suc2.value = 0;
         depo.value = 0;
@@ -999,10 +1041,32 @@ export default defineComponent({
 
     // COMPUTER
     const stock = computed(() => {
-      return parseInt(suc1.value) + parseInt(suc2.value) + parseInt(depo.value);
+      return [suc1.value, suc2.value, depo.value]
+        .map((value) => parseInt(value) || 0)
+        .reduce((acc, value) => acc + value, 0);
     });
 
     // FUNCIONES
+
+    const clearIfZero = (inputName) => {
+      if (inputName === "depo" && depo.value === 0) {
+        depo.value = "";
+      } else if (inputName === "suc1" && suc1.value === 0) {
+        suc1.value = "";
+      } else if (inputName === "suc2" && suc2.value === 0) {
+        suc2.value = "";
+      }
+    };
+
+    const restoreIfEmpty = (inputName) => {
+      if (inputName === "depo" && depo.value === "") {
+        depo.value = 0;
+      } else if (inputName === "suc1" && suc1.value === "") {
+        suc1.value = 0;
+      } else if (inputName === "suc2" && suc2.value === "") {
+        suc2.value = 0;
+      }
+    };
 
     const filterFnSuppliers = (val, update) => {
       update(() => {
@@ -1052,7 +1116,7 @@ export default defineComponent({
       offerCost.value = null;
       lowestCost.value = null;
       costEffectiveness.value = null;
-      stock.value = 0;
+      // stock.value = null;
       suc1.value = 0;
       suc2.value = 0;
       depo.value = 0;
@@ -1082,14 +1146,14 @@ export default defineComponent({
           suppliers.forEach((s) => {
             data.nro.split(" ").forEach((n) => {
               if (n == s.value) {
-                console.log(s);
+
                 selectSuppliers.value.push(s);
               }
             });
           });
         }
 
-        console.log(data);
+
         // selectSuppliers.value = nroList
 
         index.value = data.index;
@@ -1102,7 +1166,7 @@ export default defineComponent({
         offerCost.value = data.oferta_costo;
         lowestCost.value = data.costo_mas_bajo;
         costEffectiveness.value = data.rentabilidad;
-        stock.value = data.stock;
+        // stock.value = data.stock;
         suc1.value = data.suc1;
         suc2.value = data.suc2;
         depo.value = data.depo;
@@ -1150,7 +1214,6 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      console.log(data);
 
       api.post("/api/product_detail", data).then((response) => {
         api.get("/api/product_detail").then((response) => {
@@ -1207,15 +1270,12 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      console.log(data);
 
       api.put("/api/product_detail", data).then((response) => {
-        console.log(response.data);
 
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
-          console.log(dataTable.value);
-          dialog.value = false;
+              dialog.value = false;
           dialogLoading.value = false;
         });
       });
@@ -1228,8 +1288,7 @@ export default defineComponent({
       // };
       dialogLoadingDelete.value = true;
       api.delete(`/api/product_detail/${index.value}`).then((response) => {
-        console.log(response.data);
-        api.get("/api/product_detail").then((response) => {
+           api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialogDelete.value = false;
           dialogLoadingDelete.value = false;
@@ -1238,6 +1297,9 @@ export default defineComponent({
     };
 
     return {
+      clearIfZero,
+      restoreIfEmpty,
+      pagination,
       columns,
       dialog,
       dialogTitle,
@@ -1297,8 +1359,21 @@ export default defineComponent({
 }
 </style>
 
-<style lang="sass">
+<style lang="sass" scoped>
+/* Aplicar estilos específicos para .custom-readonly-input-g */
+.custom-readonly-input-g
+  :deep(.q-field__control:before)
+    border-width: 1px !important
+    border-color: #bdbdbd !important
+    border-style: solid !important
 
+/* Aplicar estilos específicos para .custom-readonly-input */
+.custom-readonly-input
+  :deep(.q-field__control:before)
+    border-width: 1.5px !important
+    border-color: #757575 !important
+    border-style: solid !important
+    background-color: #f7f7f7 !important
 .my-sticky-header-last-column-table
   /* height or max-height is important */
   height: 310px
