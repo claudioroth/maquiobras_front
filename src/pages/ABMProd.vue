@@ -417,8 +417,6 @@
           @reset="onReset"
           class="q-gutter-md"
         >
-
-
           <!-- Nro -->
           <q-select
             outlined
@@ -453,29 +451,28 @@
             </template>
           </q-select>
 
-
           <div class="row">
-          <!-- Descripcion -->
-          <q-input
-            outlined
-            dense
-            class="col-8 q-mr-md"
-            v-model="description"
-            label="Descripcion"
-            :rules="[(val) => !!val || '']"
-          />
+            <!-- Descripcion -->
+            <q-input
+              outlined
+              dense
+              class="col-8 q-mr-md"
+              v-model="description"
+              label="Descripcion"
+              :rules="[(val) => !!val || '']"
+            />
 
-          <!-- Rentabilidad -->
-          <q-input
-            outlined
-            step="any"
-            type="number"
-            class="col inputNumber"
-            dense
-            v-model="costEffectiveness"
-            label="Rentabilidad"
-          />
-        </div>
+            <!-- Rentabilidad -->
+            <q-input
+              outlined
+              step="any"
+              type="number"
+              class="col inputNumber"
+              dense
+              v-model="costEffectiveness"
+              label="Rentabilidad"
+            />
+          </div>
 
           <div
             class="q-pa-md row"
@@ -667,6 +664,7 @@
                 outlined
                 class="col"
                 stack-label
+                disable
                 type="number"
                 dense
                 v-model="stock"
@@ -745,7 +743,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch } from "vue";
+import { defineComponent, ref, onMounted, watch, computed } from "vue";
 import { date, LocalStorage, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
@@ -786,10 +784,10 @@ export default defineComponent({
     const offerCost = ref();
     const lowestCost = ref();
     const costEffectiveness = ref();
-    const stock = ref();
-    const suc1 = ref();
-    const suc2 = ref();
-    const depo = ref();
+    // const stock = ref();
+    const suc1 = ref(0);
+    const suc2 = ref(0);
+    const depo = ref(0);
     const visibleColumns = ref([]);
 
     const columns = [
@@ -967,6 +965,9 @@ export default defineComponent({
         lowestCost.value = null;
         costEffectiveness.value = null;
         stock.value = null;
+        suc1.value = 0;
+        suc2.value = 0;
+        depo.value = 0;
         selectSuppliers.value = [];
       }
     });
@@ -986,11 +987,19 @@ export default defineComponent({
         lowestCost.value = null;
         costEffectiveness.value = null;
         stock.value = null;
+        suc1.value = 0;
+        suc2.value = 0;
+        depo.value = 0;
       }
     });
 
     watch(visibleColumns, (newValue, OldValue) => {
       LocalStorage.set("prodColFilters", visibleColumns.value);
+    });
+
+    // COMPUTER
+    const stock = computed(() => {
+      return parseInt(suc1.value) + parseInt(suc2.value) + parseInt(depo.value);
     });
 
     // FUNCIONES
@@ -1043,7 +1052,10 @@ export default defineComponent({
       offerCost.value = null;
       lowestCost.value = null;
       costEffectiveness.value = null;
-      stock.value = null;
+      stock.value = 0;
+      suc1.value = 0;
+      suc2.value = 0;
+      depo.value = 0;
     };
 
     // Abrir Dialog de borrar producto
@@ -1077,6 +1089,7 @@ export default defineComponent({
           });
         }
 
+        console.log(data);
         // selectSuppliers.value = nroList
 
         index.value = data.index;
@@ -1090,6 +1103,9 @@ export default defineComponent({
         lowestCost.value = data.costo_mas_bajo;
         costEffectiveness.value = data.rentabilidad;
         stock.value = data.stock;
+        suc1.value = data.suc1;
+        suc2.value = data.suc2;
+        depo.value = data.depo;
       }
     };
 
@@ -1129,13 +1145,14 @@ export default defineComponent({
         costo_mas_bajo: lowestCost.value,
         rentabilidad: costEffectiveness.value,
         stock: stock.value ? parseInt(stock.value) : 0,
+        suc1: suc1.value ? parseInt(suc1.value) : 0,
+        suc2: suc2.value ? parseInt(suc2.value) : 0,
+        depo: depo.value ? parseInt(depo.value) : 0,
       };
 
       console.log(data);
 
       api.post("/api/product_detail", data).then((response) => {
-        // loadingScreen.value = true
-
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialog.value = false;
@@ -1147,25 +1164,13 @@ export default defineComponent({
             timeout: 2000,
           });
           dialogLoading.value = false;
-          // loadingScreen.value = false
         });
-        // loadingTable.value = true;
-        // get_data();
-        // $q.notify({
-        //   icon: "done",
-        //   message: "Retiro completado",
-        //   position: "bottom",
-        //   timeout: 2000,
-        // });
-
-        // dialog.value = false;
-        // dialogLoading.value = false;
       });
     };
 
     // Modificar Producto
     const modify_product = () => {
-      // dialogLoading.value = true;
+      dialogLoading.value = true;
       const nroList = [];
       nro.value.forEach((n) => {
         nroList.push(n.value);
@@ -1202,18 +1207,18 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      console.log(data)
+      console.log(data);
 
-      // api.put("/api/product_detail", data).then((response) => {
-      //   console.log(response.data);
+      api.put("/api/product_detail", data).then((response) => {
+        console.log(response.data);
 
-      //   api.get("/api/product_detail").then((response) => {
-      //     dataTable.value = response.data;
-      //     console.log(dataTable.value);
-      //     dialog.value = false;
-      //     dialogLoading.value = false;
-      //   });
-      // });
+        api.get("/api/product_detail").then((response) => {
+          dataTable.value = response.data;
+          console.log(dataTable.value);
+          dialog.value = false;
+          dialogLoading.value = false;
+        });
+      });
     };
 
     // Borrar Producto
@@ -1291,8 +1296,6 @@ export default defineComponent({
   padding-bottom: 0;
 }
 </style>
-
-
 
 <style lang="sass">
 
