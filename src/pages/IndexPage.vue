@@ -163,6 +163,23 @@
             </template>
           </q-select>
 
+          <!-- Destino -->
+          <q-select
+            outlined
+            v-model="destination"
+            input-debounce="0"
+            label="Destino"
+            :disable="!branch"
+            :options="selectDestination"
+            :rules="[(val) => !!val || 'Seleccione un destino']"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
           <!-- Herramienta a Retirar -->
           <q-select
             outlined
@@ -228,7 +245,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch } from "vue";
+import { defineComponent, ref, onMounted, watch, computed } from "vue";
 import { date, SessionStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
@@ -250,9 +267,11 @@ export default defineComponent({
     const tool = ref(null);
     const amount = ref(null);
     const branch = ref(null);
+    const destination = ref(null);
     const selectUsers = ref([]);
     const selectTools = ref([]);
     const selectAmount = ref();
+    const selectBranch = ["Deposito", "Local Galicia", "Local Juan B Justo"];
     const optionsSelectUsers = ref(selectUsers.value);
     const optionsSelectTools = ref(selectTools.value);
     const useAdmin = SessionStorage.getItem("is_admin");
@@ -276,6 +295,13 @@ export default defineComponent({
         align: "center",
         label: "Sucursal",
         field: "local",
+        sortable: true,
+      },
+      {
+        name: "destino",
+        align: "center",
+        label: "Destino",
+        field: "destino",
         sortable: true,
       },
       {
@@ -334,26 +360,32 @@ export default defineComponent({
           selectSuc = "depo";
           break;
         default:
-        selectSuc = null;
+          selectSuc = null;
       }
-      if(selectSuc){
-      api.get(`/api/controlmix/${selectSuc}`).then((response) => {
-        response.data.forEach((d) => {
+      if (selectSuc) {
+        api.get(`/api/controlmix/${selectSuc}`).then((response) => {
+          response.data.forEach((d) => {
+            const obj = {
+              suc1: d.suc1,
+              suc2: d.suc2,
+              depo: d.depo,
+            };
 
-          const obj = {
-            suc1:d.suc1,
-            suc2:d.suc2,
-            depo:d.depo
-          }
-
-          selectTools.value.push({
-            label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
-            value: d.index,
-            amount: obj[selectSuc]
+            selectTools.value.push({
+              label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
+              value: d.index,
+              amount: obj[selectSuc],
+            });
           });
         });
-      });
-    }
+      }
+    });
+
+    // COMPUTER
+    const selectDestination = computed(() => {
+      return branch.value
+        ? selectBranch.filter((item) => item !== branch.value)
+        : [];
     });
 
     // FUNCIONES
@@ -386,6 +418,7 @@ export default defineComponent({
       tool.value = null;
       amount.value = null;
       branch.value = null;
+      destination.value = null;
       selectUsers.value = [];
       selectTools.value = [];
 
@@ -403,6 +436,7 @@ export default defineComponent({
       tool.value = null;
       amount.value = null;
       branch.value = null;
+      destination.value = null;
     };
 
     // Retirar Herramienta
@@ -415,6 +449,7 @@ export default defineComponent({
         id_prod: tool.value.value,
         descripcion: tool.value.label,
         local: branch.value,
+        destino: destination.value
       };
 
       api.post("/api/control", data).then((response) => {
@@ -461,6 +496,7 @@ export default defineComponent({
       tool,
       amount,
       branch,
+      destination,
       filter: ref(""),
       dialog,
       dialogLoading,
@@ -475,8 +511,9 @@ export default defineComponent({
       createNumberList,
       pagination,
       useAdmin,
-      selectBranch: ["Deposito", "Local Galicia", "Local Juan B Justo"],
+      selectBranch,
       selectAmount,
+      selectDestination,
     };
   },
   methods: {
