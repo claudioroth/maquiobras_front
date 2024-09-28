@@ -158,7 +158,7 @@ export default defineComponent({
         .then((response) => {
           SessionStorage.set("user", response.data.user);
           SessionStorage.set("password", response.data.password);
-          SessionStorage.set("is_admin", response.data.is_admin);
+          SessionStorage.set("rol", response.data.rol);
 
           if(!LocalStorage.getItem("prodColFilters")){
           LocalStorage.set("prodColFilters", [

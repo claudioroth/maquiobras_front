@@ -58,7 +58,7 @@
       :loading="loadingTable"
       bordered
       dense
-      title="Movimiento de Stock"
+      title="Ingreso de Stock"
       :rows="controles"
       :columns="columns"
       row-key="id"

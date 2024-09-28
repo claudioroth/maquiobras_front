@@ -106,7 +106,7 @@ export default defineComponent({
 
   setup() {
     const nameUser = SessionStorage.getItem("user");
-    const isAdmin = SessionStorage.getItem("is_admin");
+    const rol = SessionStorage.getItem("rol");
 
     const leftDrawerOpen = ref(false);
     const search = ref("");
@@ -118,17 +118,19 @@ export default defineComponent({
     const rolMenu = () => {
       var data = [
         {
-          icon: "o_inventory",
-          text: "Planilla de Control",
+          icon: "move_up",
+          text: "Movimiento de Stock",
           toPage: "IndexPage",
         },
         // { icon: "construction", text: "ABM Productos", toPage: "ABMProd" },
       ];
-      isAdmin == 1
+      rol == 1
         ? data.push(
-          { icon: "construction", text: "ABM Productos", toPage: "ABMProd" },
-            { icon: "person", text: "ABM Usuarios", toPage: "ABMUser" }
-
+            { icon: "o_construction", text: "ABM Productos", toPage: "ABMProd" },
+            { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+            { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
+            { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
+            { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" }
           )
         : null;
       return data;
@@ -136,7 +138,7 @@ export default defineComponent({
 
     return {
       nameUser,
-      isAdmin,
+      rol,
       fabYoutube,
       leftDrawerOpen,
       search,

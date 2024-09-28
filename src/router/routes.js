@@ -15,6 +15,9 @@ const routes = [
       { path: 'indexpage', component: () => import('../pages/IndexPage.vue') },
       { path: 'ABMProd', component: () => import('pages/ABMProd.vue') },
       { path: 'ABMUser', component: () => import('pages/ABMUser.vue') },
+      { path: 'ProductEntry', component: () => import('pages/ProductEntry.vue') },
+      { path: 'StockBranch', component: () => import('pages/StockBranch.vue') },
+      { path: 'SaleProducts', component: () => import('pages/SaleProducts.vue') }
     ]
   },
   {
