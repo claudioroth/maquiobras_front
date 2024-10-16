@@ -156,6 +156,8 @@ export default defineComponent({
           password: this.userForm.password,
         })
         .then((response) => {
+
+          SessionStorage.set("id_user", response.data.id);
           SessionStorage.set("user", response.data.user);
           SessionStorage.set("password", response.data.password);
           if(response.data.rol == 3 ){

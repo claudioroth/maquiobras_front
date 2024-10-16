@@ -14,7 +14,7 @@
           outline
           :disable="loadingScreen"
           @click="open_dialog('create')"
-          ><q-icon name="construction" class="q-mr-sm" /> Nuevo Retiro
+          ><q-icon name="add_business" class="q-mr-sm" /> Nuevo Ingreso
         </q-btn>
 
         <!-- <q-btn-group v-if="useAdmin" push class="no-shadow">
@@ -57,9 +57,8 @@
       flat
       :loading="loadingTable"
       bordered
-      dense
       title="Ingreso de Stock"
-      :rows="controles"
+      :rows="income"
       :columns="columns"
       row-key="id"
       :filter="filter"
@@ -79,17 +78,18 @@
         </q-input>
       </template> -->
 
-      <template v-slot:body-cell-retiro="props">
+      <template v-slot:body-cell-cantidad="props">
         <q-td :props="props">
           <div>
-            <q-badge color="red-7" :label="props.row.retiro" />
+            <q-badge color="grey-7">
+              {{ props.row.cantidad }}
+            </q-badge>
           </div>
         </q-td>
       </template>
 
       <template v-slot:body-cell-fecha="props">
         <q-td :props="props">
-
           <div>
             <q-badge color="red-7">
               {{ props.row.fecha }}
@@ -119,42 +119,22 @@
     <q-card class="column full-height" style="width: 500px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
-        <div class="text-grey-8">Nuevo Retiro</div>
+        <div class="text-grey-8">Nuevo Ingreso</div>
       </q-card-section>
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form
-          @submit="create_withdrawal"
-          @reset="onReset"
-          class="q-gutter-md"
-        >
-          <!-- Usuario -->
-          <!-- <q-select
-            outlined
-            v-model="user"
-            use-input
-            input-debounce="0"
-            label="Usuario"
-            :options="optionsSelectUsers"
-            @filter="filterFnUsers"
-            :rules="[(val) => !!val || 'Seleccione un usuario']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select> -->
-
-          <!-- Sucursal -->
+        <q-form @submit="newEntry" @reset="onReset" class="q-gutter-md">
+          <!-- Semi Administrador -->
           <q-select
             outlined
-            v-model="branch"
+            v-model="semiAdmin"
+            use-input
             input-debounce="0"
-            label="Sucursal"
-            :options="selectBranch"
-            :rules="[(val) => !!val || 'Seleccione una sucursal']"
+            label="Responsable"
+            :options="optionsSelectSemiAdmin"
+            @filter="filterFnSemiAdmin"
+            :rules="[(val) => !!val || 'Seleccione un responsable']"
           >
             <template v-slot:no-option>
               <q-item>
@@ -162,7 +142,6 @@
               </q-item>
             </template>
           </q-select>
-
 
           <!-- Herramienta a Retirar -->
           <q-select
@@ -183,26 +162,32 @@
           </q-select>
 
           <!-- Cantidad -->
-          <q-select
-            outlined
-            v-model="amount"
-            input-debounce="0"
+          <q-input
+            v-model.number="amount"
+            type="number"
             label="Cantidad"
-            :options="tool ? createNumberList(tool.amount) : null"
+            outlined
             :rules="[(val) => !!val || 'Seleccione una cantidad']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
+          />
 
-          <!-- createNumberList -->
+          <!-- Remito -->
+          <q-input
+            outlined
+            v-model="remito"
+            label="Remito"
+            mask="#### - ########"
+            unmasked-value
+            hint="ej = 0001-00000123"
+            :rules="[
+              (val) => !!val || 'El campo es obligatorio',
+              (val) =>
+                val.length === 12 || 'Debes completar el remito correctamente',
+            ]"
+          />
 
           <div>
             <q-btn
-              label="Completar Retiro"
+              label="Completar Ingreso"
               type="submit"
               unelevated
               color="primary"
@@ -243,20 +228,28 @@ export default defineComponent({
     const loadingTable = ref(false);
     const dialog = ref(false);
     const dialogLoading = ref(true);
-    const controles = ref([]);
+    const income = ref([]);
     const user = ref(null);
     const tool = ref(null);
     const amount = ref(null);
     const branch = ref(null);
-    const destination = ref(null);
-    const selectUsers = ref([]);
+    const semiAdmin = ref(null);
+    const remito = ref(null);
+    const semiAdminObject = ref({});
+    const usersObject = ref({});
+    const branchObject = {
+      suc1: "Sucursal Galicia",
+      suc2: "Sucursal Juan B. Justo",
+      depo: "Deposito",
+    };
+    const selectSemiAdmin = ref([]);
     const selectTools = ref([]);
     const selectAmount = ref();
-    const selectBranch = ["Deposito", "Local Galicia", "Local Juan B Justo"];
-    const optionsSelectUsers = ref(selectUsers.value);
+    const optionsSelectSemiAdmin = ref(selectSemiAdmin.value);
     const optionsSelectTools = ref(selectTools.value);
     // const useAdmin = SessionStorage.getItem("is_admin");
-    const userBranch = SessionStorage.getItem('branch');
+    const idUser = SessionStorage.getItem("id_user");
+    const userBranch = SessionStorage.getItem("branch");
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -264,12 +257,19 @@ export default defineComponent({
     let fileName = "archivo";
 
     const columns = [
-      { name: "id_user", label: "Usuario", field: "id_user", align: "center" },
+      {
+        name: "id_user",
+        label: "Usuario",
+        field: "id_user",
+        align: "center",
+        format: (val) => usersObject.value[val],
+      },
       {
         name: "id_sucursal",
         align: "center",
         label: "Sucursal",
         field: "id_sucursal",
+        format: (val) => branchObject[val],
         sortable: true,
       },
       {
@@ -291,6 +291,7 @@ export default defineComponent({
         field: "semi_admin",
         align: "center",
         sortable: true,
+        format: (val) => usersObject.value[val],
       },
       {
         name: "remito",
@@ -311,19 +312,30 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
-
       api
-        .get(`/api/ingreso${userBranch ? `/${userBranch}` : 's'}`)
+        .get(`/api/ingreso${userBranch ? `/${userBranch}` : "s"}`)
         .then((response) => {
-          controles.value = response.data;
+          income.value = response.data;
           loadingScreen.value = false;
         })
         .catch((error) => {
           handleCustomError(error.message);
         });
 
-    });
+      // usuarios
+      api.get("/api/users").then((response) => {
+        response.data.forEach((u) => {
+          usersObject.value[u.id] = u.user;
+        });
+      });
 
+      // semi administradores
+      api.get("/api/semiadmin").then((response) => {
+        response.data.forEach((sm) => {
+          semiAdminObject.value[sm.id] = sm.user;
+        });
+      });
+    });
     // WATCH
     watch(dialog, (newValue, OldValue) => {
       if (newValue == false) {
@@ -335,66 +347,15 @@ export default defineComponent({
       amount.value = null;
     });
 
-    // Carga el selector de herramientas segun el local
-    watch(branch, (newValue, OldValue) => {
-      selectTools.value = [];
-      tool.value = null;
-      let selectSuc = null;
-      switch (newValue) {
-        case "Local Galicia":
-          selectSuc = "suc1";
-          break;
-        case "Local Juan B Justo":
-          selectSuc = "suc2";
-          break;
-        case "Deposito":
-          selectSuc = "depo";
-          break;
-        default:
-          selectSuc = null;
-      }
-      if (selectSuc) {
-        api.get(`/api/controlmix/${selectSuc}`).then((response) => {
-          response.data.forEach((d) => {
-            const obj = {
-              suc1: d.suc1,
-              suc2: d.suc2,
-              depo: d.depo,
-            };
-
-            selectTools.value.push({
-              label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
-              value: d.index,
-              amount: obj[selectSuc],
-            });
-          });
-        });
-      }
-    });
-
-    // COMPUTER
-    const selectDestination = computed(() => {
-      return branch.value
-        ? selectBranch.filter((item) => item !== branch.value)
-        : [];
-    });
-
     // FUNCIONES
-    // Crea una lista segun el numero en el stock
-    const createNumberList = (until) => {
-      const list = [];
-      for (let i = 1; i <= until; i++) {
-        list.push(i);
-      }
-      return list;
-    };
 
     // Refresca la tabla principal
     const get_data = () => {
       api
-        .get("/api/control")
+        .get(`/api/ingreso${userBranch ? `/${userBranch}` : "s"}`)
         .then((response) => {
-          controles.value = response.data;
+          income.value = response.data;
+          loadingScreen.value = false;
           loadingTable.value = false;
         })
         .catch((error) => {
@@ -405,50 +366,64 @@ export default defineComponent({
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      user.value = null;
       tool.value = null;
+      semiAdmin.value = null;
       amount.value = null;
-      branch.value = null;
-      destination.value = null;
-      selectUsers.value = [];
+      remito.value = null;
+      selectSemiAdmin.value = [];
       selectTools.value = [];
 
-      // Carga select Usuarios
-      api.get("/api/controlmix").then((response) => {
-        response.data.user.forEach((d) => {
-          selectUsers.value.push({ label: d.user, value: d.id });
+      // Carga select semi administradores
+      api.get("/api/semiadmin").then((response) => {
+        response.data.forEach((sm) => {
+          selectSemiAdmin.value.push({ label: sm.user, value: sm.id });
         });
-        dialogLoading.value = false;
+
+        api.get(`/api/controlmix/${userBranch}`).then((response) => {
+          response.data.forEach((t) => {
+            selectTools.value.push({ label: t.descripcion, value: t.index });
+          });
+
+          dialogLoading.value = false;
+        });
       });
     };
 
     const onReset = () => {
-      user.value = null;
+      semiAdmin.value = null;
       tool.value = null;
       amount.value = null;
       branch.value = null;
-      destination.value = null;
+      remito.value = null;
+      // destination.value = null;
     };
 
-    // Retirar Herramienta
-    const create_withdrawal = () => {
-      dialogLoading.value = true;
+    const parseRemito = (input) => {
+      const part1 = input.slice(0, 4);
+      const part2 = input.slice(4);
+      return `${part1}-${part2}`;
+    };
+
+    // Ingreso de productos
+    const newEntry = () => {
+      // dialogLoading.value = true;
 
       const data = {
-        retiro: amount.value,
-        id_user: user.value.value,
+        id_user: idUser,
+        id_sucursal: userBranch,
+        cantidad: amount.value,
         id_prod: tool.value.value,
-        descripcion: tool.value.label,
-        local: branch.value,
-        destino: destination.value
+        producto: tool.value.label,
+        semi_admin: semiAdmin.value.value,
+        remito: parseRemito(remito.value),
       };
 
-      api.post("/api/control", data).then((response) => {
+      api.post("/api/ingresos", data).then((response) => {
         loadingTable.value = true;
         get_data();
         $q.notify({
           icon: "done",
-          message: "Retiro completado",
+          message: "Ingreso completado",
           position: "bottom",
           timeout: 2000,
         });
@@ -459,10 +434,10 @@ export default defineComponent({
     };
 
     // Filtro Select Usuarios
-    const filterFnUsers = (val, update) => {
+    const filterFnSemiAdmin = (val, update) => {
       update(() => {
         const needle = val.toLowerCase();
-        optionsSelectUsers.value = selectUsers.value.filter((v) => {
+        optionsSelectSemiAdmin.value = selectSemiAdmin.value.filter((v) => {
           return v.label.toLowerCase().indexOf(needle) > -1;
         });
       });
@@ -482,52 +457,30 @@ export default defineComponent({
       columns,
       loadingScreen,
       loadingTable,
-      controles,
+      income,
       user,
       tool,
       amount,
       branch,
-      destination,
+      semiAdmin,
+      remito,
+      semiAdminObject,
+      branchObject,
       filter: ref(""),
       dialog,
       dialogLoading,
-      selectUsers,
-      optionsSelectUsers,
+      selectSemiAdmin,
+      optionsSelectSemiAdmin,
       optionsSelectTools,
-      filterFnUsers,
+      filterFnSemiAdmin,
       filterFnTools,
       onReset,
-      create_withdrawal,
+      newEntry,
       open_dialog,
-      createNumberList,
       pagination,
-      selectBranch,
       selectAmount,
-      selectDestination,
-      userBranch
+      userBranch,
     };
-  },
-  methods: {
-    async searchData() {
-      await api
-        .get("/api/control")
-        .then((response) => {
-          controles.value = response.data;
-          this.loading_report = false;
-        })
-        .catch((error) => {
-          this.loading_report = false;
-          handleCustomError(error.message);
-        });
-    },
-
-    parse_datetime(dateString, type) {
-      if (type == "date") {
-        return date.formatDate(dateString, "DD-MM-YYYY");
-      } else {
-        return date.formatDate(dateString, "HH:mm");
-      }
-    },
   },
 });
 </script>
