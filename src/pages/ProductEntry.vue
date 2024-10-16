@@ -7,7 +7,7 @@
         style="border: solid 1px #e0e0e0"
       >
         <q-btn
-          v-if="useAdmin"
+          v-if="userBranch"
           class="q-mr-md q-px-lg"
           size="md"
           color="grey-7"
@@ -89,10 +89,10 @@
 
       <template v-slot:body-cell-fecha="props">
         <q-td :props="props">
-          <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
+
           <div>
             <q-badge color="red-7">
-              {{ parse_datetime(props.row.fecha, "hours") }}
+              {{ props.row.fecha }}
             </q-badge>
           </div>
         </q-td>
@@ -130,7 +130,7 @@
           class="q-gutter-md"
         >
           <!-- Usuario -->
-          <q-select
+          <!-- <q-select
             outlined
             v-model="user"
             use-input
@@ -145,7 +145,7 @@
                 <q-item-section class="text-grey"> No results </q-item-section>
               </q-item>
             </template>
-          </q-select>
+          </q-select> -->
 
           <!-- Sucursal -->
           <q-select
@@ -163,34 +163,16 @@
             </template>
           </q-select>
 
-          <!-- Destino -->
-          <q-select
-            outlined
-            v-model="destination"
-            input-debounce="0"
-            label="Destino"
-            :disable="!branch"
-            :options="selectDestination"
-            :rules="[(val) => !!val || 'Seleccione un destino']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
 
           <!-- Herramienta a Retirar -->
           <q-select
             outlined
             v-model="tool"
             use-input
-            :disable="branch ? false : true"
             input-debounce="0"
             label="Herramienta"
             :options="optionsSelectTools"
             @filter="filterFnTools"
-            :hint="tool ? `Hay ${tool.amount} en stock` : null"
             :rules="[(val) => !!val || 'Seleccione una herramienta']"
           >
             <template v-slot:no-option>
@@ -204,7 +186,6 @@
           <q-select
             outlined
             v-model="amount"
-            :disable="tool ? (tool.amount == 0 ? true : false) : true"
             input-debounce="0"
             label="Cantidad"
             :options="tool ? createNumberList(tool.amount) : null"
@@ -274,7 +255,8 @@ export default defineComponent({
     const selectBranch = ["Deposito", "Local Galicia", "Local Juan B Justo"];
     const optionsSelectUsers = ref(selectUsers.value);
     const optionsSelectTools = ref(selectTools.value);
-    const useAdmin = SessionStorage.getItem("is_admin");
+    // const useAdmin = SessionStorage.getItem("is_admin");
+    const userBranch = SessionStorage.getItem('branch');
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -282,26 +264,19 @@ export default defineComponent({
     let fileName = "archivo";
 
     const columns = [
-      { name: "nombre", label: "Nombre", field: "nombre", align: "center" },
+      { name: "id_user", label: "Usuario", field: "id_user", align: "center" },
       {
-        name: "retiro",
-        align: "center",
-        label: "Retiro-Cantidad",
-        field: "retiro",
-        sortable: true,
-      },
-      {
-        name: "local",
+        name: "id_sucursal",
         align: "center",
         label: "Sucursal",
-        field: "local",
+        field: "id_sucursal",
         sortable: true,
       },
       {
-        name: "destino",
+        name: "cantidad",
         align: "center",
-        label: "Destino",
-        field: "destino",
+        label: "Cantidad",
+        field: "cantidad",
         sortable: true,
       },
       {
@@ -309,6 +284,20 @@ export default defineComponent({
         label: "Producto",
         field: "producto",
         align: "center",
+      },
+      {
+        name: "semi_admin",
+        label: "Semi Administrador",
+        field: "semi_admin",
+        align: "center",
+        sortable: true,
+      },
+      {
+        name: "remito",
+        label: "Remito",
+        field: "remito",
+        align: "center",
+        sortable: true,
       },
       {
         name: "fecha",
@@ -322,8 +311,9 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
+
       api
-        .get("/api/control")
+        .get(`/api/ingreso${userBranch ? `/${userBranch}` : 's'}`)
         .then((response) => {
           controles.value = response.data;
           loadingScreen.value = false;
@@ -331,6 +321,7 @@ export default defineComponent({
         .catch((error) => {
           handleCustomError(error.message);
         });
+
     });
 
     // WATCH
@@ -510,10 +501,10 @@ export default defineComponent({
       open_dialog,
       createNumberList,
       pagination,
-      useAdmin,
       selectBranch,
       selectAmount,
       selectDestination,
+      userBranch
     };
   },
   methods: {

@@ -301,12 +301,14 @@ export default defineComponent({
       rowsPerPage: 0,
     });
 
+
+
     let fileName = "archivo";
 
     const branchOption = ref([
-      { label: "Sucursal Galicia", value: 1 },
-      { label: "Sucursal Juan B Justo", value: 2 },
-      { label: "Deposito", value: 3 },
+      { label: "Sucursal Galicia", value: "suc1" },
+      { label: "Sucursal Juan B Justo", value: "suc2" },
+      { label: "Deposito", value: "depo" },
     ]);
 
     const columns = [
@@ -371,6 +373,7 @@ export default defineComponent({
     };
 
     const branchName = (id) => {
+
       return id
         ? branchOption.value.find((option) => option.value == id).label
         : "-";
@@ -435,6 +438,8 @@ export default defineComponent({
         sucursal: rol.value == 3 ? branch.value.value : null,
         is_active: is_active.value,
       };
+
+
 
       api.put("/api/users", data).then((response) => {
         loadingTable.value = true;

@@ -158,6 +158,9 @@ export default defineComponent({
         .then((response) => {
           SessionStorage.set("user", response.data.user);
           SessionStorage.set("password", response.data.password);
+          if(response.data.rol == 3 ){
+          SessionStorage.set("branch", response.data.sucursal);
+        }
           SessionStorage.set("rol", response.data.rol);
 
           if(!LocalStorage.getItem("prodColFilters")){

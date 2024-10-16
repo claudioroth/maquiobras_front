@@ -122,13 +122,14 @@ export default defineComponent({
           text: "Movimiento de Stock",
           toPage: "IndexPage",
         },
+        { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
         // { icon: "construction", text: "ABM Productos", toPage: "ABMProd" },
       ];
       rol == 1
         ? data.push(
             { icon: "o_construction", text: "ABM Productos", toPage: "ABMProd" },
             { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
-            { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
+
             { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
             { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" }
           )
