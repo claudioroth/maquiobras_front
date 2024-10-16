@@ -78,13 +78,23 @@
         </q-input>
       </template> -->
 
+
       <template v-slot:body-cell-cantidad="props">
         <q-td :props="props">
           <div>
             <q-badge color="grey-7">
-              {{ props.row.cantidad }}
-            </q-badge>
-          </div>
+           {{ props.row.cantidad }}
+           </q-badge>
+           </div>
+        </q-td>
+      </template>
+
+
+      <template v-slot:body-cell-remito="props">
+        <q-td :props="props">
+          <div>
+           {{ props.row.remito ? props.row.remito : "-"}}
+           </div>
         </q-td>
       </template>
 
@@ -178,11 +188,7 @@
             mask="#### - ########"
             unmasked-value
             hint="ej = 0001-00000123"
-            :rules="[
-              (val) => !!val || 'El campo es obligatorio',
-              (val) =>
-                val.length === 12 || 'Debes completar el remito correctamente',
-            ]"
+            :rules="[validateRemito]"
           />
 
           <div>
@@ -236,12 +242,8 @@ export default defineComponent({
     const semiAdmin = ref(null);
     const remito = ref(null);
     const semiAdminObject = ref({});
-    const usersObject = ref({});
-    const branchObject = {
-      suc1: "Sucursal Galicia",
-      suc2: "Sucursal Juan B. Justo",
-      depo: "Deposito",
-    };
+    const usersObject = ref({})
+    const branchObject = {"suc1":"Sucursal Galicia","suc2":"Sucursal Juan B. Justo", "depo":"Deposito"}
     const selectSemiAdmin = ref([]);
     const selectTools = ref([]);
     const selectAmount = ref();
@@ -257,13 +259,7 @@ export default defineComponent({
     let fileName = "archivo";
 
     const columns = [
-      {
-        name: "id_user",
-        label: "Usuario",
-        field: "id_user",
-        align: "center",
-        format: (val) => usersObject.value[val],
-      },
+      { name: "id_user", label: "Usuario", field: "id_user", align: "center", format: (val) => usersObject.value[val] },
       {
         name: "id_sucursal",
         align: "center",
@@ -291,7 +287,7 @@ export default defineComponent({
         field: "semi_admin",
         align: "center",
         sortable: true,
-        format: (val) => usersObject.value[val],
+        format: (val) => usersObject.value[val]
       },
       {
         name: "remito",
@@ -322,20 +318,20 @@ export default defineComponent({
           handleCustomError(error.message);
         });
 
-      // usuarios
-      api.get("/api/users").then((response) => {
+        // usuarios
+        api.get("/api/users").then((response) => {
         response.data.forEach((u) => {
-          usersObject.value[u.id] = u.user;
+          usersObject.value[u.id] = u.user
         });
-      });
-
-      // semi administradores
-      api.get("/api/semiadmin").then((response) => {
-        response.data.forEach((sm) => {
-          semiAdminObject.value[sm.id] = sm.user;
-        });
-      });
     });
+
+        // semi administradores
+        api.get("/api/semiadmin").then((response) => {
+        response.data.forEach((sm) => {
+          semiAdminObject.value[sm.id] = sm.user
+        });
+    });
+  })
     // WATCH
     watch(dialog, (newValue, OldValue) => {
       if (newValue == false) {
@@ -362,6 +358,16 @@ export default defineComponent({
           handleCustomError(error.message);
         });
     };
+
+    const validateRemito = (val) => {
+      // Si el campo está vacío, es válido
+      if (!val) {
+        return true;
+      }
+
+      // Si el campo tiene algo, debe tener exactamente 12 caracteres
+      return val.length === 12 || 'El remito debe tener 12 caracteres';
+    }
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
@@ -402,7 +408,7 @@ export default defineComponent({
       const part1 = input.slice(0, 4);
       const part2 = input.slice(4);
       return `${part1}-${part2}`;
-    };
+    }
 
     // Ingreso de productos
     const newEntry = () => {
@@ -415,7 +421,7 @@ export default defineComponent({
         id_prod: tool.value.value,
         producto: tool.value.label,
         semi_admin: semiAdmin.value.value,
-        remito: parseRemito(remito.value),
+        remito: remito.value ? parseRemito(remito.value) : null,
       };
 
       api.post("/api/ingresos", data).then((response) => {
@@ -480,8 +486,10 @@ export default defineComponent({
       pagination,
       selectAmount,
       userBranch,
+      validateRemito
     };
   },
+
 });
 </script>
 
