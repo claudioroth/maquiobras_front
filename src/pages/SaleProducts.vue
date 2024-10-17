@@ -7,15 +7,16 @@
         style="border: solid 1px #e0e0e0"
       >
         <q-btn
-          v-if="useAdmin"
           class="q-mr-md q-px-lg"
           size="md"
           color="grey-7"
           outline
           :disable="loadingScreen"
           @click="open_dialog('create')"
-          ><q-icon name="construction" class="q-mr-sm" /> Nuevo Retiro
+          ><q-icon name="construction" class="q-mr-sm" /> Nueva Venta
         </q-btn>
+
+        {{ branch }}
 
         <!-- <q-btn-group v-if="useAdmin" push class="no-shadow">
           <q-btn
@@ -82,13 +83,13 @@
 
       <template v-slot:body-cell-id_user="props">
         <q-td no-hover :props="props">
-            {{ props.row.id_user }}
+          {{ props.row.id_user }}
         </q-td>
       </template>
 
       <template v-slot:body-cell-id_sucursal="props">
         <q-td no-hover :props="props">
-            {{ props.row.id_sucursal }}
+          {{ props.row.id_sucursal }}
         </q-td>
       </template>
 
@@ -105,7 +106,6 @@
               icon="shopping_cart"
               size="sm"
               @mouseover="showPopup = true"
-
             />
 
             <q-popup-proxy
@@ -113,7 +113,7 @@
               transition-show="scale"
               transition-hide="scale"
               class="no-shadow q-pa-none q-mt-md"
-              style="border: 1px solid #ebebeb; margin-top: 10px!important;"
+              style="border: 1px solid #ebebeb; margin-top: 10px !important"
             >
               <q-card class="bg-grey-2 q-pa-none">
                 <q-card-section>
@@ -175,93 +175,91 @@
           @reset="onReset"
           class="q-gutter-md"
         >
-          <!-- Usuario -->
-          <q-select
-            outlined
-            v-model="user"
-            use-input
-            input-debounce="0"
-            label="Usuario"
-            :options="optionsSelectUsers"
-            @filter="filterFnUsers"
-            :rules="[(val) => !!val || 'Seleccione un usuario']"
+          <!-- Productos -->
+          <q-table
+            dense
+            separator="cell"
+            class="text-grey-8 custom-font-size"
+            :rows="products"
+            :columns="productsColumn"
+            row-key="name"
+            hide-bottom
+            flat
+            bordered
+            :filter="productFilter"
           >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
+            <template v-slot:top>
+              <q-input
+                borderless
+                outlined
+                dense
+                class="col-12"
+                debounce="300"
+                v-model="productFilter"
+                placeholder="Search"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
             </template>
-          </q-select>
 
-          <!-- Sucursal -->
-          <q-select
-            outlined
-            v-model="branch"
-            input-debounce="0"
-            label="Sucursal"
-            :options="selectBranch"
-            :rules="[(val) => !!val || 'Seleccione una sucursal']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
+            <template v-slot:body-cell-button="props">
+              <q-td no-hover :props="props">
+                <q-btn
+                  flat
+                  round
+                  size="sm"
+                  color="primary"
+                  icon="o_shopping_cart"
+                  @click="addToCart(props.row)"
+                />
+              </q-td>
             </template>
-          </q-select>
+          </q-table>
 
-          <!-- Destino -->
-          <q-select
-            outlined
-            v-model="destination"
-            input-debounce="0"
-            label="Destino"
-            :disable="!branch"
-            :options="selectDestination"
-            :rules="[(val) => !!val || 'Seleccione un destino']"
+          <!-- Carrito -->
+          <q-table
+            dense
+            class="text-grey-8 custom-font-size"
+            :rows="cart"
+            :columns="productsColumn"
+            row-key="name"
+            hide-bottom
+            flat
+            bordered
           >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
+            <template v-slot:body-cell-suc1="props">
+              <q-td no-hover :props="props">
+                <q-icon
+                  :key="size"
+                  size="xs"
+                  name="arrow_drop_up"
+                  @click="increaseQuantity(props.row)"
+                />
+                {{ props.row.suc1 }}
+                <q-icon
+                  :key="size"
+                  size="xs"
+                  name="arrow_drop_down"
+                  @click="decreaseQuantity(props.row)"
+                />
+              </q-td>
             </template>
-          </q-select>
 
-          <!-- Herramienta a Retirar -->
-          <q-select
-            outlined
-            v-model="tool"
-            use-input
-            :disable="branch ? false : true"
-            input-debounce="0"
-            label="Herramienta"
-            :options="optionsSelectTools"
-            @filter="filterFnTools"
-            :hint="tool ? `Hay ${tool.amount} en stock` : null"
-            :rules="[(val) => !!val || 'Seleccione una herramienta']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
+            <template v-slot:body-cell-button="props">
+              <q-td no-hover :props="props">
+                <q-btn
+                  flat
+                  round
+                  size="sm"
+                  color="primary"
+                  icon="o_delete"
+                  @click="removeFromCart(props.row)"
+                />
+              </q-td>
             </template>
-          </q-select>
-
-          <!-- Cantidad -->
-          <q-select
-            outlined
-            v-model="amount"
-            :disable="tool ? (tool.amount == 0 ? true : false) : true"
-            input-debounce="0"
-            label="Cantidad"
-            :options="tool ? createNumberList(tool.amount) : null"
-            :rules="[(val) => !!val || 'Seleccione una cantidad']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
+          </q-table>
 
           <!-- createNumberList -->
 
@@ -313,15 +311,17 @@ export default defineComponent({
     const user = ref(null);
     const tool = ref(null);
     const amount = ref(null);
-    const branch = ref(null);
-    const destination = ref(null);
+    const products = ref([]);
+
+    const cart = ref([]);
+
     const selectUsers = ref([]);
     const selectTools = ref([]);
     const selectAmount = ref();
-    const selectBranch = ["Deposito", "Local Galicia", "Local Juan B Justo"];
-    const optionsSelectUsers = ref(selectUsers.value);
+
     const optionsSelectTools = ref(selectTools.value);
     const useAdmin = SessionStorage.getItem("is_admin");
+    const branch = SessionStorage.getItem("branch");
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -367,6 +367,27 @@ export default defineComponent({
       },
     ];
 
+    const productsColumn = [
+      {
+        name: "descripcion",
+        label: "Producto",
+        field: "descripcion",
+        align: "center",
+      },
+      {
+        name: branch,
+        label: "Cantidad",
+        field: branch,
+        align: "center",
+      },
+      {
+        name: "button",
+        label: "",
+        field: "button",
+        align: "center",
+      },
+    ];
+
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
@@ -374,67 +395,11 @@ export default defineComponent({
         .get("/api/ventas1")
         .then((response) => {
           sales.value = response.data;
-          console.log(sales.value);
           loadingScreen.value = false;
         })
         .catch((error) => {
           handleCustomError(error.message);
         });
-    });
-
-    // WATCH
-    watch(dialog, (newValue, OldValue) => {
-      if (newValue == false) {
-        dialogLoading.value = true;
-      }
-    });
-
-    watch(tool, (newValue, OldValue) => {
-      amount.value = null;
-    });
-
-    // Carga el selector de herramientas segun el local
-    watch(branch, (newValue, OldValue) => {
-      selectTools.value = [];
-      tool.value = null;
-      let selectSuc = null;
-      switch (newValue) {
-        case "Local Galicia":
-          selectSuc = "suc1";
-          break;
-        case "Local Juan B Justo":
-          selectSuc = "suc2";
-          break;
-        case "Deposito":
-          selectSuc = "depo";
-          break;
-        default:
-          selectSuc = null;
-      }
-      if (selectSuc) {
-        api.get(`/api/controlmix/${selectSuc}`).then((response) => {
-          response.data.forEach((d) => {
-            const obj = {
-              suc1: d.suc1,
-              suc2: d.suc2,
-              depo: d.depo,
-            };
-
-            selectTools.value.push({
-              label: `(${d.nro != null ? d.nro : "-"})  ${d.descripcion}`,
-              value: d.index,
-              amount: obj[selectSuc],
-            });
-          });
-        });
-      }
-    });
-
-    // COMPUTER
-    const selectDestination = computed(() => {
-      return branch.value
-        ? selectBranch.filter((item) => item !== branch.value)
-        : [];
     });
 
     // FUNCIONES
@@ -463,21 +428,83 @@ export default defineComponent({
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      user.value = null;
       tool.value = null;
       amount.value = null;
-      branch.value = null;
-      destination.value = null;
-      selectUsers.value = [];
       selectTools.value = [];
 
       // Carga select Usuarios
-      api.get("/api/controlmix").then((response) => {
-        response.data.user.forEach((d) => {
-          selectUsers.value.push({ label: d.user, value: d.id });
-        });
+      api.get(`/api/controlmix/${branch}`).then((response) => {
+        console.log(response.data);
+        products.value = response.data;
         dialogLoading.value = false;
       });
+    };
+
+    // Agrega al carrito un producto
+    const addToCart = (p) => {
+      const product = products.value.find(
+        (product) => product.index === p.index
+      );
+      if (product && product.suc1 > 0) {
+        product.suc1--;
+        console.log(
+          `Cantidad de producto con ID ${p.index} es ahora: ${product.suc1}`
+        );
+        const cartProduct = cart.value.find((item) => item.index === p.index);
+        if (cartProduct) {
+          cartProduct.suc1++;
+        } else {
+          cart.value.push({
+            index: product.index,
+            descripcion: product.descripcion,
+            suc1: 1,
+          });
+        }
+      } else {
+        console.log("No se puede descontar más, cantidad es 0");
+      }
+    };
+
+    // Saca el producto del carrito
+    const removeFromCart = (p) => {
+      const cartProductIndex = cart.value.findIndex(
+        (item) => item.index === p.index
+      );
+      if (cartProductIndex !== -1) {
+        const productInInventory = products.value.find(
+          (product) => product.index === p.index
+        );
+        if (productInInventory) {
+          productInInventory.suc1 += cart.value[cartProductIndex].suc1;
+          console.log(
+            `Cantidad de producto con ID ${p.index} en inventario es ahora: ${productInInventory.suc1}`
+          );
+        }
+        cart.value.splice(cartProductIndex, 1);
+        console.log(`Producto con ID ${p.index} eliminado del carrito`);
+      }
+    };
+
+    // incrementa la cantidad del producto dentro del carrito
+    const increaseQuantity = (item) => {
+      const product = products.value.find((p) => p.index === item.index);
+      if (product && product.suc1 > 0) {
+        product.suc1--;
+        item.suc1++;
+      } else {
+        console.log("No hay suficiente stock para aumentar");
+      }
+    };
+
+        // Reduce la cantidad del producto dentro del carrito
+    const decreaseQuantity = (item) => {
+      const product = products.value.find((p) => p.index === item.index);
+      if (item.suc1 > 1) {
+        item.suc1--;
+        product.suc1++;
+      } else {
+        console.log("No se puede reducir más la cantidad en el carrito");
+      }
     };
 
     const onReset = () => {
@@ -485,7 +512,6 @@ export default defineComponent({
       tool.value = null;
       amount.value = null;
       branch.value = null;
-      destination.value = null;
     };
 
     // Retirar Herramienta
@@ -498,7 +524,6 @@ export default defineComponent({
         id_prod: tool.value.value,
         descripcion: tool.value.label,
         local: branch.value,
-        destino: destination.value,
       };
 
       api.post("/api/control", data).then((response) => {
@@ -516,16 +541,6 @@ export default defineComponent({
       });
     };
 
-    // Filtro Select Usuarios
-    const filterFnUsers = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsSelectUsers.value = selectUsers.value.filter((v) => {
-          return v.label.toLowerCase().indexOf(needle) > -1;
-        });
-      });
-    };
-
     // Filtro Select Herramientas
     const filterFnTools = (val, update) => {
       update(() => {
@@ -539,32 +554,35 @@ export default defineComponent({
     return {
       columns,
       salesColumns,
+      productsColumn,
       loadingScreen,
       loadingTable,
       sales,
+      products,
+      cart,
       user,
       tool,
       amount,
       branch,
-      destination,
       filter: ref(""),
+      productFilter: ref(""),
       dialog,
       dialogLoading,
       showPopup,
       selectUsers,
-      optionsSelectUsers,
       optionsSelectTools,
-      filterFnUsers,
       filterFnTools,
       onReset,
       create_withdrawal,
       open_dialog,
       createNumberList,
+      addToCart,
+      removeFromCart,
+      increaseQuantity,
+      decreaseQuantity,
       pagination,
       useAdmin,
-      selectBranch,
       selectAmount,
-      selectDestination,
     };
   },
 });
@@ -574,5 +592,4 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
-
 </style>

@@ -123,7 +123,7 @@ export default defineComponent({
           toPage: "IndexPage",
         },
         { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
-        // { icon: "construction", text: "ABM Productos", toPage: "ABMProd" },
+        { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" }
       ];
       rol == 1
         ? data.push(
@@ -131,7 +131,7 @@ export default defineComponent({
             { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
 
             { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
-            { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" }
+
           )
         : null;
       return data;
