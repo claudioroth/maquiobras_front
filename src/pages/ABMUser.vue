@@ -92,7 +92,7 @@
           :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
         >
           <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
-            {{ branchObject[props.row.sucursal]}}
+            {{ props.row.sucursal ? branchObject[props.row.sucursal] : "-"}}
           </div>
         </q-td>
       </template>

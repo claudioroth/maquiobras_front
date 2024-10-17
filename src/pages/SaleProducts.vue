@@ -59,7 +59,7 @@
       bordered
       dense
       title="Ventas"
-      :rows="controles"
+      :rows="sales"
       :columns="columns"
       row-key="id"
       :filter="filter"
@@ -68,6 +68,7 @@
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       color="primary"
+      no-hover
       class="no-shadow text-grey-7"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
     >
@@ -79,22 +80,67 @@
         </q-input>
       </template> -->
 
-      <template v-slot:body-cell-retiro="props">
-        <q-td :props="props">
+      <template v-slot:body-cell-id_user="props">
+        <q-td no-hover :props="props">
+            {{ props.row.id_user }}
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-id_sucursal="props">
+        <q-td no-hover :props="props">
+            {{ props.row.id_sucursal }}
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-ventas="props">
+        <q-td no-hover :props="props">
           <div>
-            <q-badge color="red-7" :label="props.row.retiro" />
+            <q-btn
+              label="productos"
+              color="primary"
+              dense
+              outline
+              style="padding-top: 6px"
+              class="q-px-sm"
+              icon="shopping_cart"
+              size="sm"
+              @mouseover="showPopup = true"
+
+            />
+
+            <q-popup-proxy
+              v-model="showPopup"
+              transition-show="scale"
+              transition-hide="scale"
+              class="no-shadow q-pa-none q-mt-md"
+              style="border: 1px solid #ebebeb; margin-top: 10px!important;"
+            >
+              <q-card class="bg-grey-2 q-pa-none">
+                <q-card-section>
+                  <q-table
+                    dense
+                    class="text-grey-8 text-sm bg-grey-2 custom-font-size"
+                    table-style="font-size:8px"
+                    :rows="JSON.parse(props.row.ventas)"
+                    :columns="salesColumns"
+                    row-key="id_prod"
+                    hide-bottom
+                    flat
+                    separator="cell"
+                    bordered
+                  />
+                </q-card-section>
+              </q-card>
+            </q-popup-proxy>
           </div>
         </q-td>
       </template>
 
       <template v-slot:body-cell-fecha="props">
-        <q-td :props="props">
-          <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
-          <div>
-            <q-badge color="red-7">
-              {{ parse_datetime(props.row.fecha, "hours") }}
-            </q-badge>
-          </div>
+        <q-td no-hover :props="props">
+          <q-badge color="red-7">
+            {{ props.row.fecha }}
+          </q-badge>
         </q-td>
       </template>
     </q-table>
@@ -262,7 +308,8 @@ export default defineComponent({
     const loadingTable = ref(false);
     const dialog = ref(false);
     const dialogLoading = ref(true);
-    const controles = ref([]);
+    const showPopup = ref(false);
+    const sales = ref([]);
     const user = ref(null);
     const tool = ref(null);
     const amount = ref(null);
@@ -280,35 +327,36 @@ export default defineComponent({
     });
 
     let fileName = "archivo";
-
-    const columns = [
-      { name: "nombre", label: "Nombre", field: "nombre", align: "center" },
+    const salesColumns = [
       {
-        name: "retiro",
+        name: "cantidad",
+        label: "Cantidad",
+        field: "cantidad",
         align: "center",
-        label: "Retiro-Cantidad",
-        field: "retiro",
-        sortable: true,
-      },
-      {
-        name: "local",
-        align: "center",
-        label: "Sucursal",
-        field: "local",
-        sortable: true,
-      },
-      {
-        name: "destino",
-        align: "center",
-        label: "Destino",
-        field: "destino",
-        sortable: true,
       },
       {
         name: "producto",
-        label: "Producto",
+        label: "Productos",
         field: "producto",
         align: "center",
+      },
+    ];
+
+    const columns = [
+      { name: "id_user", label: "Usuario", field: "id_user", align: "center" },
+      {
+        name: "id_sucursal",
+        align: "center",
+        label: "Sucursal",
+        field: "id_sucursal",
+        sortable: true,
+      },
+      {
+        name: "ventas",
+        align: "center",
+        label: "Ventas",
+        field: "ventas",
+        sortable: true,
       },
       {
         name: "fecha",
@@ -323,9 +371,10 @@ export default defineComponent({
     onMounted(() => {
       // Carga de Tabla
       api
-        .get("/api/control")
+        .get("/api/ventas1")
         .then((response) => {
-          controles.value = response.data;
+          sales.value = response.data;
+          console.log(sales.value);
           loadingScreen.value = false;
         })
         .catch((error) => {
@@ -403,7 +452,7 @@ export default defineComponent({
       api
         .get("/api/control")
         .then((response) => {
-          controles.value = response.data;
+          sales.value = response.data;
           loadingTable.value = false;
         })
         .catch((error) => {
@@ -449,7 +498,7 @@ export default defineComponent({
         id_prod: tool.value.value,
         descripcion: tool.value.label,
         local: branch.value,
-        destino: destination.value
+        destino: destination.value,
       };
 
       api.post("/api/control", data).then((response) => {
@@ -489,9 +538,10 @@ export default defineComponent({
 
     return {
       columns,
+      salesColumns,
       loadingScreen,
       loadingTable,
-      controles,
+      sales,
       user,
       tool,
       amount,
@@ -500,6 +550,7 @@ export default defineComponent({
       filter: ref(""),
       dialog,
       dialogLoading,
+      showPopup,
       selectUsers,
       optionsSelectUsers,
       optionsSelectTools,
@@ -516,28 +567,6 @@ export default defineComponent({
       selectDestination,
     };
   },
-  methods: {
-    async searchData() {
-      await api
-        .get("/api/control")
-        .then((response) => {
-          controles.value = response.data;
-          this.loading_report = false;
-        })
-        .catch((error) => {
-          this.loading_report = false;
-          handleCustomError(error.message);
-        });
-    },
-
-    parse_datetime(dateString, type) {
-      if (type == "date") {
-        return date.formatDate(dateString, "DD-MM-YYYY");
-      } else {
-        return date.formatDate(dateString, "HH:mm");
-      }
-    },
-  },
 });
 </script>
 
@@ -545,4 +574,5 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
+
 </style>

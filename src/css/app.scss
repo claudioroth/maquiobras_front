@@ -1,2 +1,8 @@
 // app global css in SCSS form
 
+.custom-font-size .q-table__title,
+.custom-font-size .q-table__bottom,
+.custom-font-size th,
+.custom-font-size td {
+  font-size: 10px!important; /* Ajusta el tamaño de las letras */
+}
