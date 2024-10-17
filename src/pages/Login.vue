@@ -150,8 +150,7 @@ export default defineComponent({
     async onSubmit() {
       this.loading_access = true;
 
-      await api
-        .post("/login", {
+      await api.post("/login", {
           user: this.userForm.user,
           password: this.userForm.password,
         })
@@ -159,7 +158,6 @@ export default defineComponent({
 
           SessionStorage.set("id_user", response.data.id);
           SessionStorage.set("user", response.data.user);
-          SessionStorage.set("password", response.data.password);
           if(response.data.rol == 3 ){
           SessionStorage.set("branch", response.data.sucursal);
         }

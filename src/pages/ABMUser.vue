@@ -92,7 +92,7 @@
           :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
         >
           <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
-            {{ branchName(props.row.sucursal) }}
+            {{ branchObject[props.row.sucursal]}}
           </div>
         </q-td>
       </template>
@@ -283,6 +283,7 @@ export default defineComponent({
     const rol = ref("3");
     const branch = ref(null);
     const is_active = ref(null);
+    const branchObject = {"suc1":"Sucursal Galicia","suc2":"Sucursal Juan B. Justo", "depo":"Deposito"}
     const rolOption = ref([
       {
         label: "Usuario",
@@ -325,6 +326,7 @@ export default defineComponent({
         label: "Sucursal",
         field: "sucursal",
         align: "center",
+        format: (val) => branchObject[val],
       },
       {
         name: "fecha",
@@ -369,14 +371,15 @@ export default defineComponent({
     };
 
     const rolName = (id) => {
+
       return rolOption.value.find((option) => option.value == id).label;
     };
 
     const branchName = (id) => {
-
+      // console.log(id)
       return id
-        ? branchOption.value.find((option) => option.value == id).label
-        : "-";
+        // ? branchOption.value.find((option) => option.value == id).label
+        // : "-";
     };
 
     // Abrir Dialog
@@ -529,6 +532,7 @@ export default defineComponent({
       onReset,
       pagination,
       branchOption,
+      branchObject,
       rolOption,
     };
   },
