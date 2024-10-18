@@ -96,6 +96,7 @@
       <template v-slot:body-cell-ventas="props">
         <q-td no-hover :props="props">
           <div>
+
             <q-btn
               label="productos"
               color="primary"
@@ -105,11 +106,11 @@
               class="q-px-sm"
               icon="shopping_cart"
               size="sm"
-              @mouseover="showPopup = true"
+               @click="showPopup[props.row.id] = true"
             />
 
             <q-popup-proxy
-              v-model="showPopup"
+              v-model="showPopup[props.row.id]"
               transition-show="scale"
               transition-hide="scale"
               class="no-shadow q-pa-none q-mt-md"
@@ -306,7 +307,6 @@ export default defineComponent({
     const loadingTable = ref(false);
     const dialog = ref(false);
     const dialogLoading = ref(true);
-    const showPopup = ref(false);
     const sales = ref([]);
     const user = ref(null);
     const tool = ref(null);
@@ -395,6 +395,9 @@ export default defineComponent({
         .get("/api/ventas1")
         .then((response) => {
           sales.value = response.data;
+          sales.value.forEach((sale) => {
+            sale.showPopup = false;
+          });
           loadingScreen.value = false;
         })
         .catch((error) => {
@@ -418,6 +421,9 @@ export default defineComponent({
         .get("/api/control")
         .then((response) => {
           sales.value = response.data;
+          sales.value.forEach((sale) => {
+            sale.showPopup = false;
+          });
           loadingTable.value = false;
         })
         .catch((error) => {
@@ -496,7 +502,7 @@ export default defineComponent({
       }
     };
 
-        // Reduce la cantidad del producto dentro del carrito
+    // Reduce la cantidad del producto dentro del carrito
     const decreaseQuantity = (item) => {
       const product = products.value.find((p) => p.index === item.index);
       if (item.suc1 > 1) {
@@ -568,7 +574,6 @@ export default defineComponent({
       productFilter: ref(""),
       dialog,
       dialogLoading,
-      showPopup,
       selectUsers,
       optionsSelectTools,
       filterFnTools,
@@ -583,6 +588,7 @@ export default defineComponent({
       pagination,
       useAdmin,
       selectAmount,
+      showPopup: Array(products.length).fill(false)
     };
   },
 });
