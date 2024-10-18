@@ -17,24 +17,6 @@
           ><q-icon name="construction" class="q-mr-sm" /> Nueva Venta
         </q-btn>
 
-        {{ branch }}
-
-        <!-- <q-btn-group v-if="useAdmin" push class="no-shadow">
-          <q-btn
-            :disable="loadingScreen"
-            outline
-            color="grey-7"
-            push
-            icon="o_picture_as_pdf"
-          />
-          <q-btn
-            :disable="loadingScreen"
-            outline
-            color="grey-7"
-            push
-            icon="post_add"
-          />
-        </q-btn-group> -->
         <q-space />
         <q-input
           dense
@@ -457,7 +439,6 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
-      console.log(rol);
       api
         .get(rol == 3 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
         .then((response) => {
@@ -669,6 +650,7 @@ export default defineComponent({
       pagination,
       showPopup: Array(products.length).fill(false),
       parse_datetime,
+      rol
     };
   },
 });

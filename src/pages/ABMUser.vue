@@ -6,7 +6,9 @@
         class="bg-white q-pa-md rounded-borders flex"
         style="border: solid 1px #e0e0e0"
       >
+
         <q-btn
+          v-if="userRol == 1"
           class="q-mr-md q-px-lg"
           size="md"
           color="grey-7"
@@ -258,7 +260,7 @@
 
 <script>
 import { defineComponent, ref, onMounted } from "vue";
-import { date, SessionStorage } from "quasar";
+import { date, SessionStorage, LocalStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
@@ -302,6 +304,8 @@ export default defineComponent({
     const pagination = ref({
       rowsPerPage: 0,
     });
+
+    const userRol = SessionStorage.getItem("rol");
 
 
 
@@ -535,6 +539,7 @@ export default defineComponent({
       branchOption,
       branchObject,
       rolOption,
+      userRol
     };
   },
   methods: {

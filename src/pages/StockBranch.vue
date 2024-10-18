@@ -6,15 +6,7 @@
         class="bg-white q-pa-md rounded-borders flex"
         style="border: solid 1px #e0e0e0"
       >
-        <q-btn
-          class="q-mr-md q-px-lg"
-          size="md"
-          color="grey-7"
-          outline
-          :disable="loadingScreen"
-          @click="open_dialog('create')"
-          ><q-icon name="construction" class="q-mr-sm" /> Nuevo Producto
-        </q-btn>
+
 
         <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
           <q-popup-proxy>
@@ -788,7 +780,7 @@
 
 <script>
 import { defineComponent, ref, onMounted, watch, computed } from "vue";
-import { date, LocalStorage, SessionStorage } from "quasar";
+import { date, SessionStorage,LocalStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";

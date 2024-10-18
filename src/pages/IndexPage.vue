@@ -7,7 +7,7 @@
         style="border: solid 1px #e0e0e0"
       >
         <q-btn
-          v-if="useAdmin"
+          v-if="rol == 2"
           class="q-mr-md q-px-lg"
           size="md"
           color="grey-7"
@@ -17,22 +17,6 @@
           ><q-icon name="construction" class="q-mr-sm" /> Nuevo Retiro
         </q-btn>
 
-        <!-- <q-btn-group v-if="useAdmin" push class="no-shadow">
-          <q-btn
-            :disable="loadingScreen"
-            outline
-            color="grey-7"
-            push
-            icon="o_picture_as_pdf"
-          />
-          <q-btn
-            :disable="loadingScreen"
-            outline
-            color="grey-7"
-            push
-            icon="post_add"
-          />
-        </q-btn-group> -->
         <q-space />
         <q-input
           dense
@@ -274,7 +258,7 @@ export default defineComponent({
     const selectBranch = ["Deposito", "Local Galicia", "Local Juan B Justo"];
     const optionsSelectUsers = ref(selectUsers.value);
     const optionsSelectTools = ref(selectTools.value);
-    const useAdmin = SessionStorage.getItem("is_admin");
+    const rol = SessionStorage.getItem("rol");
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -449,7 +433,7 @@ export default defineComponent({
         id_prod: tool.value.value,
         descripcion: tool.value.label,
         local: branch.value,
-        destino: destination.value
+        destino: destination.value,
       };
 
       api.post("/api/control", data).then((response) => {
@@ -510,10 +494,10 @@ export default defineComponent({
       open_dialog,
       createNumberList,
       pagination,
-      useAdmin,
       selectBranch,
       selectAmount,
       selectDestination,
+      rol,
     };
   },
   methods: {
