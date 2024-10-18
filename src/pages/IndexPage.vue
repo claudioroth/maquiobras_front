@@ -14,7 +14,7 @@
           outline
           :disable="loadingScreen"
           @click="open_dialog('create')"
-          ><q-icon name="construction" class="q-mr-sm" /> Nuevo Retiro
+          ><q-icon name="move_up" class="q-mr-sm" /> Mover Stock
         </q-btn>
 
         <q-space />
@@ -103,7 +103,7 @@
     <q-card class="column full-height" style="width: 500px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
-        <div class="text-grey-8">Nuevo Retiro</div>
+        <div class="text-grey-8">Mover Stock</div>
       </q-card-section>
 
       <!-- body -->
@@ -114,7 +114,7 @@
           class="q-gutter-md"
         >
           <!-- Usuario -->
-          <q-select
+          <!-- <q-select
             outlined
             v-model="user"
             use-input
@@ -129,7 +129,7 @@
                 <q-item-section class="text-grey"> No results </q-item-section>
               </q-item>
             </template>
-          </q-select>
+          </q-select> -->
 
           <!-- Sucursal -->
           <q-select
@@ -205,7 +205,7 @@
 
           <div>
             <q-btn
-              label="Completar Retiro"
+              label="Mover Stock"
               type="submit"
               unelevated
               color="primary"
@@ -247,7 +247,6 @@ export default defineComponent({
     const dialog = ref(false);
     const dialogLoading = ref(true);
     const controles = ref([]);
-    const user = ref(null);
     const tool = ref(null);
     const amount = ref(null);
     const branch = ref(null);
@@ -256,9 +255,10 @@ export default defineComponent({
     const selectTools = ref([]);
     const selectAmount = ref();
     const selectBranch = ["Deposito", "Local Galicia", "Local Juan B Justo"];
-    const optionsSelectUsers = ref(selectUsers.value);
+    // const optionsSelectUsers = ref(selectUsers.value);
     const optionsSelectTools = ref(selectTools.value);
     const rol = SessionStorage.getItem("rol");
+    const idUser = SessionStorage.getItem("id_user");
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -398,7 +398,6 @@ export default defineComponent({
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      user.value = null;
       tool.value = null;
       amount.value = null;
       branch.value = null;
@@ -411,12 +410,14 @@ export default defineComponent({
         response.data.user.forEach((d) => {
           selectUsers.value.push({ label: d.user, value: d.id });
         });
-        dialogLoading.value = false;
+
       });
+
+
+      dialogLoading.value = false;
     };
 
     const onReset = () => {
-      user.value = null;
       tool.value = null;
       amount.value = null;
       branch.value = null;
@@ -429,7 +430,7 @@ export default defineComponent({
 
       const data = {
         retiro: amount.value,
-        id_user: user.value.value,
+        id_user: idUser,
         id_prod: tool.value.value,
         descripcion: tool.value.label,
         local: branch.value,
@@ -452,14 +453,14 @@ export default defineComponent({
     };
 
     // Filtro Select Usuarios
-    const filterFnUsers = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsSelectUsers.value = selectUsers.value.filter((v) => {
-          return v.label.toLowerCase().indexOf(needle) > -1;
-        });
-      });
-    };
+    // const filterFnUsers = (val, update) => {
+    //   update(() => {
+    //     const needle = val.toLowerCase();
+    //     optionsSelectUsers.value = selectUsers.value.filter((v) => {
+    //       return v.label.toLowerCase().indexOf(needle) > -1;
+    //     });
+    //   });
+    // };
 
     // Filtro Select Herramientas
     const filterFnTools = (val, update) => {
@@ -476,7 +477,6 @@ export default defineComponent({
       loadingScreen,
       loadingTable,
       controles,
-      user,
       tool,
       amount,
       branch,
@@ -485,9 +485,9 @@ export default defineComponent({
       dialog,
       dialogLoading,
       selectUsers,
-      optionsSelectUsers,
+      // optionsSelectUsers,
       optionsSelectTools,
-      filterFnUsers,
+      // filterFnUsers,
       filterFnTools,
       onReset,
       create_withdrawal,
