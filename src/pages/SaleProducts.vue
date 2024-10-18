@@ -7,6 +7,7 @@
         style="border: solid 1px #e0e0e0"
       >
         <q-btn
+          v-if="rol == 3"
           class="q-mr-md q-px-lg"
           size="md"
           color="grey-7"
@@ -62,7 +63,7 @@
       title="Ventas"
       :rows="sales"
       :columns="columns"
-      row-key="id"
+      row-key="index"
       :filter="filter"
       separator="cell"
       virtual-scroll
@@ -81,20 +82,8 @@
         </q-input>
       </template> -->
 
-      <template v-slot:body-cell-id_user="props">
-        <q-td no-hover :props="props">
-          {{ props.row.id_user }}
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-id_sucursal="props">
-        <q-td no-hover :props="props">
-          {{ props.row.id_sucursal }}
-        </q-td>
-      </template>
-
       <template v-slot:body-cell-ventas="props">
-        <q-td no-hover :props="props">
+        <q-td :props="props">
           <div>
             <q-btn
               label="productos"
@@ -137,10 +126,13 @@
       </template>
 
       <template v-slot:body-cell-fecha="props">
-        <q-td no-hover :props="props">
-          <q-badge color="red-7">
-            {{ props.row.fecha }}
-          </q-badge>
+        <q-td :props="props">
+          <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
+          <div>
+            <q-badge color="red-7">
+              {{ parse_datetime(props.row.fecha, "hours") }}
+            </q-badge>
+          </div>
         </q-td>
       </template>
     </q-table>
@@ -215,7 +207,7 @@
                   debounce="300"
                   v-model="productFilter"
                   placeholder="Search"
-                  style="font-size: 12px; height: 10px; margin-bottom: 30px;"
+                  style="font-size: 12px; height: 10px; margin-bottom: 30px"
                 >
                   <template v-slot:append>
                     <q-icon name="search" style="font-size: 16px" />
@@ -237,10 +229,15 @@
               </template>
 
               <template v-slot:body-cell-cantidad="props">
-        <q-td no-hover :props="props">
-          <q-badge  color="orange-9" text-color="white" style="font-size: 10px;" :label="props.row.cantidad" />
-        </q-td>
-      </template>
+                <q-td no-hover :props="props">
+                  <q-badge
+                    color="orange-9"
+                    text-color="white"
+                    style="font-size: 10px"
+                    :label="props.row.cantidad"
+                  />
+                </q-td>
+              </template>
 
               <template v-slot:body-cell-button="props">
                 <q-td no-hover :props="props">
@@ -277,7 +274,13 @@
                   name="arrow_drop_down"
                   @click="decreaseQuantity(props.row)"
                 />
-                <q-badge outline  color="red-7" text-color="white" style="font-size: 10px;" :label="props.row.cantidad" />
+                <q-badge
+                  outline
+                  color="red-7"
+                  text-color="white"
+                  style="font-size: 10px"
+                  :label="props.row.cantidad"
+                />
                 <q-icon
                   size="xs"
                   name="arrow_drop_up"
@@ -348,13 +351,14 @@ export default defineComponent({
     const sales = ref([]);
     const products = ref([]);
     const cart = ref([]);
+    const usersObject = ref({});
     const id_user = SessionStorage.getItem("id_user");
     const branch = SessionStorage.getItem("branch");
+    const rol = SessionStorage.getItem("rol");
     const pagination = ref({
       rowsPerPage: 0,
     });
 
-    let fileName = "archivo";
     const salesColumns = [
       {
         name: "cantidad",
@@ -371,7 +375,13 @@ export default defineComponent({
     ];
 
     const columns = [
-      { name: "id_user", label: "Usuario", field: "id_user", align: "center" },
+      {
+        name: "id_user",
+        label: "Usuario",
+        field: "id_user",
+        align: "center",
+        format: (val) => usersObject.value[val],
+      },
       {
         name: "id_sucursal",
         align: "center",
@@ -447,18 +457,29 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
+      console.log(rol);
       api
-        .get(`/api/${parceBranch1[branch]}`)
+        .get(rol == 3 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
         .then((response) => {
           sales.value = response.data;
-          sales.value.forEach((sale) => {
+          sales.value.forEach((sale, index) => {
             sale.showPopup = false;
+            sale.index = index + 1
           });
+
+          console.log(sales.value)
           loadingScreen.value = false;
         })
         .catch((error) => {
           handleCustomError(error.message);
         });
+
+      // usuarios
+      api.get("/api/users").then((response) => {
+        response.data.forEach((u) => {
+          usersObject.value[u.id] = u.user;
+        });
+      });
     });
 
     // FUNCIONES
@@ -480,11 +501,19 @@ export default defineComponent({
         });
     };
 
+    const parse_datetime = (dateString, type) => {
+      if (type == "date") {
+        return date.formatDate(dateString, "DD-MM-YYYY");
+      } else {
+        return date.formatDate(dateString, "HH:mm");
+      }
+    };
+
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
       products.value = [];
-      cart.value = []
+      cart.value = [];
 
       api.get(`/api/controlmix/${branch}`).then((response) => {
         console.log(response.data);
@@ -559,7 +588,7 @@ export default defineComponent({
 
     const onReset = () => {
       products.value = [];
-      cart.value = []
+      cart.value = [];
 
       api.get(`/api/controlmix/${branch}`).then((response) => {
         console.log(response.data);
@@ -570,7 +599,7 @@ export default defineComponent({
             cantidad: p[branch],
           });
         });
-      })
+      });
     };
 
     // Retirar Herramienta
@@ -639,6 +668,7 @@ export default defineComponent({
       newSale,
       pagination,
       showPopup: Array(products.length).fill(false),
+      parse_datetime,
     };
   },
 });

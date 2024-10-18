@@ -107,6 +107,7 @@
             {{ parse_datetime(props.row.fecha, "date") }}
           </div> -->
           <div>
+            <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
             <q-badge
               :color="
                 props.row.is_active == 0
@@ -114,7 +115,7 @@
                   : 'grey-3 text-grey-7'
               "
             >
-              {{ props.row.fecha }}
+            {{ parse_datetime(props.row.fecha, "hours") }}
             </q-badge>
           </div>
         </q-td>

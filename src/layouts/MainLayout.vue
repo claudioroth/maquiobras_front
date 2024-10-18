@@ -117,23 +117,40 @@ export default defineComponent({
 
     const rolMenu = () => {
       var data = [
-        {
-          icon: "move_up",
-          text: "Movimiento de Stock",
-          toPage: "IndexPage",
-        },
         { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
-        { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" }
+        { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
       ];
-      rol == 1
-        ? data.push(
-            { icon: "o_construction", text: "ABM Productos", toPage: "ABMProd" },
-            { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
 
-            { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
+      if (rol == 1) {
+        data.push(
+          {
+            icon: "o_construction",
+            text: "ABM Productos",
+            toPage: "ABMProd",
+          },
+          { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+          {
+            icon: "move_up",
+            text: "Movimiento de Stock",
+            toPage: "IndexPage",
+          },
+        );
+      } else if (rol == 2) {
+        data.push(
+          { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+          {
+            icon: "move_up",
+            text: "Movimiento de Stock",
+            toPage: "IndexPage",
+          },
+          { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" }
+        );
+      } else {
+        data.push(
+          { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" }
+        );
+      }
 
-          )
-        : null;
       return data;
     };
 

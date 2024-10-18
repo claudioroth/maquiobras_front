@@ -296,7 +296,7 @@
           <!-- <div>{{ parse_datetime(props.row.aumento, "date") }}</div> -->
           <div>
             <q-badge color="grey-3 text-grey-7">
-              {{ props.row.aumento }}
+              {{ parse_datetime(props.row.aumento, "date") }}
             </q-badge>
           </div>
         </q-td>
@@ -309,7 +309,7 @@
           <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
           <div>
             <q-badge color="grey-3 text-grey-7">
-              {{ props.row.ultimo_modif }}
+              {{ parse_datetime(props.row.ultimo_modif, "date") }}
             </q-badge>
           </div>
         </q-td>

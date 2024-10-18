@@ -100,9 +100,10 @@
 
       <template v-slot:body-cell-fecha="props">
         <q-td :props="props">
+          <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
           <div>
             <q-badge color="red-7">
-              {{ props.row.fecha }}
+              {{ parse_datetime(props.row.fecha, "hours") }}
             </q-badge>
           </div>
         </q-td>
@@ -410,6 +411,14 @@ export default defineComponent({
       return `${part1}-${part2}`;
     }
 
+    const parse_datetime = (dateString, type) => {
+      if (type == "date") {
+        return date.formatDate(dateString, "DD-MM-YYYY");
+      } else {
+        return date.formatDate(dateString, "HH:mm");
+      }
+    }
+
     // Ingreso de productos
     const newEntry = () => {
       // dialogLoading.value = true;
@@ -486,7 +495,9 @@ export default defineComponent({
       pagination,
       selectAmount,
       userBranch,
-      validateRemito
+      validateRemito,
+      parse_datetime,
+      usersObject
     };
   },
 
