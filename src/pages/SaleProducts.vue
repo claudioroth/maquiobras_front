@@ -96,7 +96,6 @@
       <template v-slot:body-cell-ventas="props">
         <q-td no-hover :props="props">
           <div>
-
             <q-btn
               label="productos"
               color="primary"
@@ -106,7 +105,7 @@
               class="q-px-sm"
               icon="shopping_cart"
               size="sm"
-               @click="showPopup[props.row.id] = true"
+              @click="showPopup[props.row.id] = true"
             />
 
             <q-popup-proxy
@@ -166,84 +165,123 @@
     <q-card class="column full-height" style="width: 500px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
-        <div class="text-grey-8">Nuevo Retiro</div>
+        <div class="text-grey-8">Nueva Venta</div>
       </q-card-section>
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form
-          @submit="create_withdrawal"
-          @reset="onReset"
-          class="q-gutter-md"
-        >
+        <q-form @submit="newSale" @reset="onReset" class="q-gutter-md">
           <!-- Productos -->
-          <q-table
-            dense
-            separator="cell"
-            class="text-grey-8 custom-font-size"
-            :rows="products"
-            :columns="productsColumn"
-            row-key="name"
-            hide-bottom
-            flat
-            bordered
-            :filter="productFilter"
+          <div
+            class="q-py-md"
+            style="
+              border: 1px solid rgb(206 206 206);
+              border-radius: 4px;
+              position: relative;
+            "
           >
-            <template v-slot:top>
-              <q-input
-                borderless
-                outlined
-                dense
-                class="col-12"
-                debounce="300"
-                v-model="productFilter"
-                placeholder="Search"
-              >
-                <template v-slot:append>
-                  <q-icon name="search" />
-                </template>
-              </q-input>
-            </template>
+            <div
+              style="
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: -9px;
+                padding: 0 10px;
+                font-size: 11px;
+                color: #9b9b9b;
+                background-color: white;
+              "
+            >
+              PRODUCTOS
+            </div>
+            <q-table
+              dense
+              class="text-grey-8 custom-font-size my-sticky-header-table"
+              :rows="products"
+              :columns="productsColumn"
+              row-key="name"
+              hide-bottom
+              flat
+              :filter="productFilter"
+              style="height: 210px; overflow-y: auto"
+              v-model:pagination="pagination"
+            >
+              <template v-slot:top>
+                <q-input
+                  borderless
+                  outlined
+                  dense
+                  class="col-12"
+                  debounce="300"
+                  v-model="productFilter"
+                  placeholder="Search"
+                  style="font-size: 12px; height: 10px; margin-bottom: 30px;"
+                >
+                  <template v-slot:append>
+                    <q-icon name="search" style="font-size: 16px" />
+                  </template>
+                </q-input>
+              </template>
 
-            <template v-slot:body-cell-button="props">
-              <q-td no-hover :props="props">
-                <q-btn
-                  flat
-                  round
-                  size="sm"
-                  color="primary"
-                  icon="o_shopping_cart"
-                  @click="addToCart(props.row)"
-                />
-              </q-td>
-            </template>
-          </q-table>
+              <template v-slot:header="props">
+                <q-tr :props="props">
+                  <q-th
+                    v-for="col in props.cols"
+                    :key="col.name"
+                    :props="props"
+                    class="text-italic"
+                  >
+                    {{ col.label }}
+                  </q-th>
+                </q-tr>
+              </template>
+
+              <template v-slot:body-cell-cantidad="props">
+        <q-td no-hover :props="props">
+          <q-badge  color="orange-9" text-color="white" style="font-size: 10px;" :label="props.row.cantidad" />
+        </q-td>
+      </template>
+
+              <template v-slot:body-cell-button="props">
+                <q-td no-hover :props="props">
+                  <q-btn
+                    flat
+                    round
+                    size="xs"
+                    color="primary"
+                    icon="o_shopping_cart"
+                    @click="addToCart(props.row)"
+                  />
+                </q-td>
+              </template>
+            </q-table>
+          </div>
 
           <!-- Carrito -->
           <q-table
             dense
             class="text-grey-8 custom-font-size"
             :rows="cart"
-            :columns="productsColumn"
+            :columns="cartColumn"
             row-key="name"
             hide-bottom
             flat
             bordered
+            style="height: 260px; overflow-y: auto"
+            v-model:pagination="pagination"
           >
-            <template v-slot:body-cell-suc1="props">
+            <template v-slot:body-cell-cantidad="props">
               <q-td no-hover :props="props">
                 <q-icon
-                  :key="size"
-                  size="xs"
-                  name="arrow_drop_up"
-                  @click="increaseQuantity(props.row)"
-                />
-                {{ props.row.suc1 }}
-                <q-icon
-                  :key="size"
                   size="xs"
                   name="arrow_drop_down"
                   @click="decreaseQuantity(props.row)"
+                />
+                <q-badge outline  color="red-7" text-color="white" style="font-size: 10px;" :label="props.row.cantidad" />
+                <q-icon
+                  size="xs"
+                  name="arrow_drop_up"
+                  @click="increaseQuantity(props.row)"
                 />
               </q-td>
             </template>
@@ -253,7 +291,7 @@
                 <q-btn
                   flat
                   round
-                  size="sm"
+                  size="xs"
                   color="primary"
                   icon="o_delete"
                   @click="removeFromCart(props.row)"
@@ -266,7 +304,7 @@
 
           <div>
             <q-btn
-              label="Completar Retiro"
+              label="Completar Venta"
               type="submit"
               unelevated
               color="primary"
@@ -308,19 +346,9 @@ export default defineComponent({
     const dialog = ref(false);
     const dialogLoading = ref(true);
     const sales = ref([]);
-    const user = ref(null);
-    const tool = ref(null);
-    const amount = ref(null);
     const products = ref([]);
-
     const cart = ref([]);
-
-    const selectUsers = ref([]);
-    const selectTools = ref([]);
-    const selectAmount = ref();
-
-    const optionsSelectTools = ref(selectTools.value);
-    const useAdmin = SessionStorage.getItem("is_admin");
+    const id_user = SessionStorage.getItem("id_user");
     const branch = SessionStorage.getItem("branch");
     const pagination = ref({
       rowsPerPage: 0,
@@ -367,17 +395,17 @@ export default defineComponent({
       },
     ];
 
-    const productsColumn = [
+    const cartColumn = [
       {
-        name: "descripcion",
+        name: "producto",
         label: "Producto",
-        field: "descripcion",
+        field: "producto",
         align: "center",
       },
       {
-        name: branch,
+        name: "cantidad",
         label: "Cantidad",
-        field: branch,
+        field: "cantidad",
         align: "center",
       },
       {
@@ -388,11 +416,39 @@ export default defineComponent({
       },
     ];
 
+    const productsColumn = [
+      {
+        name: "producto",
+        label: "Producto",
+        field: "producto",
+        align: "center",
+      },
+      {
+        name: "cantidad",
+        label: "Stock",
+        field: "cantidad",
+        align: "center",
+      },
+      {
+        name: "button",
+        label: "",
+        field: "button",
+        align: "center",
+      },
+    ];
+
+    const parceBranch1 = { suc1: "ventas1", suc2: "ventas2", depo: "ventas3" };
+    const parceBranch2 = {
+      suc1: "Sucursal Galicia",
+      suc2: "Sucursal Juan B. Justo",
+      depo: "Deposito",
+    };
+
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
       api
-        .get("/api/ventas1")
+        .get(`/api/${parceBranch1[branch]}`)
         .then((response) => {
           sales.value = response.data;
           sales.value.forEach((sale) => {
@@ -406,24 +462,17 @@ export default defineComponent({
     });
 
     // FUNCIONES
-    // Crea una lista segun el numero en el stock
-    const createNumberList = (until) => {
-      const list = [];
-      for (let i = 1; i <= until; i++) {
-        list.push(i);
-      }
-      return list;
-    };
 
     // Refresca la tabla principal
     const get_data = () => {
       api
-        .get("/api/control")
+        .get(`/api/${parceBranch1[branch]}`)
         .then((response) => {
           sales.value = response.data;
           sales.value.forEach((sale) => {
             sale.showPopup = false;
           });
+          loadingScreen.value = false;
           loadingTable.value = false;
         })
         .catch((error) => {
@@ -434,14 +483,20 @@ export default defineComponent({
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      tool.value = null;
-      amount.value = null;
-      selectTools.value = [];
+      products.value = [];
+      cart.value = []
 
-      // Carga select Usuarios
       api.get(`/api/controlmix/${branch}`).then((response) => {
         console.log(response.data);
-        products.value = response.data;
+        response.data.forEach((p) => {
+          products.value.push({
+            id_prod: p.index,
+            producto: p.descripcion,
+            cantidad: p[branch],
+          });
+        });
+
+        console.log(products.value);
         dialogLoading.value = false;
       });
     };
@@ -449,146 +504,141 @@ export default defineComponent({
     // Agrega al carrito un producto
     const addToCart = (p) => {
       const product = products.value.find(
-        (product) => product.index === p.index
+        (product) => product.id_prod === p.id_prod
       );
-      if (product && product.suc1 > 0) {
-        product.suc1--;
-        console.log(
-          `Cantidad de producto con ID ${p.index} es ahora: ${product.suc1}`
+      if (product && product.cantidad > 0) {
+        product.cantidad--;
+        const cartProduct = cart.value.find(
+          (item) => item.id_prod === p.id_prod
         );
-        const cartProduct = cart.value.find((item) => item.index === p.index);
         if (cartProduct) {
-          cartProduct.suc1++;
+          cartProduct.cantidad++;
         } else {
           cart.value.push({
-            index: product.index,
-            descripcion: product.descripcion,
-            suc1: 1,
+            id_prod: product.id_prod,
+            producto: product.producto,
+            cantidad: 1,
           });
         }
-      } else {
-        console.log("No se puede descontar más, cantidad es 0");
       }
     };
 
     // Saca el producto del carrito
     const removeFromCart = (p) => {
       const cartProductIndex = cart.value.findIndex(
-        (item) => item.index === p.index
+        (item) => item.id_prod === p.id_prod
       );
       if (cartProductIndex !== -1) {
         const productInInventory = products.value.find(
-          (product) => product.index === p.index
+          (product) => product.id_prod === p.id_prod
         );
         if (productInInventory) {
-          productInInventory.suc1 += cart.value[cartProductIndex].suc1;
-          console.log(
-            `Cantidad de producto con ID ${p.index} en inventario es ahora: ${productInInventory.suc1}`
-          );
+          productInInventory.cantidad += cart.value[cartProductIndex].cantidad;
         }
         cart.value.splice(cartProductIndex, 1);
-        console.log(`Producto con ID ${p.index} eliminado del carrito`);
       }
     };
 
     // incrementa la cantidad del producto dentro del carrito
     const increaseQuantity = (item) => {
-      const product = products.value.find((p) => p.index === item.index);
-      if (product && product.suc1 > 0) {
-        product.suc1--;
-        item.suc1++;
-      } else {
-        console.log("No hay suficiente stock para aumentar");
+      const product = products.value.find((p) => p.id_prod === item.id_prod);
+      if (product && product.cantidad > 0) {
+        product.cantidad--;
+        item.cantidad++;
       }
     };
 
     // Reduce la cantidad del producto dentro del carrito
     const decreaseQuantity = (item) => {
-      const product = products.value.find((p) => p.index === item.index);
-      if (item.suc1 > 1) {
-        item.suc1--;
-        product.suc1++;
-      } else {
-        console.log("No se puede reducir más la cantidad en el carrito");
+      const product = products.value.find((p) => p.id_prod === item.id_prod);
+      if (item.cantidad > 1) {
+        item.cantidad--;
+        product.cantidad++;
       }
     };
 
     const onReset = () => {
-      user.value = null;
-      tool.value = null;
-      amount.value = null;
-      branch.value = null;
+      products.value = [];
+      cart.value = []
+
+      api.get(`/api/controlmix/${branch}`).then((response) => {
+        console.log(response.data);
+        response.data.forEach((p) => {
+          products.value.push({
+            id_prod: p.index,
+            producto: p.descripcion,
+            cantidad: p[branch],
+          });
+        });
+      })
     };
 
     // Retirar Herramienta
-    const create_withdrawal = () => {
+    const newSale = () => {
       dialogLoading.value = true;
 
+      // Crear el objeto FormData
+      const formData = new FormData();
+
+      // Convertir el objeto en JSON y agregarlo al FormData
       const data = {
-        retiro: amount.value,
-        id_user: user.value.value,
-        id_prod: tool.value.value,
-        descripcion: tool.value.label,
-        local: branch.value,
+        id_user: id_user,
+        id_sucursal: parceBranch2[branch],
+        ventas: cart.value,
       };
 
-      api.post("/api/control", data).then((response) => {
-        loadingTable.value = true;
-        get_data();
-        $q.notify({
-          icon: "done",
-          message: "Retiro completado",
-          position: "bottom",
-          timeout: 2000,
+      // Enviar el JSON como string
+      formData.append("data", JSON.stringify(data));
+
+      // Realizar la solicitud usando Axios
+      api
+        .post(`/api/${parceBranch1[branch]}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          loadingTable.value = true;
+          get_data(); // Esto recargaría los datos, descomentar si lo necesitas
+          $q.notify({
+            icon: "done",
+            message: "Venta completada",
+            position: "bottom",
+            timeout: 2000,
+          });
+
+          dialog.value = false;
+          dialogLoading.value = false;
+        })
+        .catch((error) => {
+          console.error("Error al enviar los datos:", error);
+          dialogLoading.value = false;
         });
-
-        dialog.value = false;
-        dialogLoading.value = false;
-      });
     };
-
-    // Filtro Select Herramientas
-    const filterFnTools = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsSelectTools.value = selectTools.value.filter((v) => {
-          return v.label.toLowerCase().indexOf(needle) > -1;
-        });
-      });
-    };
-
     return {
       columns,
       salesColumns,
       productsColumn,
+      cartColumn,
       loadingScreen,
       loadingTable,
       sales,
       products,
       cart,
-      user,
-      tool,
-      amount,
       branch,
       filter: ref(""),
       productFilter: ref(""),
       dialog,
       dialogLoading,
-      selectUsers,
-      optionsSelectTools,
-      filterFnTools,
       onReset,
-      create_withdrawal,
       open_dialog,
-      createNumberList,
       addToCart,
       removeFromCart,
       increaseQuantity,
       decreaseQuantity,
+      newSale,
       pagination,
-      useAdmin,
-      selectAmount,
-      showPopup: Array(products.length).fill(false)
+      showPopup: Array(products.length).fill(false),
     };
   },
 });
@@ -598,4 +648,32 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
+</style>
+
+<style lang="sass">
+.my-sticky-header-table
+  /* height or max-height is important */
+  height: 310px
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    /* bg color is important for th; just specify one */
+    background-color: white
+
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
 </style>
