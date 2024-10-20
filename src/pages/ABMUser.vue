@@ -269,7 +269,6 @@ import { user } from "fontawesome";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
-  name: "IndexPage",
 
   setup() {
     // VARIABLES

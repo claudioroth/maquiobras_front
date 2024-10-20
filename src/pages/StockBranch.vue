@@ -789,7 +789,6 @@ import { suppliers } from "src/helpers/suppliers";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
-  name: "IndexPage",
 
   setup() {
     // VARIABLES

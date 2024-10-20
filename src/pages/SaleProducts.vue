@@ -321,7 +321,6 @@ import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
-  name: "IndexPage",
 
   setup() {
     // VARIABLES

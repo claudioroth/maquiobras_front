@@ -132,7 +132,7 @@ export default defineComponent({
           {
             icon: "move_up",
             text: "Movimiento de Stock",
-            toPage: "IndexPage",
+            toPage: "StockMovement",
           },
         );
       } else if (rol == 2) {
@@ -141,7 +141,7 @@ export default defineComponent({
           {
             icon: "move_up",
             text: "Movimiento de Stock",
-            toPage: "IndexPage",
+            toPage: "StockMovement",
           },
           { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" }
         );
