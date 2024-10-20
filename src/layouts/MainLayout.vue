@@ -116,38 +116,54 @@ export default defineComponent({
     }
 
     const rolMenu = () => {
-      var data = [
-        { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
-        { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
-      ];
+      var data = [];
 
-      if (rol == 1) {
+      if (rol == 1) { //Administrador
         data.push(
-          {
-            icon: "o_construction",
-            text: "ABM Productos",
-            toPage: "ABMProd",
-          },
+          { icon: "o_construction", text: "ABM Productos", toPage: "ABMProd" },
           { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+          { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
+          {
+            icon: "o_local_shipping",
+            text: "Ingresos",
+            toPage: "ProductEntry",
+          },
+          {
+            icon: "move_up",
+            text: "Movimiento de Stock",
+            toPage: "StockMovement",
+          }
+        );
+      } else if (rol == 2) { //Semi Administrador
+        data.push(
+          { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
           {
             icon: "move_up",
             text: "Movimiento de Stock",
             toPage: "StockMovement",
           },
-        );
-      } else if (rol == 2) {
-        data.push(
-          { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+          { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
           {
-            icon: "move_up",
-            text: "Movimiento de Stock",
-            toPage: "StockMovement",
+            icon: "o_local_shipping",
+            text: "Ingresos",
+            toPage: "ProductEntry",
           },
-          { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" }
+
+          { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" }
         );
-      } else {
+      } else if (rol == 3) { //Usuario
         data.push(
-          { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" }
+          {
+            icon: "o_build_circle",
+            text: "Stock",
+            toPage: "StockBranch",
+          },
+          { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
+          {
+            icon: "o_local_shipping",
+            text: "Ingresos",
+            toPage: "ProductEntry",
+          }
         );
       }
 

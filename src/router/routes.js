@@ -24,7 +24,7 @@ const routes = [
     },
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      { path: "", component: () => import("../pages/StockMovement.vue") },
+      // { path: "", component: () => import("../pages/StockMovement.vue") },
       {
         path: "StockMovement",
         component: () => import("../pages/StockMovement.vue"),
@@ -61,6 +61,8 @@ const routes = [
       },
     ],
   },
+
+
   {
     path: "/login",
     beforeEnter: (to, from, next) => {
@@ -68,13 +70,34 @@ const routes = [
       const userPassword = SessionStorage.getItem("password");
       const userBranch = SessionStorage.getItem("branch");
       const rol = SessionStorage.getItem("rol");
-      !useUser && !userPassword && !rol && !userBranch
-        ? next()
-        : next(from.fullPath);
+
+      // Permitir acceso a la página de login si no hay sesión
+      if (!useUser || !userPassword || !rol || !userBranch) {
+        next(); // Permite acceso
+      } else {
+        // Redirigir según el rol
+        switch (parseInt(rol)) {
+          case 1: // admin
+            next("/ABMUser");
+            break;
+          case 2: // semi admin
+            next("/StockMovement");
+            break;
+          case 3: // user
+            next("/SaleProducts");
+            break;
+          default:
+            next(from.fullPath); // Redirige a la misma página si no coincide
+        }
+      }
     },
     name: "Login",
     component: () => import("../pages/Login.vue"),
   },
+
+
+
+
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),

@@ -150,37 +150,50 @@ export default defineComponent({
     async onSubmit() {
       this.loading_access = true;
 
-      await api.post("/login", {
+      await api
+        .post("/login", {
           user: this.userForm.user,
           password: this.userForm.password,
         })
         .then((response) => {
-
           SessionStorage.set("id_user", response.data.id);
           SessionStorage.set("user", response.data.user);
-          if(response.data.rol == 3 ){
-          SessionStorage.set("branch", response.data.sucursal);
-        }
+          if (response.data.rol == 3) {
+            SessionStorage.set("branch", response.data.sucursal);
+          }
           SessionStorage.set("rol", response.data.rol);
 
-          if(!LocalStorage.getItem("prodColFilters")){
-          LocalStorage.set("prodColFilters", [
-            "modify",
-            "delete",
-            "nro",
-            "descripcion",
-            "iva_10",
-            "stock",
-            "depo",
-            "suc1",
-            "suc2",
-            "iva_21",
-            "importe_sin_iva",
-          ]);
-        }
+          if (!LocalStorage.getItem("prodColFilters")) {
+            LocalStorage.set("prodColFilters", [
+              "modify",
+              "delete",
+              "nro",
+              "descripcion",
+              "iva_10",
+              "stock",
+              "depo",
+              "suc1",
+              "suc2",
+              "iva_21",
+              "importe_sin_iva",
+            ]);
+          }
 
-
-          this.$router.replace("/");
+          if (response.data.rol) {
+            switch (response.data.rol) {
+              case 1: // Admin
+                this.$router.replace("/ABMProd");
+                break;
+              case 2: // Semi Admin
+                this.$router.replace("/StockBranch");
+                break;
+              case 3: // User
+                this.$router.replace("/StockBranch");
+                break;
+              default:
+                this.$router.replace("/"); // Redirige a la página principal o a una página de error
+            }
+          }
           this.loading_access = true;
         })
         .catch((error) => {
