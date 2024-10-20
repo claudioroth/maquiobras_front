@@ -116,7 +116,7 @@
   </div>
 
   <!-- TABLA -->
-  <div class="q-pa-md">
+  <div class="q-pa-md" style="overflow-x: scroll ;">
     <q-table
       v-if="!loadingScreen"
       flat
@@ -133,18 +133,10 @@
       :rows-per-page-options="[0]"
       separator="cell"
       color="primary"
-      class="no-shadow text-grey-7 my-sticky-header-last-column-table my-sticky-header-table"
+      class="no-shadow text-grey-7 my-sticky-header-last-column-table"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
       :visible-columns="visibleColumns"
     >
-      <!-- <template v-slot:top-right>
-        <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template> -->
-
       <!-- Modify -->
       <template v-slot:body-cell-modify="props">
         <q-td :props="props">
@@ -797,7 +789,6 @@ import { suppliers } from "src/helpers/suppliers";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
-
   setup() {
     // VARIABLES
     const $q = useQuasar();
@@ -975,7 +966,7 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
-                   loadingScreen.value = false;
+          loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
             const workbook = XLSX.utils.book_new();
@@ -1145,13 +1136,11 @@ export default defineComponent({
           suppliers.forEach((s) => {
             data.nro.split(" ").forEach((n) => {
               if (n == s.value) {
-
                 selectSuppliers.value.push(s);
               }
             });
           });
         }
-
 
         // selectSuppliers.value = nroList
 
@@ -1213,7 +1202,6 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-
       api.post("/api/product_detail", data).then((response) => {
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
@@ -1269,12 +1257,10 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-
       api.put("/api/product_detail", data).then((response) => {
-
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
-              dialog.value = false;
+          dialog.value = false;
           dialogLoading.value = false;
         });
       });
@@ -1287,7 +1273,7 @@ export default defineComponent({
       // };
       dialogLoadingDelete.value = true;
       api.delete(`/api/product_detail/${index.value}`).then((response) => {
-           api.get("/api/product_detail").then((response) => {
+        api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialogDelete.value = false;
           dialogLoadingDelete.value = false;
@@ -1359,71 +1345,42 @@ export default defineComponent({
 </style>
 
 <style lang="sass" scoped>
-/* Aplicar estilos específicos para .custom-readonly-input-g */
+
 .custom-readonly-input-g
   :deep(.q-field__control:before)
     border-width: 1px !important
     border-color: #bdbdbd !important
     border-style: solid !important
 
-/* Aplicar estilos específicos para .custom-readonly-input */
+
 .custom-readonly-input
   :deep(.q-field__control:before)
     border-width: 1.5px !important
     border-color: #757575 !important
     border-style: solid !important
     background-color: #f7f7f7 !important
+</style>
+
+
+<style lang="sass">
 .my-sticky-header-last-column-table
-  /* height or max-height is important */
   height: 310px
 
-  /* specifying max-width so the example can
-    highlight the sticky column on any browser window */
-
-  td:last-child,
-  th:last-child
-    /* bg color is important for td; just specify one */
+  th:last-child,
+  td:last-child
     background-color: #ffffff
     position: sticky
     right: 0
     z-index: 2
 
-  td:nth-last-child(2),
-  th:nth-last-child(2)
+  th:nth-last-child(2),
+  td:nth-last-child(2)
     background-color: #ffffff
     position: sticky
-    right: 52px /* ajustar este valor según el ancho de la última columna */
+    right: 52px
     z-index: 1
 
-  tr th
-    position: sticky
-    /* higher than z-index for td below */
+  thead th
+    background-color: #ffffff
     z-index: 3
-    /* bg color is important; just specify one */
-    background: #ffffff
-
-  /* this will be the loading indicator */
-  thead tr:last-child th
-    /* height of all previous header rows */
-    top: 48px
-    /* highest z-index */
-    z-index: 4
-
-  thead tr:first-child th
-    top: 0
-    z-index: 2
-
-  tr:last-child th:last-child,
-  tr:last-child th:nth-last-child(2)
-    /* highest z-index */
-    z-index: 4
-
-  td:last-child,
-  td:nth-last-child(2)
-    z-index: 2
-
-  /* prevent scrolling behind sticky top row on focus */
-  tbody
-    /* height of all previous header rows */
-    scroll-margin-top: 48px
 </style>

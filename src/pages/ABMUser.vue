@@ -338,13 +338,18 @@ export default defineComponent({
         field: "fecha",
         align: "center",
       },
-      {
+    ];
+
+    if (userRol == 1) {
+  columns.push( {
         name: "actions",
         label: "Acciones",
         field: "Actions",
         align: "center",
-      },
-    ];
+      });
+}
+
+
 
     // MOUNTED
     onMounted(() => {

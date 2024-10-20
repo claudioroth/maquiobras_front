@@ -125,45 +125,10 @@
       :rows-per-page-options="[0]"
       separator="cell"
       color="primary"
-      class="no-shadow text-grey-7 my-sticky-header-last-column-table my-sticky-header-table"
+      class="no-shadow text-grey-7 my-sticky-header-table"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
       :visible-columns="visibleColumns"
     >
-      <!-- <template v-slot:top-right>
-        <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template> -->
-
-      <!-- Modify -->
-      <template v-slot:body-cell-modify="props">
-        <q-td :props="props">
-          <q-btn
-            flat
-            round
-            color="primary"
-            size="10px"
-            icon="edit"
-            @click="open_dialog('modify', props.row)"
-          />
-        </q-td>
-      </template>
-
-      <!-- Delete -->
-      <template v-slot:body-cell-delete="props">
-        <q-td :props="props">
-          <q-btn
-            flat
-            round
-            color="primary"
-            size="10px"
-            icon="delete"
-            @click="open_dialog_delete(props.row)"
-          />
-        </q-td>
-      </template>
 
       <!-- Descripcion -->
       <template v-slot:body-cell-descripcion="props">
@@ -288,20 +253,20 @@
           <!-- <div>{{ parse_datetime(props.row.aumento, "date") }}</div> -->
           <div>
             <q-badge color="grey-3 text-grey-7">
-              {{ props.row.aumento }}
+              {{ parse_datetime(props.row.aumento, "date") }}
             </q-badge>
           </div>
         </q-td>
         <q-td v-else :props="props"> - </q-td>
       </template>
 
-      <!-- Ultima Modificacion -->
-      <template v-slot:body-cell-ultimo_modif="props">
+    <!-- Ultima Modificacion -->
+    <template v-slot:body-cell-ultimo_modif="props">
         <q-td v-if="props.row.ultimo_modif" :props="props">
           <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
           <div>
             <q-badge color="grey-3 text-grey-7">
-              {{ props.row.ultimo_modif }}
+              {{ parse_datetime(props.row.ultimo_modif, "date") }}
             </q-badge>
           </div>
         </q-td>
@@ -936,20 +901,6 @@ export default defineComponent({
         label: "Rentabilidad",
         field: "rentabilidad",
         align: "center",
-        sortable: true,
-      },
-      {
-        name: "modify",
-        align: "center",
-        label: "",
-        field: "modify",
-        sortable: true,
-      },
-      {
-        name: "delete",
-        align: "center",
-        label: "",
-        field: "delete",
         sortable: true,
       },
     ];
