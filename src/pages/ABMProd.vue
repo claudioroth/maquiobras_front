@@ -116,7 +116,7 @@
   </div>
 
   <!-- TABLA -->
-  <div class="q-pa-md" style="overflow-x: scroll ;">
+  <div class="q-pa-md" style="overflow-x: scroll">
     <q-table
       v-if="!loadingScreen"
       flat
@@ -164,7 +164,6 @@
           />
         </q-td>
       </template>
-
 
       <!-- Descripcion -->
       <template v-slot:body-cell-descripcion="props">
@@ -1069,11 +1068,17 @@ export default defineComponent({
     };
 
     const convertDateFormat = (dateString) => {
-      const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
-      const match = dateString.match(regex);
-      if (match) {
-        const [_, day, month, year] = match;
-        return `${year}-${month}-${day}`;
+      // Regex para "DD-MM-YYYY"
+      const regexDMY = /^(\d{2})-(\d{2})-(\d{4})$/;
+      // Regex para "YYYY-MM-DD HH:MM:SS"
+      const regexYMDHMS = /^(\d{4})-(\d{2})-(\d{2}) \d{2}:\d{2}:\d{2}$/;
+
+      if (regexDMY.test(dateString)) {
+        const [_, day, month, year] = dateString.match(regexDMY);
+        return `${year}-${month}-${day} 00:00:00`;
+      } else if (regexYMDHMS.test(dateString)) {
+        const [_, year, month, day] = dateString.match(regexYMDHMS);
+        return `${year}-${month}-${day} 00:00:00`;
       } else {
         console.error("Fecha en formato inválido:", dateString);
         return null;
@@ -1120,6 +1125,12 @@ export default defineComponent({
       depo.value = 0;
     };
 
+    const convertToDisplayFormat = (dateString) => {
+      const [datePart] = dateString.split(" ");
+      const [year, month, day] = datePart.split("-");
+      return `${day}-${month}-${year}`;
+    };
+
     // Abrir Dialog de borrar producto
     const open_dialog_delete = (props) => {
       index.value = props.index;
@@ -1157,8 +1168,8 @@ export default defineComponent({
         description.value = data.descripcion;
         amountWithoutIva.value = data.importe_sin_iva;
         offerWithoutIva.value = data.oferta_sin_iva;
-        increases.value = data.aumento;
-        lastModification.value = data.ultimo_modif;
+        increases.value = convertToDisplayFormat(data.aumento);
+        lastModification.value = convertToDisplayFormat(data.ultimo_modif);
         offerCost.value = data.oferta_costo;
         lowestCost.value = data.costo_mas_bajo;
         costEffectiveness.value = data.rentabilidad;
@@ -1265,8 +1276,6 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      console.log(data)
-
       api.put("/api/product_detail", data).then((response) => {
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
@@ -1370,7 +1379,6 @@ export default defineComponent({
     border-style: solid !important
     background-color: #f7f7f7 !important
 </style>
-
 
 <style lang="sass">
 .my-sticky-header-last-column-table
