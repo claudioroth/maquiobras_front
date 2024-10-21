@@ -33,9 +33,9 @@
       </div>
     </div>
   </div>
-
   <!-- TABLA -->
   <div class="q-pa-md">
+
     <q-table
       v-if="!loadingScreen"
       flat
@@ -53,7 +53,7 @@
       :rows-per-page-options="[0]"
       color="primary"
       no-hover
-      class="no-shadow text-grey-7"
+      class="no-shadow text-grey-7 my-sticky-header-table"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
     >
       <!-- <template v-slot:top-right>
@@ -76,11 +76,10 @@
               class="q-px-sm"
               icon="shopping_cart"
               size="sm"
-              @click="showPopup[props.row.id] = true"
+              @click="openProductsPopup[props.row.index]"
             />
-
             <q-popup-proxy
-              v-model="showPopup[props.row.id]"
+              v-model="showPopup[props.row.index]"
               transition-show="scale"
               transition-hide="scale"
               class="no-shadow q-pa-none q-mt-md"
@@ -90,15 +89,16 @@
                 <q-card-section>
                   <q-table
                     dense
-                    class="text-grey-8 text-sm bg-grey-2 custom-font-size"
+                    class="text-grey-8 text-sm bg-grey-2 custom-font-size my-sticky-header-table-a"
                     table-style="font-size:8px"
                     :rows="JSON.parse(props.row.ventas)"
                     :columns="salesColumns"
-                    row-key="id_prod"
+                    row-key="index"
                     hide-bottom
                     flat
                     separator="cell"
                     bordered
+                    :rows-per-page-options="[0]"
                   />
                 </q-card-section>
               </q-card>
@@ -178,11 +178,12 @@
               hide-bottom
               flat
               :filter="productFilter"
-             :style="`max-height:${$q.screen.height - 570}px; overflow-y: auto`"
+             :style="`height: calc(36vh - 100px); overflow-y: auto`"
               v-model:pagination="pagination"
             >
               <template v-slot:top>
-
+                <!-- calc(50vh - 100px) -->
+                <!-- max-height:${$q.screen.height - 570} -->
                 <q-input
                   borderless
                   outlined
@@ -279,7 +280,7 @@
             row-key="name"
             hide-bottom
             flat
-            :style="`max-height:${$q.screen.height - 465}px; overflow-y: auto`"
+            :style="`height: calc(52vh - 100px); overflow-y: auto`"
             v-model:pagination="pagination"
           >
 
@@ -307,7 +308,7 @@
               <q-td no-hover :props="props"  style="min-width: 65px; width: 65px; max-width: 65px;">
                 <q-icon
                   size="xs"
-                  name="arrow_drop_down"
+                  name="arrow_left"
                   @click="decreaseQuantity(props.row)"
                 />
                 <q-badge
@@ -319,7 +320,7 @@
                 />
                 <q-icon
                   size="xs"
-                  name="arrow_drop_up"
+                  name="arrow_right"
                   @click="increaseQuantity(props.row)"
                 />
               </q-td>
@@ -339,7 +340,7 @@
             </template>
           </q-table>
 
-          <div v-else style="height: 285px; overflow-y: auto" class="content-center text-center text-grey-6">
+          <div v-else style="height: calc(52vh - 100px); overflow-y: auto" class="content-center text-center text-grey-6">
             <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />   <div> Carrito vacio</div>
           </div>
 
@@ -365,7 +366,7 @@
         </q-form>
       </q-card-section>
 
-      <q-inner-loading :showing="dialogLoading" class="bg-white">
+      <q-inner-loading :showing="dialogLoading" class="bg-white" style="z-index: 100;">
         <q-spinner-puff size="50px" color="red-5" />
       </q-inner-loading>
     </q-card>
@@ -399,6 +400,8 @@ export default defineComponent({
     const pagination = ref({
       rowsPerPage: 0,
     });
+
+    const showPopup = ref(Array(products.length).fill(false));
 
     const salesColumns = [
       {
@@ -507,7 +510,6 @@ export default defineComponent({
             sale.index = index + 1
           });
 
-          console.log(sales.value)
           loadingScreen.value = false;
         })
         .catch((error) => {
@@ -549,6 +551,10 @@ export default defineComponent({
       }
     };
 
+    const openProductsPopup = (index) => {
+      showPopup.value[index] = true
+    }
+
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
@@ -556,7 +562,6 @@ export default defineComponent({
       cart.value = [];
 
       api.get(`/api/controlmix/${branch}`).then((response) => {
-        console.log(response.data);
         response.data.forEach((p) => {
           products.value.push({
             id_prod: p.index,
@@ -565,7 +570,6 @@ export default defineComponent({
           });
         });
 
-        console.log(products.value);
         dialogLoading.value = false;
       });
     };
@@ -631,7 +635,6 @@ export default defineComponent({
       cart.value = [];
 
       api.get(`/api/controlmix/${branch}`).then((response) => {
-        console.log(response.data);
         response.data.forEach((p) => {
           products.value.push({
             id_prod: p.index,
@@ -707,7 +710,8 @@ export default defineComponent({
       decreaseQuantity,
       newSale,
       pagination,
-      showPopup: Array(products.length).fill(false),
+      openProductsPopup,
+      showPopup,
       parse_datetime,
       rol,
     };
@@ -731,6 +735,32 @@ export default defineComponent({
   thead tr:first-child th
     /* bg color is important for th; just specify one */
     background-color: white
+
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
+
+.my-sticky-header-table-a
+  /* height or max-height is important */
+  max-height: 310px
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    /* bg color is important for th; just specify one */
+    background-color: #f5f5f5
 
   thead tr th
     position: sticky
