@@ -1095,10 +1095,9 @@ export default defineComponent({
     const parse_decimal = (value) => {
       var result = parseFloat(value);
       if (result % 1 !== 0) {
-        // Check if there is a fractional part
         return result.toFixed(2);
       }
-      return result.toFixed(0); // Return as integer if there is no fractional part
+      return result.toFixed(0);
     };
 
     const parse_datetime = (dateString, type) => {
@@ -1125,9 +1124,16 @@ export default defineComponent({
       depo.value = 0;
     };
 
+    // Convierte la fecha para qu e se vea de forma correcta en el input date
     const convertToDisplayFormat = (dateString) => {
+      if (!dateString || !dateString.includes(" ")) {
+        return null;
+      }
       const [datePart] = dateString.split(" ");
       const [year, month, day] = datePart.split("-");
+      if (!year || !month || !day) {
+        return null;
+      }
       return `${day}-${month}-${year}`;
     };
 
