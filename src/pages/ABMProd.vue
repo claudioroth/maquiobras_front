@@ -1069,9 +1069,15 @@ export default defineComponent({
     };
 
     const convertDateFormat = (dateString) => {
-      const [day, month, year] = dateString.split("-");
-      console.log(`${year}-${month}-${day}`)
-      return `${year}-${month}-${day}`;
+      const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+      const match = dateString.match(regex);
+      if (match) {
+        const [_, day, month, year] = match;
+        return `${year}-${month}-${day}`;
+      } else {
+        console.error("Fecha en formato inválido:", dateString);
+        return null;
+      }
     };
 
     const formatNumber = (number) => {
