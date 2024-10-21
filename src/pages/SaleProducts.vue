@@ -35,7 +35,6 @@
   </div>
   <!-- TABLA -->
   <div class="q-pa-md">
-
     <q-table
       v-if="!loadingScreen"
       flat
@@ -529,14 +528,15 @@ export default defineComponent({
     // Refresca la tabla principal
     const get_data = () => {
       api
-        .get(`/api/${parceBranch1[branch]}`)
+        .get(rol == 3 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
         .then((response) => {
           sales.value = response.data;
-          sales.value.forEach((sale) => {
+          sales.value.forEach((sale, index) => {
             sale.showPopup = false;
+            sale.index = index + 1
           });
+          loadingTable.value = false
           loadingScreen.value = false;
-          loadingTable.value = false;
         })
         .catch((error) => {
           handleCustomError(error.message);
@@ -553,6 +553,7 @@ export default defineComponent({
 
     const openProductsPopup = (index) => {
       showPopup.value[index] = true
+      console.log(showPopup.value)
     }
 
     // Abrir Dialog
@@ -670,7 +671,7 @@ export default defineComponent({
           },
         })
         .then((response) => {
-          loadingTable.value = true;
+          // loadingTable.value = true;
           get_data(); // Esto recargaría los datos, descomentar si lo necesitas
           $q.notify({
             icon: "done",
