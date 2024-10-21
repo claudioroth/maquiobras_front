@@ -1042,7 +1042,7 @@ export default defineComponent({
 
     const parse_datetime = (dateString, type) => {
       if (type == "date") {
-        return date.formatDate(dateString, "DD/MM/YYYY");
+        return date.formatDate(dateString, "DD-MM-YYYY");
       } else {
         return date.formatDate(dateString, "HH:mm");
       }

@@ -237,7 +237,7 @@
                     round
                     size="xs"
                     color="primary"
-                    icon="o_shopping_cart"
+                    icon="o_add_shopping_cart"
                     @click="addToCart(props.row)"
                   />
                 </q-td>
@@ -340,7 +340,7 @@
           </q-table>
 
           <div v-else style="height: 285px; overflow-y: auto" class="content-center text-center text-grey-6">
-            Carrito vacio
+            <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />   <div> Carrito vacio</div>
           </div>
 
         </div>
