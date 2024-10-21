@@ -165,6 +165,7 @@
         </q-td>
       </template>
 
+
       <!-- Descripcion -->
       <template v-slot:body-cell-descripcion="props">
         <q-td :props="props">
@@ -1256,6 +1257,8 @@ export default defineComponent({
         suc2: suc2.value ? parseInt(suc2.value) : 0,
         depo: depo.value ? parseInt(depo.value) : 0,
       };
+
+      console.log(data)
 
       api.put("/api/product_detail", data).then((response) => {
         api.get("/api/product_detail").then((response) => {

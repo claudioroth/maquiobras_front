@@ -136,7 +136,7 @@
 
   <!-- DIALOG -->
   <q-dialog v-model="dialog" full-height position="right">
-    <q-card class="column full-height" style="width: 500px">
+    <q-card class="column full-height" style="min-width: 800px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
         <div class="text-grey-8">Nueva Venta</div>
@@ -148,11 +148,12 @@
           <!-- Productos -->
           <div
             class="q-py-md"
-            style="
+            :style="`
               border: 1px solid rgb(206 206 206);
               border-radius: 4px;
               position: relative;
-            "
+              background-color: white;
+            `"
           >
             <div
               style="
@@ -177,10 +178,11 @@
               hide-bottom
               flat
               :filter="productFilter"
-              style="height: 210px; overflow-y: auto"
+             :style="`max-height:${$q.screen.height - 570}px; overflow-y: auto`"
               v-model:pagination="pagination"
             >
               <template v-slot:top>
+
                 <q-input
                   borderless
                   outlined
@@ -204,16 +206,23 @@
                     :key="col.name"
                     :props="props"
                     class="text-italic"
+
                   >
                     {{ col.label }}
                   </q-th>
                 </q-tr>
               </template>
 
+              <template v-slot:body-cell-producto="props">
+                <q-td no-hover :props="props"  style="min-width: 600px; width: 600px; max-width: 600px;">
+                  {{ props.row.producto }}
+                </q-td>
+              </template>
+
               <template v-slot:body-cell-cantidad="props">
-                <q-td no-hover :props="props">
+                <q-td no-hover :props="props"  style="min-width: 60px; width: 60px; max-width: 60px;">
                   <q-badge
-                    color="orange-9"
+                    color="grey-9"
                     text-color="white"
                     style="font-size: 10px"
                     :label="props.row.cantidad"
@@ -222,7 +231,7 @@
               </template>
 
               <template v-slot:body-cell-button="props">
-                <q-td no-hover :props="props">
+                <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px;">
                   <q-btn
                     flat
                     round
@@ -236,21 +245,66 @@
             </q-table>
           </div>
 
+
+
           <!-- Carrito -->
+          <div
+            class="q-py-md q-mt-lg"
+            style="
+              border: 1px solid rgb(206 206 206);
+              border-radius: 4px;
+              position: relative;
+            "
+          >
+            <div
+              style="
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: -9px;
+                padding: 0 10px;
+                font-size: 11px;
+                color: #9b9b9b;
+                background-color: white;
+              "
+            >
+              CARRITO
+            </div>
           <q-table
+            v-if="cart.length"
             dense
-            class="text-grey-8 custom-font-size"
+            class="text-grey-8 custom-font-size custom-font-size my-sticky-header-table"
             :rows="cart"
             :columns="cartColumn"
             row-key="name"
             hide-bottom
             flat
-            bordered
-            style="height: 260px; overflow-y: auto"
+            :style="`max-height:${$q.screen.height - 465}px; overflow-y: auto`"
             v-model:pagination="pagination"
           >
+
+          <template v-slot:header="props">
+                <q-tr :props="props">
+                  <q-th
+                    v-for="col in props.cols"
+                    :key="col.name"
+                    :props="props"
+                    class="text-italic"
+
+                  >
+                    {{ col.label }}
+                  </q-th>
+                </q-tr>
+              </template>
+
+          <template v-slot:body-cell-producto="props">
+                <q-td no-hover :props="props"  style="min-width: 600px; width: 600px; max-width: 600px;">
+                  {{ props.row.producto }}
+                </q-td>
+              </template>
+
             <template v-slot:body-cell-cantidad="props">
-              <q-td no-hover :props="props">
+              <q-td no-hover :props="props"  style="min-width: 65px; width: 65px; max-width: 65px;">
                 <q-icon
                   size="xs"
                   name="arrow_drop_down"
@@ -272,7 +326,7 @@
             </template>
 
             <template v-slot:body-cell-button="props">
-              <q-td no-hover :props="props">
+              <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px;">
                 <q-btn
                   flat
                   round
@@ -284,6 +338,12 @@
               </q-td>
             </template>
           </q-table>
+
+          <div v-else style="height: 285px; overflow-y: auto" class="content-center">
+            asdas
+          </div>
+
+        </div>
 
           <!-- createNumberList -->
 
@@ -391,7 +451,7 @@ export default defineComponent({
         name: "producto",
         label: "Producto",
         field: "producto",
-        align: "center",
+        align: "left",
       },
       {
         name: "cantidad",
@@ -412,7 +472,7 @@ export default defineComponent({
         name: "producto",
         label: "Producto",
         field: "producto",
-        align: "center",
+        align: "left",
       },
       {
         name: "cantidad",
@@ -649,7 +709,7 @@ export default defineComponent({
       pagination,
       showPopup: Array(products.length).fill(false),
       parse_datetime,
-      rol
+      rol,
     };
   },
 });

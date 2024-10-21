@@ -280,6 +280,7 @@ export default defineComponent({
         label: "Producto",
         field: "producto",
         align: "center",
+        classes: 'text-sm'
       },
       {
         name: "semi_admin",
@@ -507,4 +508,9 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
+</style>
+
+<style lang="sass">
+.custom-text-size
+  font-size: 14px!important  /* Ajusta el tamaño del texto */
 </style>
