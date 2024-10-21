@@ -6,8 +6,6 @@
         class="bg-white q-pa-md rounded-borders flex"
         style="border: solid 1px #e0e0e0"
       >
-
-
         <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
           <q-popup-proxy>
             <q-banner class="q-my-md" style="max-width: 260px">
@@ -129,7 +127,6 @@
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
       :visible-columns="visibleColumns"
     >
-
       <!-- Descripcion -->
       <template v-slot:body-cell-descripcion="props">
         <q-td :props="props">
@@ -260,8 +257,8 @@
         <q-td v-else :props="props"> - </q-td>
       </template>
 
-    <!-- Ultima Modificacion -->
-    <template v-slot:body-cell-ultimo_modif="props">
+      <!-- Ultima Modificacion -->
+      <template v-slot:body-cell-ultimo_modif="props">
         <q-td v-if="props.row.ultimo_modif" :props="props">
           <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
           <div>
@@ -745,7 +742,7 @@
 
 <script>
 import { defineComponent, ref, onMounted, watch, computed } from "vue";
-import { date, SessionStorage,LocalStorage } from "quasar";
+import { date, SessionStorage, LocalStorage } from "quasar";
 import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
@@ -754,7 +751,6 @@ import { suppliers } from "src/helpers/suppliers";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
-
   setup() {
     // VARIABLES
     const $q = useQuasar();
@@ -918,7 +914,7 @@ export default defineComponent({
         .get("/api/product_detail")
         .then((response) => {
           dataTable.value = response.data;
-                   loadingScreen.value = false;
+          loadingScreen.value = false;
           function exportExcel(dataTable) {
             let data = XLSX.utils.json_to_sheet(dataTable);
             const workbook = XLSX.utils.book_new();
@@ -1020,8 +1016,15 @@ export default defineComponent({
     };
 
     const convertDateFormat = (dateString) => {
-      const [day, month, year] = dateString.split("-");
-      return `${year}-${month}-${day}`;
+      const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+      const match = dateString.match(regex);
+      if (match) {
+        const [_, day, month, year] = match;
+        return `${year}-${month}-${day}`;
+      } else {
+        console.error("Fecha en formato inválido:", dateString);
+        return null;
+      }
     };
 
     const formatNumber = (number) => {
@@ -1088,13 +1091,11 @@ export default defineComponent({
           suppliers.forEach((s) => {
             data.nro.split(" ").forEach((n) => {
               if (n == s.value) {
-
                 selectSuppliers.value.push(s);
               }
             });
           });
         }
-
 
         // selectSuppliers.value = nroList
 
@@ -1156,7 +1157,6 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-
       api.post("/api/product_detail", data).then((response) => {
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
@@ -1212,12 +1212,10 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-
       api.put("/api/product_detail", data).then((response) => {
-
         api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
-              dialog.value = false;
+          dialog.value = false;
           dialogLoading.value = false;
         });
       });
@@ -1230,7 +1228,7 @@ export default defineComponent({
       // };
       dialogLoadingDelete.value = true;
       api.delete(`/api/product_detail/${index.value}`).then((response) => {
-           api.get("/api/product_detail").then((response) => {
+        api.get("/api/product_detail").then((response) => {
           dataTable.value = response.data;
           dialogDelete.value = false;
           dialogLoadingDelete.value = false;
