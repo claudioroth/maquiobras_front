@@ -10,8 +10,8 @@ import axios from "axios";
 //const api = axios.create({ baseURL: 'https://api.example.com' })
 
 const api = axios.create({
-  baseURL: "http://localhost:5115",
-  // baseURL: "http://77.37.69.138:5115",
+  // baseURL: "http://localhost:5115",
+  baseURL: "http://77.37.69.138:5115",
   headers: {
     "Cache-Control": "no-cache, must-revalidate",
     "Pragma": "no-cache",
