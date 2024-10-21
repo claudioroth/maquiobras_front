@@ -1070,6 +1070,7 @@ export default defineComponent({
 
     const convertDateFormat = (dateString) => {
       const [day, month, year] = dateString.split("-");
+      console.log(`${year}-${month}-${day}`)
       return `${year}-${month}-${day}`;
     };
 

@@ -339,8 +339,8 @@
             </template>
           </q-table>
 
-          <div v-else style="height: 285px; overflow-y: auto" class="content-center">
-            asdas
+          <div v-else style="height: 285px; overflow-y: auto" class="content-center text-center text-grey-6">
+            Carrito vacio
           </div>
 
         </div>
