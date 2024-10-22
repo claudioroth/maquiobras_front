@@ -177,7 +177,7 @@
               hide-bottom
               flat
               :filter="productFilter"
-             :style="`height: calc(36vh - 100px); overflow-y: auto`"
+             :style="`height: calc(54vh - 100px); overflow-y: auto`"
               v-model:pagination="pagination"
             >
               <template v-slot:top>
@@ -279,7 +279,7 @@
             row-key="name"
             hide-bottom
             flat
-            :style="`height: calc(52vh - 100px); overflow-y: auto`"
+            :style="`height: calc(40vh - 100px); overflow-y: auto`"
             v-model:pagination="pagination"
           >
 
@@ -778,4 +778,6 @@ export default defineComponent({
   tbody
     /* height of all previous header rows */
     scroll-margin-top: 48px
+.q-dialog__inner--minimized
+    padding: 0px
 </style>
