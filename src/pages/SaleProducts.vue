@@ -339,7 +339,7 @@
             </template>
           </q-table>
 
-          <div v-else style="height: calc(52vh - 100px); overflow-y: auto" class="content-center text-center text-grey-6">
+          <div v-else style="height: calc(40vh - 100px); overflow-y: auto" class="content-center text-center text-grey-6">
             <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />   <div> Carrito vacio</div>
           </div>
 
