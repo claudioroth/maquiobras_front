@@ -100,4 +100,5 @@ export const suppliers = [
   {"value": 109, "label": "BARBUY TEAM(109)"},
   {"value": 110, "label": "STEPANEK REVOCADORA (110)"},
   {"value": 111, "label": "EL VIEJO WATT (111)"},
+  {"value": 114, "label": "KEE GO STANLEY (114)"},
 ]
