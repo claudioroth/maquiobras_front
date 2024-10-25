@@ -6,7 +6,6 @@
         class="bg-white q-pa-md rounded-borders flex"
         style="border: solid 1px #e0e0e0"
       >
-        {{ cart }}
         <q-btn
           v-if="rol == 3"
           class="q-mr-md q-px-lg"
