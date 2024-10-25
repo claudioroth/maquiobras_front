@@ -6,6 +6,7 @@
         class="bg-white q-pa-md rounded-borders flex"
         style="border: solid 1px #e0e0e0"
       >
+        {{ cart }}
         <q-btn
           v-if="rol == 3"
           class="q-mr-md q-px-lg"
@@ -177,7 +178,7 @@
               hide-bottom
               flat
               :filter="productFilter"
-             :style="`height: calc(54vh - 100px); overflow-y: auto`"
+              :style="`height: calc(54vh - 100px); overflow-y: auto`"
               v-model:pagination="pagination"
             >
               <template v-slot:top>
@@ -206,7 +207,6 @@
                     :key="col.name"
                     :props="props"
                     class="text-italic"
-
                   >
                     {{ col.label }}
                   </q-th>
@@ -214,13 +214,21 @@
               </template>
 
               <template v-slot:body-cell-producto="props">
-                <q-td no-hover :props="props"  style="min-width: 600px; width: 600px; max-width: 600px;">
+                <q-td
+                  no-hover
+                  :props="props"
+                  style="min-width: 600px; width: 600px; max-width: 600px"
+                >
                   {{ props.row.producto }}
                 </q-td>
               </template>
 
               <template v-slot:body-cell-cantidad="props">
-                <q-td no-hover :props="props"  style="min-width: 60px; width: 60px; max-width: 60px;">
+                <q-td
+                  no-hover
+                  :props="props"
+                  style="min-width: 60px; width: 60px; max-width: 60px"
+                >
                   <q-badge
                     color="grey-9"
                     text-color="white"
@@ -231,7 +239,11 @@
               </template>
 
               <template v-slot:body-cell-button="props">
-                <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px;">
+                <q-td
+                  no-hover
+                  :props="props"
+                  style="min-width: 50px; width: 50px; max-width: 50px"
+                >
                   <q-btn
                     flat
                     round
@@ -245,105 +257,125 @@
             </q-table>
           </div>
 
-
-
           <!-- Carrito -->
           <div
             class="q-py-md q-mt-lg"
-            style="
-              border: 1px solid rgb(206 206 206);
+            :style="`
+              border: 1px solid ${completeAlert ? '#c62828' : '#9b9b9b'};
               border-radius: 4px;
               position: relative;
-            "
+            `"
           >
             <div
-              style="
+              :style="`
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
                 top: -9px;
                 padding: 0 10px;
                 font-size: 11px;
-                color: #9b9b9b;
+                color: ${completeAlert ? '#c62828' : '#9b9b9b'};
                 background-color: white;
-              "
+              `"
             >
               CARRITO
             </div>
-          <q-table
-            v-if="cart.length"
-            dense
-            class="text-grey-8 custom-font-size custom-font-size my-sticky-header-table"
-            :rows="cart"
-            :columns="cartColumn"
-            row-key="name"
-            hide-bottom
-            flat
-            :style="`height: calc(40vh - 100px); overflow-y: auto`"
-            v-model:pagination="pagination"
-          >
-
-          <template v-slot:header="props">
+            <q-table
+              v-if="cart.length"
+              dense
+              class="text-grey-8 custom-font-size custom-font-size my-sticky-header-table"
+              :rows="cart"
+              :columns="cartColumn"
+              row-key="name"
+              hide-bottom
+              flat
+              :style="`height: calc(40vh - 100px); overflow-y: auto`"
+              v-model:pagination="pagination"
+            >
+              <template v-slot:header="props">
                 <q-tr :props="props">
                   <q-th
                     v-for="col in props.cols"
                     :key="col.name"
                     :props="props"
                     class="text-italic"
-
                   >
                     {{ col.label }}
                   </q-th>
                 </q-tr>
               </template>
 
-          <template v-slot:body-cell-producto="props">
-                <q-td no-hover :props="props"  style="min-width: 600px; width: 600px; max-width: 600px;">
+              <template v-slot:body-cell-producto="props">
+                <q-td
+                  no-hover
+                  :props="props"
+                  style="min-width: 600px; width: 600px; max-width: 600px"
+                >
                   {{ props.row.producto }}
                 </q-td>
               </template>
 
-            <template v-slot:body-cell-cantidad="props">
-              <q-td no-hover :props="props"  style="min-width: 65px; width: 65px; max-width: 65px;">
-                <q-icon
-                  size="xs"
-                  name="arrow_left"
-                  @click="decreaseQuantity(props.row)"
-                />
-                <q-badge
-                  outline
-                  color="red-7"
-                  text-color="white"
-                  style="font-size: 10px"
-                  :label="props.row.cantidad"
-                />
-                <q-icon
-                  size="xs"
-                  name="arrow_right"
-                  @click="increaseQuantity(props.row)"
-                />
-              </q-td>
-            </template>
+              <template v-slot:body-cell-cantidad="props">
+                <q-td
+                  no-hover
+                  :props="props"
+                  style="min-width: 65px; width: 65px; max-width: 65px"
+                >
+                  <q-icon
+                    size="xs"
+                    name="arrow_left"
+                    @click="decreaseQuantity(props.row)"
+                  />
+                  <q-badge
+                    outline
+                    color="red-7"
+                    text-color="white"
+                    style="font-size: 10px"
+                    :label="props.row.cantidad"
+                  />
+                  <q-icon
+                    size="xs"
+                    name="arrow_right"
+                    @click="increaseQuantity(props.row)"
+                  />
+                </q-td>
+              </template>
 
-            <template v-slot:body-cell-button="props">
-              <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px;">
-                <q-btn
-                  flat
-                  round
-                  size="xs"
-                  color="primary"
-                  icon="o_delete"
-                  @click="removeFromCart(props.row)"
-                />
-              </q-td>
-            </template>
-          </q-table>
+              <template v-slot:body-cell-button="props">
+                <q-td
+                  no-hover
+                  :props="props"
+                  style="min-width: 50px; width: 50px; max-width: 50px"
+                >
+                  <q-btn
+                    flat
+                    round
+                    size="xs"
+                    color="primary"
+                    icon="o_delete"
+                    @click="removeFromCart(props.row)"
+                  />
+                </q-td>
+              </template>
+            </q-table>
 
-          <div v-else style="height: calc(40vh - 100px); overflow-y: auto" class="content-center text-center text-grey-6">
-            <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />   <div> Carrito vacio</div>
+            <div
+              v-else
+              style="height: calc(40vh - 100px); overflow-y: auto"
+              :class="`content-center text-center ${
+                completeAlert ? 'text-red-9' : 'text-grey-6'
+              }`"
+            >
+              <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />
+              <div>
+                {{
+                  completeAlert
+                    ? "Ingrese al menos 1 producto"
+                    : "Carrito vacio"
+                }}
+              </div>
+            </div>
           </div>
-
-        </div>
 
           <!-- createNumberList -->
 
@@ -365,7 +397,11 @@
         </q-form>
       </q-card-section>
 
-      <q-inner-loading :showing="dialogLoading" class="bg-white" style="z-index: 100;">
+      <q-inner-loading
+        :showing="dialogLoading"
+        class="bg-white"
+        style="z-index: 100"
+      >
         <q-spinner-puff size="50px" color="red-5" />
       </q-inner-loading>
     </q-card>
@@ -381,7 +417,6 @@ import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
-
   setup() {
     // VARIABLES
     const $q = useQuasar();
@@ -393,6 +428,7 @@ export default defineComponent({
     const products = ref([]);
     const cart = ref([]);
     const usersObject = ref({});
+    const completeAlert = ref(false);
     const id_user = SessionStorage.getItem("id_user");
     const branch = SessionStorage.getItem("branch");
     const rol = SessionStorage.getItem("rol");
@@ -506,7 +542,7 @@ export default defineComponent({
           sales.value = response.data;
           sales.value.forEach((sale, index) => {
             sale.showPopup = false;
-            sale.index = index + 1
+            sale.index = index + 1;
           });
 
           loadingScreen.value = false;
@@ -523,6 +559,15 @@ export default defineComponent({
       });
     });
 
+    // WATCH
+    watch(completeAlert, (newValue, oldValue) => {
+      if (newValue === true) {
+        setTimeout(() => {
+          completeAlert.value = false; // Cambia la variable a false después de 3 segundos
+        }, 1500);
+      }
+    });
+
     // FUNCIONES
 
     // Refresca la tabla principal
@@ -533,9 +578,9 @@ export default defineComponent({
           sales.value = response.data;
           sales.value.forEach((sale, index) => {
             sale.showPopup = false;
-            sale.index = index + 1
+            sale.index = index + 1;
           });
-          loadingTable.value = false
+          loadingTable.value = false;
           loadingScreen.value = false;
         })
         .catch((error) => {
@@ -552,9 +597,9 @@ export default defineComponent({
     };
 
     const openProductsPopup = (index) => {
-      showPopup.value[index] = true
-      console.log(showPopup.value)
-    }
+      showPopup.value[index] = true;
+      console.log(showPopup.value);
+    };
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
@@ -648,47 +693,52 @@ export default defineComponent({
 
     // Retirar Herramienta
     const newSale = () => {
-      dialogLoading.value = true;
+      if (cart.value.length) {
+        dialogLoading.value = true;
 
-      // Crear el objeto FormData
-      const formData = new FormData();
+        // Crear el objeto FormData
+        const formData = new FormData();
 
-      // Convertir el objeto en JSON y agregarlo al FormData
-      const data = {
-        id_user: id_user,
-        id_sucursal: parceBranch2[branch],
-        ventas: cart.value,
-      };
+        // Convertir el objeto en JSON y agregarlo al FormData
+        const data = {
+          id_user: id_user,
+          id_sucursal: parceBranch2[branch],
+          ventas: cart.value,
+        };
 
-      // Enviar el JSON como string
-      formData.append("data", JSON.stringify(data));
+        // Enviar el JSON como string
+        formData.append("data", JSON.stringify(data));
 
-      // Realizar la solicitud usando Axios
-      api
-        .post(`/api/${parceBranch1[branch]}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          // loadingTable.value = true;
-          get_data(); // Esto recargaría los datos, descomentar si lo necesitas
-          $q.notify({
-            icon: "done",
-            message: "Venta completada",
-            position: "bottom",
-            timeout: 2000,
+        // Realizar la solicitud usando Axios
+        api
+          .post(`/api/${parceBranch1[branch]}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            // loadingTable.value = true;
+            get_data(); // Esto recargaría los datos, descomentar si lo necesitas
+            $q.notify({
+              icon: "done",
+              message: "Venta completada",
+              position: "bottom",
+              timeout: 2000,
+            });
+
+            dialog.value = false;
+            dialogLoading.value = false;
+          })
+          .catch((error) => {
+            console.error("Error al enviar los datos:", error);
+            dialogLoading.value = false;
           });
-
-          dialog.value = false;
-          dialogLoading.value = false;
-        })
-        .catch((error) => {
-          console.error("Error al enviar los datos:", error);
-          dialogLoading.value = false;
-        });
+      } else {
+        completeAlert.value = true;
+      }
     };
     return {
+      completeAlert,
       columns,
       salesColumns,
       productsColumn,
