@@ -22,10 +22,10 @@
 
   <!-- TABLA -->
   <div class="q-pa-md">
-    <q-table flat separator="cell" v-if="!loadingScreen" bordered title="ABM Usuarios" :rows="controles"
+    <q-table flat separator="cell" v-if="!loadingScreen" bordered dense title="ABM Usuarios" :rows="controles"
       :columns="columns.filter(col => col.name !== 'actions' || userRol === 1)" :loading="loadingTable" row-key="id"
-      :filter="filter" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary"
-      class="no-shadow text-grey-7" :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`">
+      :filter="filter" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary" no-hover
+      class="no-shadow text-grey-7 my-sticky-header-table" :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`">
       <!-- Username -->
       <template v-slot:body-cell-user="props">
         <q-td :props="props" :class="props.row.is_active == 0 ? 'bg-grey-2' : ''">
@@ -601,3 +601,32 @@ const confirmChangeRole = async () => {
   padding-top: 0px !important;
 }
 </style>
+
+<style lang="sass">
+.my-sticky-header-table
+  /* height or max-height is important */
+  height: 310px
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    /* bg color is important for th; just specify one */
+    background-color: white
+
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
+</style>
+
