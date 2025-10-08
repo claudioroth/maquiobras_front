@@ -2,30 +2,13 @@
   <!-- HEADER -->
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
-      <div
-        class="bg-white q-pa-md rounded-borders flex"
-        style="border: solid 1px #e0e0e0"
-      >
-        <q-btn
-          v-if="rol == 3"
-          class="q-mr-md q-px-lg"
-          size="md"
-          color="grey-7"
-          outline
-          :disable="loadingScreen"
-          @click="open_dialog('create')"
-          ><q-icon name="construction" class="q-mr-sm" /> Nueva Venta
+      <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
+        <q-btn v-if="rol == 3 || rol == 1" class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
+          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /> Nueva Venta
         </q-btn>
 
         <q-space />
-        <q-input
-          dense
-          outlined
-          :disable="loadingScreen"
-          debounce="300"
-          v-model="filter"
-          placeholder="Buscar"
-        >
+        <q-input dense outlined :disable="loadingScreen" debounce="300" v-model="filter" placeholder="Buscar">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -35,26 +18,11 @@
   </div>
   <!-- TABLA -->
   <div class="q-pa-md">
-    <q-table
-      v-if="!loadingScreen"
-      flat
-      :loading="loadingTable"
-      bordered
-      dense
-      title="Ventas"
-      :rows="sales"
-      :columns="columns"
-      row-key="index"
-      :filter="filter"
-      separator="cell"
-      virtual-scroll
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      color="primary"
-      no-hover
+    <q-table v-if="!loadingScreen" flat :loading="loadingTable" bordered dense title="Ventas" :rows="sales"
+      :columns="columns" row-key="index" :filter="filter" separator="cell" virtual-scroll
+      v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary" no-hover
       class="no-shadow text-grey-7 my-sticky-header-table"
-      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
-    >
+      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`">
       <!-- <template v-slot:top-right>
         <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
           <template v-slot:append>
@@ -66,39 +34,15 @@
       <template v-slot:body-cell-ventas="props">
         <q-td :props="props">
           <div>
-            <q-btn
-              label="productos"
-              color="primary"
-              dense
-              outline
-              style="padding-top: 6px"
-              class="q-px-sm"
-              icon="shopping_cart"
-              size="sm"
-              @click="openProductsPopup[props.row.index]"
-            />
-            <q-popup-proxy
-              v-model="showPopup[props.row.index]"
-              transition-show="scale"
-              transition-hide="scale"
-              class="no-shadow q-pa-none q-mt-md"
-              style="border: 1px solid #ebebeb; margin-top: 10px !important"
-            >
+            <q-btn label="productos" color="primary" dense outline style="padding-top: 6px" class="q-px-sm"
+              icon="shopping_cart" size="sm" @click="openProductsPopup[props.row.index]" />
+            <q-popup-proxy v-model="showPopup[props.row.index]" transition-show="scale" transition-hide="scale"
+              class="no-shadow q-pa-none q-mt-md" style="border: 1px solid #ebebeb; margin-top: 10px !important">
               <q-card class="bg-grey-2 q-pa-none">
                 <q-card-section>
-                  <q-table
-                    dense
-                    class="text-grey-8 text-sm bg-grey-2 custom-font-size my-sticky-header-table-a"
-                    table-style="font-size:8px"
-                    :rows="JSON.parse(props.row.ventas)"
-                    :columns="salesColumns"
-                    row-key="index"
-                    hide-bottom
-                    flat
-                    separator="cell"
-                    bordered
-                    :rows-per-page-options="[0]"
-                  />
+                  <q-table dense class="text-grey-8 text-sm bg-grey-2 custom-font-size my-sticky-header-table-a"
+                    table-style="font-size:8px" :rows="JSON.parse(props.row.ventas)" :columns="salesColumns"
+                    row-key="index" hide-bottom flat separator="cell" bordered :rows-per-page-options="[0]" />
                 </q-card-section>
               </q-card>
             </q-popup-proxy>
@@ -119,16 +63,9 @@
     </q-table>
 
     <!-- LOADING SCREEN -->
-    <q-inner-loading
-      v-else
-      :showing="loadingScreen"
-      class="bg-white"
-      :style="`height:${
-        $q.screen.height - 190
-      }px; top:164px; right:16px; left:${
-        $q.screen.width < 1007 ? 16 : 256
-      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
-    >
+    <q-inner-loading v-else :showing="loadingScreen" class="bg-white" :style="`height:${$q.screen.height - 190
+      }px; top:164px; right:16px; left:${$q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`">
       <q-spinner-puff size="50px" color="red-5" />
     </q-inner-loading>
   </div>
@@ -145,17 +82,13 @@
       <q-card-section class="col q-pa-lg">
         <q-form @submit="newSale" @reset="onReset" class="q-gutter-md">
           <!-- Productos -->
-          <div
-            class="q-py-md"
-            :style="`
+          <div class="q-py-md" :style="`
               border: 1px solid rgb(206 206 206);
               border-radius: 4px;
               position: relative;
               background-color: white;
-            `"
-          >
-            <div
-              style="
+            `">
+            <div style="
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
@@ -164,35 +97,17 @@
                 font-size: 11px;
                 color: #9b9b9b;
                 background-color: white;
-              "
-            >
+              ">
               PRODUCTOS
             </div>
-            <q-table
-              dense
-              class="text-grey-8 custom-font-size my-sticky-header-table"
-              :rows="products"
-              :columns="productsColumn"
-              row-key="name"
-              hide-bottom
-              flat
-              :filter="productFilter"
-              :style="`height: calc(54vh - 100px); overflow-y: auto`"
-              v-model:pagination="pagination"
-            >
+            <q-table dense class="text-grey-8 custom-font-size my-sticky-header-table" :rows="products"
+              :columns="productsColumn" row-key="name" hide-bottom flat :filter="productFilter"
+              :style="`height: calc(54vh - 100px); overflow-y: auto`" v-model:pagination="pagination">
               <template v-slot:top>
                 <!-- calc(50vh - 100px) -->
                 <!-- max-height:${$q.screen.height - 570} -->
-                <q-input
-                  borderless
-                  outlined
-                  dense
-                  class="col-12"
-                  debounce="300"
-                  v-model="productFilter"
-                  placeholder="Search"
-                  style="font-size: 12px; height: 10px; margin-bottom: 30px"
-                >
+                <q-input borderless outlined dense class="col-12" debounce="300" v-model="productFilter"
+                  placeholder="Search" style="font-size: 12px; height: 10px; margin-bottom: 30px">
                   <template v-slot:append>
                     <q-icon name="search" style="font-size: 16px" />
                   </template>
@@ -201,72 +116,40 @@
 
               <template v-slot:header="props">
                 <q-tr :props="props">
-                  <q-th
-                    v-for="col in props.cols"
-                    :key="col.name"
-                    :props="props"
-                    class="text-italic"
-                  >
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-italic">
                     {{ col.label }}
                   </q-th>
                 </q-tr>
               </template>
 
               <template v-slot:body-cell-producto="props">
-                <q-td
-                  no-hover
-                  :props="props"
-                  style="min-width: 600px; width: 600px; max-width: 600px"
-                >
+                <q-td no-hover :props="props" style="min-width: 600px; width: 600px; max-width: 600px">
                   {{ props.row.producto }}
                 </q-td>
               </template>
 
               <template v-slot:body-cell-cantidad="props">
-                <q-td
-                  no-hover
-                  :props="props"
-                  style="min-width: 60px; width: 60px; max-width: 60px"
-                >
-                  <q-badge
-                    color="grey-9"
-                    text-color="white"
-                    style="font-size: 10px"
-                    :label="props.row.cantidad"
-                  />
+                <q-td no-hover :props="props" style="min-width: 60px; width: 60px; max-width: 60px">
+                  <q-badge color="grey-9" text-color="white" style="font-size: 10px" :label="props.row.cantidad" />
                 </q-td>
               </template>
 
               <template v-slot:body-cell-button="props">
-                <q-td
-                  no-hover
-                  :props="props"
-                  style="min-width: 50px; width: 50px; max-width: 50px"
-                >
-                  <q-btn
-                    flat
-                    round
-                    size="xs"
-                    color="primary"
-                    icon="o_add_shopping_cart"
-                    @click="addToCart(props.row)"
-                  />
+                <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px">
+                  <q-btn flat round size="xs" color="primary" icon="o_add_shopping_cart"
+                    @click="addToCart(props.row)" />
                 </q-td>
               </template>
             </q-table>
           </div>
 
           <!-- Carrito -->
-          <div
-            class="q-py-md q-mt-lg"
-            :style="`
+          <div class="q-py-md q-mt-lg" :style="`
               border: 1px solid ${completeAlert ? '#c62828' : '#9b9b9b'};
               border-radius: 4px;
               position: relative;
-            `"
-          >
-            <div
-              :style="`
+            `">
+            <div :style="`
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
@@ -275,56 +158,31 @@
                 font-size: 11px;
                 color: ${completeAlert ? '#c62828' : '#9b9b9b'};
                 background-color: white;
-              `"
-            >
+              `">
               CARRITO
             </div>
-            <q-table
-              v-if="cart.length"
-              dense
-              class="text-grey-8 custom-font-size custom-font-size my-sticky-header-table"
-              :rows="cart"
-              :columns="cartColumn"
-              row-key="name"
-              hide-bottom
-              flat
-              :style="`height: calc(40vh - 100px); overflow-y: auto`"
-              v-model:pagination="pagination"
-            >
+            <q-table v-if="cart.length" dense
+              class="text-grey-8 custom-font-size custom-font-size my-sticky-header-table" :rows="cart"
+              :columns="cartColumn" row-key="name" hide-bottom flat
+              :style="`height: calc(40vh - 100px); overflow-y: auto`" v-model:pagination="pagination">
               <template v-slot:header="props">
                 <q-tr :props="props">
-                  <q-th
-                    v-for="col in props.cols"
-                    :key="col.name"
-                    :props="props"
-                    class="text-italic"
-                  >
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-italic">
                     {{ col.label }}
                   </q-th>
                 </q-tr>
               </template>
 
               <template v-slot:body-cell-producto="props">
-                <q-td
-                  no-hover
-                  :props="props"
-                  style="min-width: 600px; width: 600px; max-width: 600px"
-                >
+                <q-td no-hover :props="props" style="min-width: 600px; width: 600px; max-width: 600px">
                   {{ props.row.producto }}
                 </q-td>
               </template>
 
               <template v-slot:body-cell-cantidad="props">
-                <q-td
-                  no-hover
-                  :props="props"
-                  style="min-width: 65px; width: 65px; max-width: 65px"
-                >
-                  <q-icon
-                    size="xs"
-                    name="arrow_left"
-                    @click="decreaseQuantity(props.row)"
-                  />
+                <q-td class="row" no-hover :props="props" style="min-width: 65px; width: 140px; max-width: 140px">
+
+                  <!-- <q-icon size="xs" name="arrow_left" @click="decreaseQuantity(props.row)" />
                   <q-badge
                     outline
                     color="red-7"
@@ -332,39 +190,38 @@
                     style="font-size: 10px"
                     :label="props.row.cantidad"
                   />
-                  <q-icon
-                    size="xs"
-                    name="arrow_right"
-                    @click="increaseQuantity(props.row)"
-                  />
+                  <q-icon size="xs" name="arrow_right" @click="increaseQuantity(props.row)" /> -->
+
+                  <!-- Botón para disminuir cantidad -->
+                  <q-icon class="col" size="xs" name="arrow_left" @click="decreaseQuantity(props.row)" />
+
+                  <!-- Campo editable para cantidad -->
+                  <q-input v-model.number="props.row.cantidad" type="number" dense outlined input-class="text-center"
+                    class="mini-number col-5 q-mx-sm"
+                    style="width: 100px; font-size: 12px; min-height: 10px; --q-field-padding-top:0; --q-field-padding-bottom:0"
+                    :min="0" @change="validateQuantity(props.row)" />
+
+
+
+                  <!-- Botón para aumentar cantidad -->
+                  <q-icon class="col" size="xs" name="arrow_right" @click="increaseQuantity(props.row)" />
+
+
+                  <!-- <q-input v-model.number="props.row.cantidad" type="number" dense  outlined input-class="text-center"
+                    style="width: 100px; font-size: 12px;min-height: 15px; --q-field-padding-top:0; --q-field-padding-bottom:0" :min="0" @blur="validateQuantity(props.row)" /> -->
                 </q-td>
               </template>
 
               <template v-slot:body-cell-button="props">
-                <q-td
-                  no-hover
-                  :props="props"
-                  style="min-width: 50px; width: 50px; max-width: 50px"
-                >
-                  <q-btn
-                    flat
-                    round
-                    size="xs"
-                    color="primary"
-                    icon="o_delete"
-                    @click="removeFromCart(props.row)"
-                  />
+                <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px">
+                  <q-btn flat round size="xs" color="primary" icon="o_delete" @click="removeFromCart(props.row)" />
+
                 </q-td>
               </template>
             </q-table>
 
-            <div
-              v-else
-              style="height: calc(40vh - 100px); overflow-y: auto"
-              :class="`content-center text-center ${
-                completeAlert ? 'text-red-9' : 'text-grey-6'
-              }`"
-            >
+            <div v-else style="height: calc(40vh - 100px); overflow-y: auto" :class="`content-center text-center ${completeAlert ? 'text-red-9' : 'text-grey-6'
+              }`">
               <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />
               <div>
                 {{
@@ -379,28 +236,13 @@
           <!-- createNumberList -->
 
           <div>
-            <q-btn
-              label="Completar Venta"
-              type="submit"
-              unelevated
-              color="primary"
-            />
-            <q-btn
-              label="Reset"
-              type="reset"
-              color="primary"
-              flat
-              class="q-ml-sm"
-            />
+            <q-btn label="Completar Venta" type="submit" unelevated color="primary" />
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
           </div>
         </q-form>
       </q-card-section>
 
-      <q-inner-loading
-        :showing="dialogLoading"
-        class="bg-white"
-        style="z-index: 100"
-      >
+      <q-inner-loading :showing="dialogLoading" class="bg-white" style="z-index: 100">
         <q-spinner-puff size="50px" color="red-5" />
       </q-inner-loading>
     </q-card>
@@ -624,18 +466,24 @@ export default defineComponent({
       const product = products.value.find(
         (product) => product.id_prod === p.id_prod
       );
+
       if (product && product.cantidad > 0) {
+        // Descontamos del stock visible arriba
         product.cantidad--;
+
+        // Buscamos si ya está en el carrito
         const cartProduct = cart.value.find(
           (item) => item.id_prod === p.id_prod
         );
+
         if (cartProduct) {
           cartProduct.cantidad++;
         } else {
           cart.value.push({
             id_prod: product.id_prod,
             producto: product.producto,
-            cantidad: 1,
+            cantidad: 1,                     // cantidad inicial siempre número
+            stock_inicial: p.cantidad + 1    // guardamos el stock inicial real
           });
         }
       }
@@ -657,19 +505,53 @@ export default defineComponent({
       }
     };
 
+    products.value.forEach(p => {
+      p.stock_inicial = p.cantidad ?? 0;
+      p.cantidad = p.cantidad ?? 0; // asegura que sea número
+    });
+
+    // Función para obtener clase según cantidad (para marcar en rojo si excede stock)
+    const getInputClass = (item) => {
+      const product = products.value.find(p => p.id_prod === item.id_prod);
+      if (!product) return '';
+      return item.cantidad > product.stock_inicial ? 'bg-red-2 text-red-9' : '';
+    };
+
+    const validateQuantity = (item) => {
+      item.cantidad = Number(item.cantidad) || 0;
+
+      if (item.cantidad < 0) item.cantidad = 0;
+      if (item.cantidad > item.stock_inicial) item.cantidad = item.stock_inicial;
+
+      const product = products.value.find(p => p.id_prod === item.id_prod);
+      if (product) {
+        product.cantidad = item.stock_inicial - item.cantidad;
+      }
+    };
+
     // incrementa la cantidad del producto dentro del carrito
     const increaseQuantity = (item) => {
-      const product = products.value.find((p) => p.id_prod === item.id_prod);
-      if (product && product.cantidad > 0) {
-        product.cantidad--;
+      const product = products.value.find(p => p.id_prod === item.id_prod);
+      if (!product) return;
+
+      item.cantidad = Number(item.cantidad) || 0;
+      product.cantidad = Number(product.cantidad) || 0;
+
+      if (product.cantidad > 0) {
         item.cantidad++;
+        product.cantidad--;
       }
     };
 
     // Reduce la cantidad del producto dentro del carrito
     const decreaseQuantity = (item) => {
-      const product = products.value.find((p) => p.id_prod === item.id_prod);
-      if (item.cantidad > 1) {
+      const product = products.value.find(p => p.id_prod === item.id_prod);
+      if (!product) return;
+
+      item.cantidad = Number(item.cantidad) || 0;
+      product.cantidad = Number(product.cantidad) || 0;
+
+      if (item.cantidad > 0) {
         item.cantidad--;
         product.cantidad++;
       }
@@ -758,6 +640,8 @@ export default defineComponent({
       removeFromCart,
       increaseQuantity,
       decreaseQuantity,
+      validateQuantity,
+      getInputClass,
       newSale,
       pagination,
       openProductsPopup,
@@ -773,7 +657,13 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
+
+.q-field--dense .q-field__control,
+.q-field--dense .q-field__marginal {
+  height: 30px !important;
+}
 </style>
+
 
 <style lang="sass">
 .my-sticky-header-table
@@ -829,4 +719,59 @@ export default defineComponent({
     scroll-margin-top: 48px
 .q-dialog__inner--minimized
     padding: 0px
+
+/* --- INPUT NUMÉRICO COMPACTO PARA Q-INPUT --- */
+.mini-number
+  /* aplica sobre el componente <q-input class="mini-number"> */
+  .q-field
+    /* quitar el alto mínimo heredado */
+    min-height: 0 !important
+    height: 28px !important         /* ajustar a lo que necesites */
+
+  .q-field__control
+    min-height: 0 !important
+    height: 24px !important
+    padding-top: 0 !important
+    padding-bottom: 0 !important
+    display: flex
+    align-items: center
+
+  /* target al input nativo dentro de q-input */
+  input.q-field__native,
+  input[type="number"]
+    height: 24px !important         /* alto del input interno */
+    min-height: 0 !important
+    line-height: 20px !important
+    padding: 0 8px !important
+    font-size: 13px
+    box-sizing: border-box
+    -moz-appearance: textfield !important
+    appearance: textfield !important
+
+  /* eliminar los spinners (Chrome / Edge / Safari / WebKit) */
+  input.q-field__native::-webkit-outer-spin-button,
+  input.q-field__native::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button
+    -webkit-appearance: none
+    margin: 0
+
+  /* firefox: que no muestre las flechitas ni comportamiento numérico */
+  input[type="number"]
+    -moz-appearance: textfield
+
+/* ------------- Opcional: versión más compacta ------------- */
+.mini-number--xs
+  .q-field, .q-field__control
+    height: 24px !important
+  input.q-field__native
+    height: 18px !important
+    padding: 0 6px !important
+    font-size: 12px !important
+
+/* Si tu <style> es scoped, podes necesitar usar ::v-deep */
+::v-deep .mini-number
+  .q-field__control
+    /* ejemplo: forzar alineación cuando está scoped */
+    align-items: center
 </style>

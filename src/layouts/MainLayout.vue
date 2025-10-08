@@ -2,14 +2,7 @@
   <q-layout view="lHr lpR fFf" class="bg-grey-1">
     <q-header class="bg-grey-1 text-grey-8 q-py-xs" height-hint="58">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          @click="toggleLeftDrawer"
-          aria-label="Menu"
-          icon="menu"
-        />
+        <q-btn flat dense round @click="toggleLeftDrawer" aria-label="Menu" icon="menu" />
         <!-- <q-toolbar-title class="flex">
           <div class="row items-center q-py-md">
             <q-img src="~assets/img/logo_white.png" style="width: 150px;" />
@@ -29,51 +22,28 @@
         <q-space />
 
         <div class="sora-text">
-          {{ nameUser }}
+          {{ auth.user }}
         </div>
-        <q-btn
-          flat
-          round
-          dense
-          icon="logout"
-          @click="logoutUsr"
-          style="margin-left: 20px"
-        />
+        <q-btn flat round dense icon="logout" @click="logoutUsr" style="margin-left: 20px" />
         <!-- <q-btn dense flat round icon="menu" @click="toggleRightDrawer" /> -->
       </q-toolbar>
     </q-header>
 
     <!--<q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>-->
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      class="bg-grey-7 no-outline"
-      :width="240"
-      style="background: none"
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="bg-grey-7 no-outline" :width="240"
+      style="background: none">
       <div class="row q-py-xl justify-center">
         <q-img src="~assets/img/logo_white.png" style="width: 150px" />
       </div>
       <q-separator class="q-my-md" />
       <!-- <q-scroll-area class="fit"> -->
       <q-list class="text-white">
-        <q-item
-          v-for="link in rolMenu()"
-          :key="link.text"
-          v-ripple
-          clickable
-          :to="link.toPage"
-        >
+        <q-item v-for="link in rolMenu" :key="link.text" v-ripple clickable :to="link.toPage">
           <q-item-section avatar>
             <q-icon color="white" :name="link.icon" />
           </q-item-section>
 
-          <router-link
-            style="text-decoration: none; color: inherit; align-content: center"
-            :to="link.toPage"
-            replace
-          >
+          <router-link style="text-decoration: none; color: inherit; align-content: center" :to="link.toPage" replace>
             <q-item-section class="align-center">
               <q-item-label class="self-center text-grey-4">{{
                 link.text
@@ -97,7 +67,8 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { useAuthStore } from 'src/stores/useAuthStore'
+import { defineComponent, ref, computed } from "vue";
 import { LocalStorage, SessionStorage } from "quasar";
 import { fabYoutube } from "@quasar/extras/fontawesome-v6";
 
@@ -105,8 +76,9 @@ export default defineComponent({
   name: "MainLayout",
 
   setup() {
-    const nameUser = SessionStorage.getItem("user");
-    const rol = SessionStorage.getItem("rol");
+    const auth = useAuthStore()
+    const nameUser = auth.user;
+    const rol = computed(() => auth.rol)
 
     const leftDrawerOpen = ref(false);
     const search = ref("");
@@ -115,62 +87,39 @@ export default defineComponent({
       leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
-    const rolMenu = () => {
-      var data = [];
+    const rolMenu = computed(() => {
+      const data = []
 
-      if (rol == 1) { //Administrador
+      if (rol.value == 1) { //Administrador
         data.push(
           { icon: "o_construction", text: "ABM Productos", toPage: "ABMProd" },
           { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+          { icon: "o_groups", text: "ABM Proveedores", toPage: "ABMSupplier" },
           { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
-          {
-            icon: "o_local_shipping",
-            text: "Ingresos",
-            toPage: "ProductEntry",
-          },
-          {
-            icon: "move_up",
-            text: "Movimiento de Stock",
-            toPage: "StockMovement",
-          }
-        );
-      } else if (rol == 2) { //Semi Administrador
+          { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
+          { icon: "move_up", text: "Movimiento de Stock", toPage: "StockMovement" }
+        )
+      } else if (rol.value == 2) { //Semi Administrador
         data.push(
           { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
-          {
-            icon: "move_up",
-            text: "Movimiento de Stock",
-            toPage: "StockMovement",
-          },
+          { icon: "move_up", text: "Movimiento de Stock", toPage: "StockMovement" },
           { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
-          {
-            icon: "o_local_shipping",
-            text: "Ingresos",
-            toPage: "ProductEntry",
-          },
-
+          { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
           { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" }
-        );
-      } else if (rol == 3) { //Usuario
+        )
+      } else if (rol.value == 3) { //Usuario
         data.push(
-          {
-            icon: "o_build_circle",
-            text: "Stock",
-            toPage: "StockBranch",
-          },
+          { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
           { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
-          {
-            icon: "o_local_shipping",
-            text: "Ingresos",
-            toPage: "ProductEntry",
-          }
-        );
+          { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" }
+        )
       }
 
-      return data;
-    };
+      return data
+    })
 
     return {
+      auth,
       nameUser,
       rol,
       fabYoutube,
@@ -186,9 +135,8 @@ export default defineComponent({
   },
   methods: {
     logoutUsr() {
-      SessionStorage.clear();
-      LocalStorage.clear();
-      this.$router.replace("/login");
+      this.auth.clearUser() // 👈 limpia usuario y rol correctamente
+      this.$router.replace("/login")
     },
   },
 });

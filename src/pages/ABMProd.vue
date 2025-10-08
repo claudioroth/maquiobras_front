@@ -2,18 +2,9 @@
   <!-- HEADER -->
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
-      <div
-        class="bg-white q-pa-md rounded-borders flex"
-        style="border: solid 1px #e0e0e0"
-      >
-        <q-btn
-          class="q-mr-md q-px-lg"
-          size="md"
-          color="grey-7"
-          outline
-          :disable="loadingScreen"
-          @click="open_dialog('create')"
-          ><q-icon name="construction" class="q-mr-sm" /> Nuevo Producto
+      <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
+        <q-btn class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
+          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /> Nuevo Producto
         </q-btn>
 
         <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
@@ -23,90 +14,27 @@
                 <!-- <q-toggle v-model="visibleColumns" val="nro" label="Calories" /> -->
                 <!-- <q-toggle v-model="visibleColumns" val="descripcion" label="Fat" /> -->
 
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="importe_sin_iva"
-                  label="Importe sin IVA"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="iva_21"
-                  label="IVA 21%"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="iva_10"
-                  label="IVA10%"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="oferta_sin_iva"
-                  label="Oferta sin IVA"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="aumento"
-                  label="Aumento"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="ultimo_modif"
-                  label="Ultima modificacion"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="oferta_costo"
-                  label="Oferta costo"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="costo_mas_bajo"
-                  label="Costo mas bajo"
-                />
-                <q-toggle
-                  class="col-12"
-                  v-model="visibleColumns"
-                  val="rentabilidad"
-                  label="Rentabilidad"
-                />
+                <q-toggle class="col-12" v-model="visibleColumns" val="importe_sin_iva" label="Importe sin IVA" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="iva_21" label="IVA 21%" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="iva_10" label="IVA10%" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="oferta_sin_iva" label="Oferta sin IVA" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="aumento" label="Aumento" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="ultimo_modif" label="Ultima modificacion" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="oferta_costo" label="Oferta costo" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="costo_mas_bajo" label="Costo mas bajo" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="rentabilidad" label="Rentabilidad" />
                 <!-- <q-toggle v-model="visibleColumns" val="stock" label="Iron" /> -->
               </div>
-              <q-select
-                v-else
-                v-model="visibleColumns"
-                multiple
-                borderless
-                dense
-                options-dense
-                :display-value="$q.lang.table.columns"
-                emit-value
-                map-options
-                :options="columns"
-                option-value="name"
-                style="min-width: 150px"
-              />
+              <q-select v-else v-model="visibleColumns" multiple borderless dense options-dense
+                :display-value="$q.lang.table.columns" emit-value map-options :options="columns" option-value="name"
+                style="min-width: 150px" />
             </q-banner>
           </q-popup-proxy>
           <q-icon name="filter_alt" class="q-mr-sm" /> filtro columnas
         </q-btn>
 
         <q-space />
-        <q-input
-          dense
-          outlined
-          debounce="300"
-          v-model="filter"
-          placeholder="Buscar"
-          :disable="loadingScreen"
-        >
+        <q-input dense outlined debounce="300" v-model="filter" placeholder="Buscar" :disable="loadingScreen">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -117,51 +45,22 @@
 
   <!-- TABLA -->
   <div class="q-pa-md" style="overflow-x: scroll">
-    <q-table
-      v-if="!loadingScreen"
-      flat
-      dense
-      bordered
-      title="ABM de Productos"
-      :rows="dataTable"
-      :columns="columns"
-      row-key="id"
-      :loading="loadingTable"
-      :filter="filter"
-      virtual-scroll
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      separator="cell"
-      color="primary"
+    <q-table v-if="!loadingScreen" flat dense bordered title="ABM de Productos" :rows="dataTable" :columns="columns"
+      row-key="id" :loading="loadingTable" :filter="filter" virtual-scroll v-model:pagination="pagination"
+      :rows-per-page-options="[0]" separator="cell" color="primary"
       class="no-shadow text-grey-7 my-sticky-header-last-column-table"
-      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
-      :visible-columns="visibleColumns"
-    >
+      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`" :visible-columns="visibleColumns">
       <!-- Modify -->
       <template v-slot:body-cell-modify="props">
         <q-td :props="props">
-          <q-btn
-            flat
-            round
-            color="primary"
-            size="10px"
-            icon="edit"
-            @click="open_dialog('modify', props.row)"
-          />
+          <q-btn flat round color="primary" size="10px" icon="edit" @click="open_dialog('modify', props.row)" />
         </q-td>
       </template>
 
       <!-- Delete -->
       <template v-slot:body-cell-delete="props">
         <q-td :props="props">
-          <q-btn
-            flat
-            round
-            color="primary"
-            size="10px"
-            icon="delete"
-            @click="open_dialog_delete(props.row)"
-          />
+          <q-btn flat round color="primary" size="10px" icon="delete" @click="open_dialog_delete(props.row)" />
         </q-td>
       </template>
 
@@ -178,11 +77,7 @@
       <template v-slot:body-cell-stock="props">
         <q-td :props="props">
           <div>
-            <q-badge
-              v-if="props.row.stock"
-              color="red-7"
-              :label="props.row.stock ? props.row.stock : '-'"
-            />
+            <q-badge v-if="props.row.stock" color="red-7" :label="props.row.stock ? props.row.stock : '-'" />
             <div v-else>-</div>
           </div>
         </q-td>
@@ -192,11 +87,7 @@
       <template v-slot:body-cell-depo="props">
         <q-td class="bg-grey-1" :props="props">
           <div>
-            <q-badge
-              v-if="props.row.depo"
-              color="grey-7"
-              :label="props.row.depo ? props.row.depo : '-'"
-            />
+            <q-badge v-if="props.row.depo" color="grey-7" :label="props.row.depo ? props.row.depo : '-'" />
             <div v-else>-</div>
           </div>
         </q-td>
@@ -206,11 +97,7 @@
       <template v-slot:body-cell-suc1="props">
         <q-td class="bg-grey-1" :props="props">
           <div>
-            <q-badge
-              v-if="props.row.suc1"
-              color="grey-7"
-              :label="props.row.suc1 ? props.row.suc1 : '-'"
-            />
+            <q-badge v-if="props.row.suc1" color="grey-7" :label="props.row.suc1 ? props.row.suc1 : '-'" />
             <div v-else>-</div>
           </div>
         </q-td>
@@ -220,11 +107,7 @@
       <template v-slot:body-cell-suc2="props">
         <q-td class="bg-grey-1" :props="props">
           <div>
-            <q-badge
-              v-if="props.row.suc2"
-              color="grey-7"
-              :label="props.row.suc2 ? props.row.suc2 : '-'"
-            />
+            <q-badge v-if="props.row.suc2" color="grey-7" :label="props.row.suc2 ? props.row.suc2 : '-'" />
             <div v-else>-</div>
           </div>
         </q-td>
@@ -244,11 +127,7 @@
       <template v-slot:body-cell-iva_21="props">
         <q-td :props="props">
           <div>
-            <q-badge
-              v-if="props.row.iva_21 != 0"
-              color="white"
-              class="text-grey-7 text-weight-bold"
-            >
+            <q-badge v-if="props.row.iva_21 != 0" color="white" class="text-grey-7 text-weight-bold">
               {{ "$" + formatNumber(parse_decimal(props.row.iva_21)) }}
             </q-badge>
             <div v-else>
@@ -268,11 +147,7 @@
               }}
             </q-badge> -->
 
-            <q-badge
-              v-if="props.row.iva_10 != 0"
-              color="white"
-              class="text-grey-7 text-weight-bold"
-            >
+            <q-badge v-if="props.row.iva_10 != 0" color="white" class="text-grey-7 text-weight-bold">
               {{ "$" + formatNumber(parse_decimal(props.row.iva_10)) }}
             </q-badge>
             <div v-else>
@@ -312,11 +187,7 @@
       <template v-slot:body-cell-oferta_costo="props">
         <q-td :props="props">
           <div>
-            <q-badge
-              v-if="props.row.oferta_costo != 0"
-              color="white"
-              class="text-red"
-            >
+            <q-badge v-if="props.row.oferta_costo != 0" color="white" class="text-red">
               {{ "$" + formatNumber(parse_decimal(props.row.oferta_costo)) }}
             </q-badge>
             <div v-else>
@@ -340,11 +211,7 @@
       <template v-slot:body-cell-oferta_sin_iva="props">
         <q-td :props="props">
           <div>
-            <q-badge
-              v-if="props.row.oferta_sin_iva != 0"
-              color="white"
-              class="text-red"
-            >
+            <q-badge v-if="props.row.oferta_sin_iva != 0" color="white" class="text-red">
               {{ "$" + formatNumber(parse_decimal(props.row.oferta_sin_iva)) }}
             </q-badge>
             <div v-else>
@@ -366,16 +233,9 @@
     </q-table>
 
     <!-- LOADING SCREEN -->
-    <q-inner-loading
-      v-else
-      :showing="loadingScreen"
-      class="bg-white"
-      :style="`height:${
-        $q.screen.height - 190
-      }px; top:164px; right:16px; left:${
-        $q.screen.width < 1007 ? 16 : 256
-      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
-    >
+    <q-inner-loading v-else :showing="loadingScreen" class="bg-white" :style="`height:${$q.screen.height - 190
+      }px; top:164px; right:16px; left:${$q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`">
       <q-spinner-puff size="50px" color="red-5" />
     </q-inner-loading>
   </div>
@@ -387,51 +247,22 @@
       <q-card-section class="bg-grey-3 row">
         <div class="text-grey-8">{{ dialogTitle }}</div>
         <q-space />
-        <q-btn
-          class="text-grey-9"
-          flat
-          round
-          dense
-          icon="close"
-          v-close-popup
-          size="sm"
-        />
+        <q-btn class="text-grey-9" flat round dense icon="close" v-close-popup size="sm" />
       </q-card-section>
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form
-          @submit="
-            dialogTitle == 'Nuevo Producto'
-              ? create_product()
-              : modify_product()
-          "
-          @reset="onReset"
-          class="q-gutter-md"
-        >
+        <q-form @submit="
+          dialogTitle == 'Nuevo Producto'
+            ? create_product()
+            : modify_product()
+          " @reset="onReset" class="q-gutter-md">
           <!-- Nro -->
-          <q-select
-            outlined
-            v-model="nro"
-            use-chips
-            use-input
-            dense
-            input-debounce="0"
-            label="Nro"
-            multiple
-            :options="optionsSelectSuppliers"
-            @filter="filterFnSuppliers"
-          >
+          <q-select outlined v-model="nro" use-chips use-input dense input-debounce="0" label="Nro" multiple
+            :options="optionsSelectSuppliers" @filter="filterFnSuppliers">
             <template v-slot:selected-item="scope">
-              <q-chip
-                removable
-                @remove="scope.removeAtIndex(scope.index)"
-                :tabindex="scope.tabindex"
-                :color="scope.opt.color"
-                text-color="grey-10"
-                class=""
-                size="sm"
-              >
+              <q-chip removable @remove="scope.removeAtIndex(scope.index)" :tabindex="scope.tabindex"
+                :color="scope.opt.color" text-color="grey-10" class="" size="sm">
                 {{ scope.opt.label }}
               </q-chip>
             </template>
@@ -445,61 +276,24 @@
 
           <div class="row">
             <!-- Descripcion -->
-            <q-input
-              outlined
-              dense
-              class="col-8 q-mr-md"
-              v-model="description"
-              label="Descripcion"
-              :rules="[(val) => !!val || '']"
-            />
+            <q-input outlined dense class="col" v-model="description" label="Descripcion"
+              :rules="[(val) => !!val || '']" />
 
-            <!-- Rentabilidad -->
-            <q-input
-              outlined
-              step="any"
-              type="number"
-              class="col inputNumber"
-              dense
-              v-model="costEffectiveness"
-              label="Rentabilidad"
-            />
+
           </div>
 
-          <div
-            class="q-pa-md row"
-            style="border: 1px solid rgb(206 206 206); border-radius: 4px"
-          >
+          <div class="q-pa-md row" style="border: 1px solid rgb(206 206 206); border-radius: 4px">
             <!-- Aumento -->
-            <q-input
-              outlined
-              dense
-              readonly
-              class="col q-mr-md custom-readonly-input-g"
-              v-model="increases"
-              label="Aumento"
-            >
+            <q-input outlined dense readonly class="col q-mr-md custom-readonly-input-g" v-model="increases"
+              label="Aumento">
               <template v-slot:append>
-                <q-icon
-                  v-if="increases != null"
-                  name="close"
-                  @click.stop.prevent="increases = null"
-                  class="cursor-pointer"
-                />
+                <q-icon v-if="increases != null" name="close" @click.stop.prevent="increases = null"
+                  class="cursor-pointer" />
                 <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                     <q-date v-model="increases" mask="DD-MM-YYYY">
                       <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
+                        <q-btn v-close-popup label="Close" color="primary" flat />
                       </div>
                     </q-date>
                   </q-popup-proxy>
@@ -508,35 +302,16 @@
             </q-input>
 
             <!-- Ultima Modificacion -->
-            <q-input
-              outlined
-              dense
-              readonly
-              class="col custom-readonly-input-g"
-              v-model="lastModification"
-              label="Ultima Modificacion"
-            >
+            <q-input outlined dense readonly class="col custom-readonly-input-g" v-model="lastModification"
+              label="Ultima Modificacion">
               <template v-slot:append>
-                <q-icon
-                  v-if="lastModification != null"
-                  name="close"
-                  @click.stop.prevent="lastModification = null"
-                  class="cursor-pointer"
-                />
+                <q-icon v-if="lastModification != null" name="close" @click.stop.prevent="lastModification = null"
+                  class="cursor-pointer" />
                 <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                     <q-date v-model="lastModification" mask="DD-MM-YYYY">
                       <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
+                        <q-btn v-close-popup label="Close" color="primary" flat />
                       </div>
                     </q-date>
                   </q-popup-proxy>
@@ -546,16 +321,12 @@
           </div>
 
           <!-- Importes/Costos -->
-          <div
-            class="q-px-md q-pt-md"
-            style="
+          <div class="q-px-md q-pt-md" style="
               border: 1px solid rgb(206 206 206);
               border-radius: 4px;
               position: relative;
-            "
-          >
-            <div
-              style="
+            ">
+            <div style="
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
@@ -564,74 +335,54 @@
                 font-size: 11px;
                 color: #9b9b9b;
                 background-color: white;
-              "
-            >
-              IMPORTES / COSTOS
+              ">
+              IMPORTES / COSTOS / IVA
             </div>
             <div class="row q-mb-md">
-              <!-- Importe sin IVA -->
-              <q-input
-                type="number"
-                outlined
-                step="any"
-                stack-label
-                prefix="$"
-                class="col q-mr-md"
-                v-model="amountWithoutIva"
-                label="Importe sin IVA"
-              />
 
-              <!-- Oferta sin IVA -->
-              <q-input
-                type="number"
-                outlined
-                step="any"
-                stack-label
-                prefix="$"
-                v-model="offerWithoutIva"
-                class="col"
-                label="Oferta sin IVA"
-              />
+              <!-- Importe sin IVA -->
+              <q-input type="number" outlined step="any" stack-label prefix="$" class="col"
+                v-model="amountWithoutIva" label="Importe sin IVA" />
+
+              <q-separator inset class="self-center q-ma-none" style="width: 3%;" />
+
+              <!-- IVA -->
+              <q-select class="col q-mr-md" prefix="%" outlined stack-label v-model="iva" :options="optionsIva" label="IVA" />
+
+              <!-- Costo mas bajo -->
+              <q-input outlined stack-label step="any" prefix="$" type="number" class="col" v-model="lowestCost"
+                label="Costo mas bajo" />
+
             </div>
 
             <div class="row q-mb-md">
               <!-- Oferta Costo -->
-              <q-input
-                type="number"
-                outlined
-                step="any"
-                stack-label
-                prefix="$"
-                class="col q-mr-md"
-                v-model="offerCost"
-                label="Oferta Costo"
-              />
+              <q-input type="number" outlined step="any" stack-label prefix="$" class="col" v-model="offerCost"
+                label="Oferta Costo" />
 
-              <!-- Costo mas bajo -->
-              <q-input
-                outlined
-                stack-label
-                step="any"
-                prefix="$"
-                type="number"
-                class="col"
-                v-model="lowestCost"
-                label="Costo mas bajo"
-              />
+              <div class="self-center q-mx-xs text-grey-7">×</div>
+
+              <!-- Rentabilidad -->
+              <q-input outlined step="any" type="number" stack-label class="col inputNumber" v-model="costEffectiveness"
+                label="Rentabilidad" />
+
+              <div class="self-center q-mx-xs text-grey-7">=</div>
+
+              <!-- Oferta sin IVA -->
+              <q-input type="number" readonly outlined step="any" stack-label prefix="$" v-model="offerWithoutIva"
+                class="col custom-readonly-input" label="Oferta sin IVA" />
+
+
             </div>
           </div>
 
           <!-- Stock Sucursales -->
-          <div
-            class="q-px-md q-pt-md"
-            style="
+          <div class="q-px-md q-pt-md" style="
               border: 1px solid rgb(206 206 206);
               border-radius: 4px;
               position: relative;
-            "
-          >
-            <div
-              style="
+            ">
+            <div style="
                 position: absolute;
                 left: 50%; /* Mover el elemento al 50% desde el borde izquierdo */
                 transform: translateX(-50%);
@@ -640,91 +391,37 @@
                 font-size: 11px;
                 color: #9b9b9b;
                 background-color: white;
-              "
-            >
+              ">
               STOCK SUCURSALES
             </div>
             <div class="row q-mb-md">
               <!-- Stock Deposito -->
-              <q-input
-                type="number"
-                outlined
-                step="any"
-                stack-label
-                dense
-                class="col q-mr-md"
-                v-model="depo"
-                label="Stock - Deposito"
-                fill-input
-                min="0"
-                @focus="clearIfZero('depo')"
-                @blur="restoreIfEmpty('depo')"
-              />
+              <q-input type="number" outlined step="any" stack-label dense class="col q-mr-md" v-model="depo"
+                label="Stock - Deposito" fill-input min="0" @focus="clearIfZero('depo')"
+                @blur="restoreIfEmpty('depo')" />
 
               <!-- Stock Galicia -->
-              <q-input
-                type="number"
-                outlined
-                step="any"
-                stack-label
-                dense
-                v-model="suc1"
-                class="col"
-                label="Stock - Galicia"
-                fill-input
-                min="0"
-                @focus="clearIfZero('suc1')"
-                @blur="restoreIfEmpty('suc1')"
-              />
+              <q-input type="number" outlined step="any" stack-label dense v-model="suc1" class="col"
+                label="Stock - Galicia" fill-input min="0" @focus="clearIfZero('suc1')"
+                @blur="restoreIfEmpty('suc1')" />
             </div>
 
             <div class="row q-mb-md">
               <!-- Stock Juan B. Justo -->
-              <q-input
-                type="number"
-                outlined
-                step="any"
-                stack-label
-                dense
-                class="col q-mr-md"
-                v-model="suc2"
-                label="Stock - Juan B. Justo"
-                fill-input
-                min="0"
-                @focus="clearIfZero('suc2')"
-                @blur="restoreIfEmpty('suc2')"
-              />
+              <q-input type="number" outlined step="any" stack-label dense class="col q-mr-md" v-model="suc2"
+                label="Stock - Juan B. Justo" fill-input min="0" @focus="clearIfZero('suc2')"
+                @blur="restoreIfEmpty('suc2')" />
 
               <!-- Stock Total -->
-              <q-input
-                outlined
-                class="col custom-readonly-input"
-                stack-label
-                readonly
-                type="number"
-                dense
-                v-model="stock"
-                label="Stock - Total"
-              />
+              <q-input outlined class="col custom-readonly-input" stack-label readonly type="number" dense
+                v-model="stock" label="Stock - Total" />
             </div>
           </div>
 
           <!-- Buttons -->
           <div>
-            <q-btn
-              :label="dialogButton"
-              type="submit"
-              unelevated
-              color="primary"
-            />
-            <q-btn
-              label="Reset"
-              type="reset"
-              color="primary"
-              flat
-              @click="onReset"
-              class="q-ml-sm"
-            />
+            <q-btn :label="dialogButton" type="submit" unelevated color="primary" />
+            <q-btn label="Reset" type="reset" color="primary" flat @click="onReset" class="q-ml-sm" />
           </div>
         </q-form>
       </q-card-section>
@@ -739,9 +436,7 @@
   <q-dialog v-model="dialogDelete" persistent>
     <q-card style="width: 330px; border-radius: 10px">
       <q-card-section class="row justify-center text-grey-8">
-        <span style="font-size: 16px; font-weight: 500; margin-bottom: 3px"
-          >Eliminar producto</span
-        >
+        <span style="font-size: 16px; font-weight: 500; margin-bottom: 3px">Eliminar producto</span>
         <div class="text-center" style="width: 250px; font-size: 12px">
           Está seguro que quiere eliminar el producto? Esa acción es
           irreversible
@@ -749,27 +444,14 @@
       </q-card-section>
 
       <q-card-actions class="row q-pa-none">
-        <q-btn
-          class="col"
-          flat
-          label="Cancelar"
-          color="primary"
-          v-close-popup
-          style="border-top: 1px solid rgb(196, 196, 196); border-radius: 0"
-        />
-        <q-btn
-          flat
-          class="col"
-          label="Eliminar"
-          style="
+        <q-btn class="col" flat label="Cancelar" color="primary" v-close-popup
+          style="border-top: 1px solid rgb(196, 196, 196); border-radius: 0" />
+        <q-btn flat class="col" label="Eliminar" style="
             margin-left: 0px;
             border-top: 1px solid rgb(196, 196, 196);
             border-left: 1px solid rgb(196, 196, 196);
             border-radius: 0;
-          "
-          color="red"
-          @click="delete_product()"
-        />
+          " color="red" @click="delete_product()" />
       </q-card-actions>
       <q-inner-loading :showing="dialogLoadingDelete" class="bg-white">
         <q-spinner-puff size="30px" color="red-5" />
@@ -805,6 +487,7 @@ export default defineComponent({
 
     const selectSuppliers = ref([]);
     const optionsSelectSuppliers = ref(suppliers);
+    const optionsIva = [{label:"10.5", value: 10.5}, {label:"21", value: 21}]
 
     const index = ref();
     const nro = ref();
@@ -812,6 +495,7 @@ export default defineComponent({
     const amountWithoutIva = ref();
     const iva21 = ref();
     const iva10 = ref();
+    const iva = ref({label:"21", value: 21})
     const offerWithoutIva = ref();
     const increases = ref();
     const lastModification = ref();
@@ -1342,12 +1026,14 @@ export default defineComponent({
       suc2,
       depo,
       suppliers,
+      iva,
       columnFilter,
       open_dialog_delete,
       visibleColumns,
       formatNumber,
       filterFnSuppliers,
       optionsSelectSuppliers,
+      optionsIva,
       dialogLoadingDelete,
       onReset,
     };

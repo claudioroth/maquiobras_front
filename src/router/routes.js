@@ -36,6 +36,11 @@ const routes = [
         beforeEnter: (to, from, next) => checkRoleAccess([1], next),
       },
       {
+        path: "ABMSupplier",
+        component: () => import("pages/ABMSupplier.vue"),
+        beforeEnter: (to, from, next) => checkRoleAccess([1], next),
+      },
+      {
         path: "ABMUser",
         component: () => import("pages/ABMUser.vue"),
         beforeEnter: (to, from, next) => checkRoleAccess([1, 2], next),
@@ -61,7 +66,6 @@ const routes = [
       },
     ],
   },
-
 
   {
     path: "/login",
@@ -95,9 +99,6 @@ const routes = [
     component: () => import("../pages/Login.vue"),
   },
 
-
-
-
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),
@@ -105,4 +106,3 @@ const routes = [
 ];
 
 export default routes;
-
