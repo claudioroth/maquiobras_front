@@ -131,9 +131,8 @@ export default defineComponent({
 
         // Guardar id y branch si corresponde
         if (id) SessionStorage.set("id_user", id);
-        if (Number(rol) === 3 && sucursal) {
-          SessionStorage.set("branch", sucursal);
-        }
+        if (sucursal)SessionStorage.set("branch", sucursal);
+
 
         // Filtros por defecto
         if (!LocalStorage.getItem("prodColFilters")) {

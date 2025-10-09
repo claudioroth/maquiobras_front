@@ -3,7 +3,7 @@
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
-        <q-btn v-if="rol == 3 || rol == 1" class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
+        <q-btn class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
           @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /> Nueva Venta
         </q-btn>
 
@@ -75,12 +75,12 @@
     <q-card class="column full-height" style="min-width: 800px">
       <!-- header -->
       <q-card-section class="bg-grey-3">
-        <div class="text-grey-8">Nueva Venta</div>
+        <div class="text-grey-8">Nueva Venta (<b>{{ parceBranch2[branch] }} </b>) </div>
       </q-card-section>
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form @submit="newSale" @reset="onReset" class="q-gutter-md">
+        <q-form @submit="newSale" @keydown.enter.prevent @reset="onReset" class="q-gutter-md">
           <!-- Productos -->
           <div class="q-py-md" :style="`
               border: 1px solid rgb(206 206 206);
@@ -101,7 +101,7 @@
               PRODUCTOS
             </div>
             <q-table dense class="text-grey-8 custom-font-size my-sticky-header-table" :rows="products"
-              :columns="productsColumn" row-key="name" hide-bottom flat :filter="productFilter"
+              :columns="productsColumn" row-key="id_prod" hide-bottom flat :filter="productFilter"
               :style="`height: calc(54vh - 100px); overflow-y: auto`" v-model:pagination="pagination">
               <template v-slot:top>
                 <!-- calc(50vh - 100px) -->
@@ -145,7 +145,7 @@
 
           <!-- Carrito -->
           <div class="q-py-md q-mt-lg" :style="`
-              border: 1px solid ${completeAlert ? '#c62828' : '#9b9b9b'};
+              border: 1px solid ${completeAlert ? '#c62828' : '#cecece'};
               border-radius: 4px;
               position: relative;
             `">
@@ -156,15 +156,17 @@
                 top: -9px;
                 padding: 0 10px;
                 font-size: 11px;
-                color: ${completeAlert ? '#c62828' : '#9b9b9b'};
+                color: ${completeAlert ? '#c62828' : '#cecece'};
                 background-color: white;
               `">
               CARRITO
             </div>
             <q-table v-if="cart.length" dense
               class="text-grey-8 custom-font-size custom-font-size my-sticky-header-table" :rows="cart"
-              :columns="cartColumn" row-key="name" hide-bottom flat
+              :columns="cartColumn" row-key="id_prod" hide-bottom flat
               :style="`height: calc(40vh - 100px); overflow-y: auto`" v-model:pagination="pagination">
+
+
               <template v-slot:header="props">
                 <q-tr :props="props">
                   <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-italic">
@@ -173,54 +175,51 @@
                 </q-tr>
               </template>
 
+              <!-- Columna: Producto -->
               <template v-slot:body-cell-producto="props">
-                <q-td no-hover :props="props" style="min-width: 600px; width: 600px; max-width: 600px">
-                  {{ props.row.producto }}
+                <q-td :props="props" class="text-left" style="width: 75%;">
+                  <div class="q-pa-xs ellipsis">
+                    {{ props.row.producto }}
+                  </div>
                 </q-td>
               </template>
 
+              <!-- Columna: Cantidad -->
               <template v-slot:body-cell-cantidad="props">
-                <q-td class="row" no-hover :props="props" style="min-width: 65px; width: 140px; max-width: 140px">
+                <q-td :props="props" class="text-center" style="width: 19%;">
+                  <div class="flex flex-center q-gutter-sm">
+                    <q-icon size="xs" name="arrow_left" class="cursor-pointer" @click="decreaseQuantity(props.row)" />
 
-                  <!-- <q-icon size="xs" name="arrow_left" @click="decreaseQuantity(props.row)" />
-                  <q-badge
-                    outline
-                    color="red-7"
-                    text-color="white"
-                    style="font-size: 10px"
-                    :label="props.row.cantidad"
-                  />
-                  <q-icon size="xs" name="arrow_right" @click="increaseQuantity(props.row)" /> -->
+                    <!-- <q-input v-model.number="props.row.cantidad" type="number" dense outlined input-class="text-center"
+                      class="mini-number" style="width: 70px; font-size: 12px;" :min="1"
+                      @change="validateQuantity(props.row)" /> -->
 
-                  <!-- Botón para disminuir cantidad -->
-                  <q-icon class="col" size="xs" name="arrow_left" @click="decreaseQuantity(props.row)" />
-
-                  <!-- Campo editable para cantidad -->
-                  <q-input v-model.number="props.row.cantidad" type="number" dense outlined input-class="text-center"
-                    class="mini-number col-5 q-mx-sm"
-                    style="width: 100px; font-size: 12px; min-height: 10px; --q-field-padding-top:0; --q-field-padding-bottom:0"
-                    :min="0" @change="validateQuantity(props.row)" />
+                    <q-input v-model.number="props.row.cantidad" type="number" dense outlined input-class="text-center"
+                      class="mini-number" style="width: 70px; font-size: 12px;" min="1" @blur="() => {
+                        if (props.row.cantidad < 1) props.row.cantidad = 1
+                        validateQuantity(props.row)
+                      }" @keyup.enter="() => {
+                        if (props.row.cantidad < 1) props.row.cantidad = 1
+                        validateQuantity(props.row)
+                      }" />
 
 
-
-                  <!-- Botón para aumentar cantidad -->
-                  <q-icon class="col" size="xs" name="arrow_right" @click="increaseQuantity(props.row)" />
-
-
-                  <!-- <q-input v-model.number="props.row.cantidad" type="number" dense  outlined input-class="text-center"
-                    style="width: 100px; font-size: 12px;min-height: 15px; --q-field-padding-top:0; --q-field-padding-bottom:0" :min="0" @blur="validateQuantity(props.row)" /> -->
+                    <q-icon size="xs" name="arrow_right" class="cursor-pointer" @click="increaseQuantity(props.row)" />
+                  </div>
                 </q-td>
               </template>
 
+              <!-- Columna: Eliminar -->
               <template v-slot:body-cell-button="props">
-                <q-td no-hover :props="props" style="min-width: 50px; width: 50px; max-width: 50px">
-                  <q-btn flat round size="xs" color="primary" icon="o_delete" @click="removeFromCart(props.row)" />
-
+                <q-td :props="props" class="text-center" style="width: 7%;">
+                  <q-btn flat round dense icon="delete" size="8px" class="cursor-pointer"
+                    @click="removeFromCart(props.row)" />
                 </q-td>
               </template>
             </q-table>
 
-            <div v-else style="height: calc(40vh - 100px); overflow-y: auto" :class="`content-center text-center ${completeAlert ? 'text-red-9' : 'text-grey-6'
+
+            <div v-else :style="`height: calc(40vh - 100px); overflow-y: auto`" :class="`content-center text-center ${completeAlert ? 'text-red-9' : 'text-grey-6'
               }`">
               <q-icon size="lg" name="add_shopping_cart" class="q-mb-sm" />
               <div>
@@ -378,9 +377,12 @@ export default defineComponent({
     onMounted(() => {
       // Carga de Tabla
       api
-        .get(rol == 3 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
+        .get(rol == 3 || rol == 2 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
         .then((response) => {
-          sales.value = response.data;
+          // Ordenar por fecha descendente (más reciente primero)
+          sales.value = response.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+          // Agregar propiedades adicionales
           sales.value.forEach((sale, index) => {
             sale.showPopup = false;
             sale.index = index + 1;
@@ -400,6 +402,7 @@ export default defineComponent({
       });
     });
 
+
     // WATCH
     watch(completeAlert, (newValue, oldValue) => {
       if (newValue === true) {
@@ -414,13 +417,14 @@ export default defineComponent({
     // Refresca la tabla principal
     const get_data = () => {
       api
-        .get(rol == 3 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
+        .get(rol == 3 || rol == 2 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
         .then((response) => {
-          sales.value = response.data;
+          sales.value = response.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
           sales.value.forEach((sale, index) => {
             sale.showPopup = false;
             sale.index = index + 1;
           });
+
           loadingTable.value = false;
           loadingScreen.value = false;
         })
@@ -428,6 +432,7 @@ export default defineComponent({
           handleCustomError(error.message);
         });
     };
+
 
     const parse_datetime = (dateString, type) => {
       if (type == "date") {
@@ -548,14 +553,16 @@ export default defineComponent({
       const product = products.value.find(p => p.id_prod === item.id_prod);
       if (!product) return;
 
-      item.cantidad = Number(item.cantidad) || 0;
+      item.cantidad = Number(item.cantidad) || 1;
       product.cantidad = Number(product.cantidad) || 0;
 
-      if (item.cantidad > 0) {
+      // Evita bajar a menos de 1
+      if (item.cantidad > 1) {
         item.cantidad--;
         product.cantidad++;
       }
     };
+
 
     const onReset = () => {
       products.value = [];
@@ -648,6 +655,8 @@ export default defineComponent({
       showPopup,
       parse_datetime,
       rol,
+      parceBranch1,
+      parceBranch2
     };
   },
 });
@@ -661,6 +670,10 @@ export default defineComponent({
 .q-field--dense .q-field__control,
 .q-field--dense .q-field__marginal {
   height: 30px !important;
+}
+
+.cart-table .q-table__middle {
+  overflow-y: auto;
 }
 </style>
 
