@@ -5,7 +5,7 @@
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
 
         <q-btn v-if="userRol == 1" class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
-          @click="open_dialog('create')"><q-icon name="o_person_add" class="q-mr-sm" /> Nuevo Usuario
+          @click="open_dialog('create')"><q-icon name="o_person_add" class="q-mr-sm" /><div class="q-pt-xs">Nuevo Usuario</div>
         </q-btn>
         <!-- <q-btn outline color="grey-7" icon="picture_as_pdf"/>
         <q-btn outline color="grey-7" icon="post_add"/> -->
@@ -109,7 +109,7 @@
     <q-card flat bordered class="bg-white text-grey-8 q-pa-none"
       style="width: 500px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
       <!-- Encabezado -->
-      <q-card-section class="flex items-center bg-grey-3 justify-left q-py-md q-px-lg">
+      <q-card-section class="flex items-center bg-grey-3 justify-left q-px-lg">
         <div style="font-size: 17px;">Confirmación de cambio de rol</div>
         <!-- <q-space></q-space>
         <q-icon name="error" color="grey-9" size="24px" class="self-center" /> -->
@@ -127,7 +127,7 @@
 
       <!-- Acciones -->
       <q-separator />
-      <q-card-actions align="right" class="q-px-md" style="padding-top: 12px; padding-bottom: 12px;">
+      <q-card-actions align="right" class="q-px-md" style="padding-top: 8px; padding-bottom: 8px;">
         <q-btn flat label="Cancelar" color="grey-7" v-close-popup />
         <q-btn unelevated label="Confirmar" color="grey-8" @click="confirmChangeRole" />
       </q-card-actions>
@@ -645,4 +645,9 @@ export default defineComponent({
   tbody
     /* height of all previous header rows */
     scroll-margin-top: 48px
+</style>
+
+<style lang="sass" scoped>
+::v-deep(.q-table__progress)
+  transform: translateY(-19px) !important
 </style>

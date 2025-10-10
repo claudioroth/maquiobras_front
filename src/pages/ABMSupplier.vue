@@ -27,6 +27,13 @@
       class="no-shadow text-grey-7 my-sticky-header-table"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`">
 
+           <!-- ID Proveedor-->
+      <template v-slot:body-cell-prov_id="props">
+        <q-td :props="props">
+           <q-badge color="red-7" :label="props.row.prov_id" />
+        </q-td>
+      </template>
+
 
       <!-- Nombre Proveedor -->
       <template v-slot:body-cell-nombre="props">

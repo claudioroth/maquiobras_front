@@ -48,7 +48,7 @@
     <q-table v-if="!loadingScreen" flat dense bordered title="ABM de Productos" :rows="dataTable" :columns="columns"
       row-key="id" :loading="loadingTable" :filter="filter" virtual-scroll v-model:pagination="pagination"
       :rows-per-page-options="[0]" separator="cell" color="primary"
-      class="no-shadow text-grey-7 my-sticky-header-last-column-table"
+      class="no-shadow text-grey-7 my-sticky-header-last-column-table my-sticky-header-table"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`" :visible-columns="visibleColumns">
       <!-- Modify -->
       <template v-slot:body-cell-modify="props">
@@ -1075,22 +1075,35 @@ export default defineComponent({
 <style lang="sass">
 .my-sticky-header-last-column-table
   height: 310px
+  overflow: auto
+  position: relative
 
+  /* HEADER pegajoso */
+  thead tr:first-child th
+    position: sticky
+    top: 0
+    z-index: 3
+    background: #ffffff
+
+  /* Última columna (acciones) fija */
   th:last-child,
   td:last-child
-    background-color: #ffffff
     position: sticky
     right: 0
     z-index: 2
+    background-color: #ffffff
 
+  /* Anteúltima columna (acciones o iconos extra) fija */
   th:nth-last-child(2),
   td:nth-last-child(2)
-    background-color: #ffffff
     position: sticky
     right: 52px
-    z-index: 1
-
-  thead th
+    z-index: 2
     background-color: #ffffff
-    z-index: 3
+
+  /* Para asegurar que el scroll horizontal funcione */
+  .q-table__middle
+    overflow-x: auto !important
+    overflow-y: visible !important
+
 </style>
