@@ -38,7 +38,7 @@ const routes = [
       {
         path: "ABMSupplier",
         component: () => import("pages/ABMSupplier.vue"),
-        beforeEnter: (to, from, next) => checkRoleAccess([1], next),
+        beforeEnter: (to, from, next) => checkRoleAccess([1,2,3], next),
       },
       {
         path: "ABMUser",

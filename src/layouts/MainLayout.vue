@@ -105,13 +105,15 @@ export default defineComponent({
           { icon: "move_up", text: "Movimiento de Stock", toPage: "StockMovement" },
           { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
           { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
-          { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" }
+          { icon: "o_person", text: "ABM Usuarios", toPage: "ABMUser" },
+          { icon: "o_groups", text: "Proveedores", toPage: "ABMSupplier" },
         )
       } else if (rol.value == 3) { //Usuario
         data.push(
           { icon: "o_build_circle", text: "Stock", toPage: "StockBranch" },
           { icon: "o_shopping_cart", text: "Ventas", toPage: "SaleProducts" },
-          { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" }
+          { icon: "o_local_shipping", text: "Ingresos", toPage: "ProductEntry" },
+          { icon: "o_groups", text: "Proveedores", toPage: "ABMSupplier" },
         )
       }
 

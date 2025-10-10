@@ -2,33 +2,15 @@
   <!-- HEADER -->
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
-      <div
-        class="bg-white q-pa-md rounded-borders flex"
-        style="border: solid 1px #e0e0e0"
-      >
+      <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
 
-        <q-btn
-          v-if="userRol == 1"
-          class="q-mr-md q-px-lg"
-          size="md"
-          color="grey-7"
-          outline
-          :disable="loadingScreen"
-          @click="open_dialog('create')"
-          ><q-icon name="o_person_add" class="q-mr-sm" /> Nuevo Proveedor
+        <q-btn v-if="userRol == 1" class="q-mr-md q-px-lg justify-center" size="md" color="grey-7" outline
+          :disable="loadingScreen" @click="open_dialog('create')"><q-icon name="o_groups" class="q-mr-sm" />
+          <div class="q-pt-xs">Nuevo Proveedor</div>
         </q-btn>
-        <!-- <q-btn outline color="grey-7" icon="picture_as_pdf"/>
-        <q-btn outline color="grey-7" icon="post_add"/> -->
 
         <q-space />
-        <q-input
-          dense
-          outlined
-          debounce="300"
-          v-model="filter"
-          :disable="loadingScreen"
-          placeholder="Buscar"
-        >
+        <q-input dense outlined debounce="300" v-model="filter" :disable="loadingScreen" placeholder="Buscar">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -39,85 +21,27 @@
 
   <!-- TABLA -->
   <div class="q-pa-md">
-    <q-table
-      flat
-      separator="cell"
-      v-if="!loadingScreen"
-      bordered
-      title="ABM Proveedores"
-      :rows="controles"
-      :columns="columns"
-      :loading="loadingTable"
-      row-key="id"
-      :filter="filter"
-      virtual-scroll
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      color="primary"
-      class="no-shadow text-grey-7"
-      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
-    >
-      <!-- Username -->
-      <template v-slot:body-cell-user="props">
-        <q-td
-          :props="props"
-          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
-        >
-          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
-            {{ props.row.user }}
-          </div>
-        </q-td>
-      </template>
+    <q-table flat separator="cell" v-if="!loadingScreen" bordered dense title="ABM Proveedores" :rows="suppliers"
+      :columns="columns" :loading="loadingTable" row-key="id" :filter="filter" virtual-scroll
+      v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary"
+      class="no-shadow text-grey-7 my-sticky-header-table"
+      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`">
 
-      <!-- Rol -->
-      <template v-slot:body-cell-rol="props">
-        <q-td
-          :props="props"
-          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
-        >
-          <q-badge
-            :color="
-              props.row.is_active == 0
-                ? 'grey-5 text-grey-3'
-                : 'grey-8 text-white'
-            "
-          >
-            {{ rolName(props.row.rol) }}
-          </q-badge>
-        </q-td>
-      </template>
 
-      <!-- Sucursal -->
-      <template v-slot:body-cell-sucursal="props">
-        <q-td
-          :props="props"
-          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
-        >
-          <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
-            {{ props.row.sucursal ? branchObject[props.row.sucursal] : "-"}}
-          </div>
+      <!-- Nombre Proveedor -->
+      <template v-slot:body-cell-nombre="props">
+        <q-td :props="props">
+          {{ props.row.nombre }}
         </q-td>
       </template>
 
       <!-- fecha -->
       <template v-slot:body-cell-fecha="props">
-        <q-td
-          :props="props"
-          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
-        >
-          <!-- <div :class="props.row.is_active == 0 ? 'text-grey-5' : ''">
-            {{ parse_datetime(props.row.fecha, "date") }}
-          </div> -->
+        <q-td :props="props">
           <div>
             <div>{{ parse_datetime(props.row.fecha, "date") }}</div>
-            <q-badge
-              :color="
-                props.row.is_active == 0
-                  ? 'grey-4 text-grey-5'
-                  : 'grey-3 text-grey-7'
-              "
-            >
-            {{ parse_datetime(props.row.fecha, "hours") }}
+            <q-badge color="grey-3 text-grey-7">
+              {{ parse_datetime(props.row.fecha, "hours") }}
             </q-badge>
           </div>
         </q-td>
@@ -125,45 +49,18 @@
 
       <!-- Acciones -->
       <template v-slot:body-cell-actions="props">
-        <q-td
-          :props="props"
-          :class="props.row.is_active == 0 ? 'bg-grey-2' : ''"
-        >
+        <q-td :props="props">
           <div>
-            <q-btn
-              outline
-              class="q-mr-sm"
-              :disable="props.row.is_active == 0"
-              @click="open_dialog('Modify', props.row)"
-              :color="props.row.is_active == 0 ? 'grey-5' : 'grey-7'"
-              icon="edit"
-            />
-            <q-btn
-              outline
-              @click="
-                props.row.is_active == 0
-                  ? activateUser(props.row)
-                  : deactivateUser(props.row)
-              "
-              color="grey-7"
-              :icon="props.row.is_active == 0 ? 'person_add' : 'person_remove'"
-            />
+            <q-btn outline class="q-mr-sm" @click="open_dialog('Modify', props.row)" color="grey-7" icon="edit" />
           </div>
         </q-td>
       </template>
     </q-table>
 
     <!-- LOADING SCREEN -->
-    <q-inner-loading
-      v-else
-      :showing="loadingScreen"
-      class="bg-white"
-      :style="`height:${
-        $q.screen.height - 190
-      }px; top:164px; right:16px; left:${
-        $q.screen.width < 1007 ? 16 : 256
-      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
-    >
+    <q-inner-loading v-else :showing="loadingScreen" class="bg-white" :style="`height:${$q.screen.height - 190
+      }px; top:164px; right:16px; left:${$q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`">
       <q-spinner-puff size="50px" color="red-5" />
     </q-inner-loading>
   </div>
@@ -178,75 +75,19 @@
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form
-          @submit="dialogTitle == 'Nuevo Usuario' ? createUser() : modifyUser()"
-          @reset="onReset"
-          class="q-gutter-md"
-        >
-          <q-input
-            outlined
-            v-model="username"
-            label="Usuario"
-            :rules="[(val) => !!val || 'Ingrese un nombre de usuario']"
-          />
-          <q-input
-            outlined
-            v-model="password"
-            label="Contraseña"
-            :rules="[(val) => !!val || 'Ingrese una contraseña']"
-          />
-
-          <div
-            class="row text-grey-8"
-            style="
-              border: 1px solid #c1c1c1;
-              border-radius: 4px;
-              padding: 8px 30px 8px 14px;
-              margin-bottom: 35px;
-            "
-          >
-            <q-option-group
-              v-model="rol"
-              :options="rolOption"
-              color="primary"
-              inline
-            />
-          </div>
-
-          <q-select
-            v-if="rol == 3"
-            outlined
-            v-model="branch"
-            input-debounce="0"
-            label="Sucursal"
-            :options="branchOption"
-            :rules="[(val) => !!val || 'Seleccione una sucursal']"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
+        <q-form @submit="dialogTitle == 'Nuevo Proveedor' ? createSupplier() : modifySupplier()" @reset="onReset"
+          class="q-gutter-md">
+          <q-input outlined v-model="supplierId" label="N° de Proveedor" :disable="dialogTitle == 'Modificar Proveedor'"
+            :rules="[validateUniqueSupplierId]" />
+          <q-input outlined v-model="supplierName" label="Nombre del Proveedor"
+            :rules="[(val) => !!val || 'Ingrese un nombre al proveedor']" />
 
           <div>
-            <q-btn
-              :label="
-                dialogTitle == 'Nuevo Usuario'
-                  ? 'Crear Usuario'
-                  : 'Modificar Usuario'
-              "
-              type="submit"
-              unelevated
-              color="primary"
-            />
-            <q-btn
-              label="Reset"
-              type="reset"
-              color="primary"
-              flat
-              class="q-ml-sm"
-            />
+            <q-btn :label="dialogTitle == 'Nuevo Proveedor'
+              ? 'Crear Proveedor'
+              : 'Modificar Proveedor'
+              " type="submit" unelevated color="primary" />
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
           </div>
         </q-form>
       </q-card-section>
@@ -260,12 +101,9 @@
 
 <script>
 import { defineComponent, ref, onMounted } from "vue";
-import { date, SessionStorage, LocalStorage } from "quasar";
-import { customNotify, handleCustomError } from "src/helpers/errors";
-import * as XLSX from "xlsx-js-style";
+import { date, SessionStorage } from "quasar";
+import { handleCustomError } from "src/helpers/errors";
 import { api } from "src/boot/axios";
-import axios from "axios";
-import { user } from "fontawesome";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
@@ -276,61 +114,27 @@ export default defineComponent({
     const dialog = ref(false);
     const dialogLoading = ref(false);
     const dialogTitle = ref(null);
-    const controles = ref([]);
+    const suppliers = ref([]);
     const loadingScreen = ref(true);
     const loadingTable = ref(false);
-    const id = ref(null);
-    const username = ref(null);
-    const password = ref(null);
-    const rol = ref("3");
-    const branch = ref(null);
-    const is_active = ref(null);
-    const branchObject = {"suc1":"Sucursal Galicia","suc2":"Sucursal Juan B. Justo", "depo":"Deposito"}
-    const rolOption = ref([
-      {
-        label: "Usuario",
-        value: 3,
-      },
-      {
-        label: "Semi Administrador",
-        value: 2,
-      },
-      {
-        label: "Administrador",
-        value: 1,
-      },
-    ]);
+
+    const supplierId = ref()
+    const supplierName = ref()
+
     const pagination = ref({
       rowsPerPage: 0,
     });
 
     const userRol = SessionStorage.getItem("rol");
 
-
-
-    let fileName = "archivo";
-
-    const branchOption = ref([
-      { label: "Sucursal Galicia", value: "suc1" },
-      { label: "Sucursal Juan B Justo", value: "suc2" },
-      { label: "Deposito", value: "depo" },
-    ]);
-
     const columns = [
-      { name: "user", label: "Usuario", field: "user", align: "center" },
+      { name: "prov_id", label: "N° de Proveedor", field: "prov_id", align: "center" },
       {
-        name: "rol",
+        name: "nombre",
         align: "center",
-        label: "Rol",
-        field: "rol",
+        label: "Nombre",
+        field: "nombre",
         sortable: true,
-      },
-      {
-        name: "sucursal",
-        label: "Sucursal",
-        field: "sucursal",
-        align: "center",
-        format: (val) => branchObject[val],
       },
       {
         name: "fecha",
@@ -341,13 +145,13 @@ export default defineComponent({
     ];
 
     if (userRol == 1) {
-  columns.push( {
+      columns.push({
         name: "actions",
         label: "Acciones",
         field: "Actions",
         align: "center",
       });
-}
+    }
 
 
 
@@ -355,9 +159,9 @@ export default defineComponent({
     onMounted(() => {
       // Carga de Tabla
       api
-        .get("/api/users")
+        .get("/api/provedor")
         .then((response) => {
-          controles.value = response.data;
+          suppliers.value = response.data;
           loadingScreen.value = false;
         })
         .catch((error) => {
@@ -369,9 +173,9 @@ export default defineComponent({
     // Refresca la tabla principal
     const getData = () => {
       api
-        .get("/api/users")
+        .get("/api/provedor")
         .then((response) => {
-          controles.value = response.data;
+          suppliers.value = response.data;
           loadingTable.value = false;
         })
         .catch((error) => {
@@ -379,59 +183,56 @@ export default defineComponent({
         });
     };
 
-    const rolName = (id) => {
-
-      return rolOption.value.find((option) => option.value == id).label;
+    // Valida si el N de Proveedor ya existe en la tabla
+    const validateUniqueSupplierId = (val) => {
+      if (!val) return "Ingrese un N° de proveedor";
+      const exists = suppliers.value.some(
+        (supplier) => supplier.prov_id == val
+      );
+      if (exists && dialogTitle.value === "Nuevo Proveedor") {
+        return "Ese N° de proveedor ya existe";
+      }
+      return true;
     };
 
-    const branchName = (id) => {
-      // console.log(id)
-      return id
-        // ? branchOption.value.find((option) => option.value == id).label
-        // : "-";
-    };
 
     // Abrir Dialog
     const open_dialog = (action, data) => {
       dialog.value = true;
-      dialogTitle.value = "Nuevo Usuario";
-      username.value = null;
-      password.value = null;
-      rol.value = 3;
-      branch.value = null;
+      dialogTitle.value = "Nuevo Proveedor";
+      supplierId.value = null;
+      supplierName.value = null;
       if (action == "Modify") {
-        dialogTitle.value = "Modificar Usuario";
-        id.value = data.id;
-        username.value = data.user;
-        password.value = data.password;
-        rol.value = data.rol;
-
-        if (rol.value == 3) {
-          branch.value = branchOption.value.find(
-            (option) => option.value == data.sucursal
-          );
-        }
-        is_active.value = data.is_active;
+        dialogTitle.value = "Modificar Proveedor";
+        supplierId.value = data.prov_id;
+        supplierName.value = data.nombre;
       }
     };
 
     // Crear Usuario
-    const createUser = () => {
+    const createSupplier = () => {
+      const exists = suppliers.value.some(
+        (supplier) => supplier.prov_id == supplierId.value
+      );
+      if (exists) {
+        $q.notify({
+          color: "negative",
+          icon: "warning",
+          message: "Ese N° de proveedor ya existe",
+        });
+        return;
+      }
       dialogLoading.value = true;
       const data = {
-        user: username.value,
-        password: password.value,
-        rol: rol.value,
-        sucursal: rol.value == 3 ? branch.value.value : null,
+        prov_id: supplierId.value,
+        nombre: supplierName.value,
       };
-
-      api.post("/api/users", data).then((response) => {
+      api.post("/api/provedor", data).then((response) => {
         loadingTable.value = true;
-
         getData();
         $q.notify({
           icon: "person",
-          message: "El usuario se creo correctamente",
+          message: "El proveedor se creó correctamente",
           position: "bottom",
           timeout: 2000,
         });
@@ -440,125 +241,75 @@ export default defineComponent({
       });
     };
 
-    const modifyUser = () => {
+
+    const modifySupplier = () => {
+      // Validación de permisos: solo el rol 1 puede modificar proveedores
+      if (userRol !== 1) {
+        $q.notify({
+          color: "negative",
+          icon: "warning",
+          message: "No tienes permisos para modificar proveedores",
+          position: "bottom",
+          timeout: 2000,
+        });
+        return;
+      }
       dialogLoading.value = true;
+
       const data = {
-        id: id.value,
-        user: username.value,
-        password: password.value,
-        rol: rol.value,
-        sucursal: rol.value == 3 ? branch.value.value : null,
-        is_active: is_active.value,
+        prov_id: supplierId.value,
+        nombre: supplierName.value,
       };
 
-
-
-      api.put("/api/users", data).then((response) => {
-        loadingTable.value = true;
-        getData();
-        $q.notify({
-          icon: "settings",
-          message: "El usuario se ha modificado correctamente",
-          position: "bottom",
-          timeout: 2000,
+      api
+        .put("/api/provedor", data)
+        .then(() => {
+          loadingTable.value = true;
+          getData();
+          $q.notify({
+            icon: "settings",
+            message: "El proveedor se ha modificado correctamente",
+            position: "bottom",
+            timeout: 2000,
+          });
+          dialog.value = false;
+        })
+        .catch((error) => {
+          handleCustomError(error.message);
+        })
+        .finally(() => {
+          dialogLoading.value = false;
         });
-
-        dialog.value = false;
-        dialogLoading.value = false;
-      });
     };
 
-    const deactivateUser = (dataUser) => {
-      const data = {
-        id: dataUser.id,
-        user: dataUser.user,
-        password: dataUser.password,
-        rol: dataUser.rol,
-        sucursal: dataUser.rol == 3 ? dataUser.sucursal : null,
-        is_active: 0,
-      };
-
-      api.put("/api/users", data).then((response) => {
-        loadingTable.value = true;
-        getData();
-        $q.notify({
-          icon: "person_remove",
-          message: "Usuario Desactivado",
-          position: "bottom",
-          timeout: 2000,
-        });
-      });
-    };
-
-    const activateUser = (dataUser) => {
-      const data = {
-        id: dataUser.id,
-        user: dataUser.user,
-        password: dataUser.password,
-        rol: dataUser.rol,
-        sucursal: dataUser.rol == 3 ? dataUser.sucursal : null,
-        is_active: 1,
-      };
-      api.put("/api/users", data).then((response) => {
-        loadingTable.value = true;
-        getData();
-        $q.notify({
-          icon: "person_add",
-          message: "Usuario Activado",
-          position: "bottom",
-          timeout: 2000,
-        });
-      });
-    };
 
     const onReset = () => {
-      username.value = null;
-      password.value = null;
-      rol.value = 3;
-      branch.value = null;
+      if (dialogTitle.value == 'Nuevo Proveedor') { supplierId.value = null };
+      supplierName.value = null;
     };
 
     return {
       loadingScreen,
       loadingTable,
       columns,
-      controles,
-      username,
-      password,
-      rol,
-      branch,
-      rolName,
-      branchName,
+      suppliers,
       filter: ref(""),
       dialog,
       dialogLoading,
       dialogTitle,
-      createUser,
-      modifyUser,
+      createSupplier,
+      modifySupplier,
       open_dialog,
-      deactivateUser,
-      activateUser,
+      validateUniqueSupplierId,
+      supplierId,
+      supplierName,
       onReset,
+      getData,
       pagination,
-      branchOption,
-      branchObject,
-      rolOption,
       userRol
     };
   },
   methods: {
-    async searchData() {
-      await api
-        .get("/api/control")
-        .then((response) => {
-          controles.value = response.data;
-          this.loading_report = false;
-        })
-        .catch((error) => {
-          this.loading_report = false;
-          handleCustomError(error.message);
-        });
-    },
 
     parse_datetime(dateString, type) {
       if (type == "date") {
@@ -575,4 +326,122 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
+</style>
+
+<style lang="sass">
+.my-sticky-header-table
+  /* height or max-height is important */
+  height: 310px
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    /* bg color is important for th; just specify one */
+    background-color: white
+
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
+
+.my-sticky-header-table-a
+  /* height or max-height is important */
+  max-height: 310px
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    /* bg color is important for th; just specify one */
+    background-color: #f5f5f5
+
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
+.q-dialog__inner--minimized
+    padding: 0px
+
+/* --- INPUT NUMÉRICO COMPACTO PARA Q-INPUT --- */
+.mini-number
+  /* aplica sobre el componente <q-input class="mini-number"> */
+  .q-field
+    /* quitar el alto mínimo heredado */
+    min-height: 0 !important
+    height: 28px !important         /* ajustar a lo que necesites */
+
+  .q-field__control
+    min-height: 0 !important
+    height: 24px !important
+    padding-top: 0 !important
+    padding-bottom: 0 !important
+    display: flex
+    align-items: center
+
+  /* target al input nativo dentro de q-input */
+  input.q-field__native,
+  input[type="number"]
+    height: 24px !important         /* alto del input interno */
+    min-height: 0 !important
+    line-height: 20px !important
+    padding: 0 8px !important
+    font-size: 13px
+    box-sizing: border-box
+    -moz-appearance: textfield !important
+    appearance: textfield !important
+
+  /* eliminar los spinners (Chrome / Edge / Safari / WebKit) */
+  input.q-field__native::-webkit-outer-spin-button,
+  input.q-field__native::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button
+    -webkit-appearance: none
+    margin: 0
+
+  /* firefox: que no muestre las flechitas ni comportamiento numérico */
+  input[type="number"]
+    -moz-appearance: textfield
+
+/* ------------- Opcional: versión más compacta ------------- */
+.mini-number--xs
+  .q-field, .q-field__control
+    height: 24px !important
+  input.q-field__native
+    height: 18px !important
+    padding: 0 6px !important
+    font-size: 12px !important
+
+/* Si tu <style> es scoped, podes necesitar usar ::v-deep */
+::v-deep .mini-number
+  .q-field__control
+    /* ejemplo: forzar alineación cuando está scoped */
+    align-items: center
+
+
+</style>
+
+<style lang="sass" scoped>
+::v-deep(.q-table__progress)
+  transform: translateY(-19.5px) !important
 </style>
