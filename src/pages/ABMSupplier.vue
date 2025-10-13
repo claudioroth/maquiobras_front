@@ -21,7 +21,7 @@
 
   <!-- TABLA -->
   <div class="q-pa-md">
-    <q-table flat separator="cell" v-if="!loadingScreen" bordered dense title="ABM Proveedores" :rows="suppliers"
+    <q-table flat separator="cell" v-if="!loadingScreen" bordered dense :title="userRol == 1 ? 'ABM Proveedores' : 'Lista de Proveedores'" :rows="suppliers"
       :columns="columns" :loading="loadingTable" row-key="id" :filter="filter" virtual-scroll
       v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary"
       class="no-shadow text-grey-7 my-sticky-header-table"

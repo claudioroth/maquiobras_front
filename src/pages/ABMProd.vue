@@ -4,7 +4,7 @@
     <div class="q-mx-md">
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
         <q-btn class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
-          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /> Nuevo Producto
+          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /><div class="q-pt-xs">Nuevo Producto</div>
         </q-btn>
 
         <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
@@ -30,7 +30,7 @@
                 style="min-width: 150px" />
             </q-banner>
           </q-popup-proxy>
-          <q-icon name="filter_alt" class="q-mr-sm" /> filtro columnas
+          <q-icon name="filter_alt" class="q-mr-sm" /> <div class="q-pt-xs">filtro columnas</div>
         </q-btn>
 
         <q-space />
@@ -258,18 +258,18 @@
             : modify_product()
           " @reset="onReset" class="q-gutter-md">
           <!-- Nro -->
-          <q-select outlined v-model="nro" use-chips use-input dense input-debounce="0" label="Nro" multiple
+          <q-select outlined v-model="nro" use-chips use-input dense input-debounce="0" label="Proveedor" multiple
             :options="optionsSelectSuppliers" @filter="filterFnSuppliers">
             <template v-slot:selected-item="scope">
               <q-chip removable @remove="scope.removeAtIndex(scope.index)" :tabindex="scope.tabindex"
-                :color="scope.opt.color" text-color="grey-10" class="" size="sm">
+                text-color="grey-10" size="sm">
                 {{ scope.opt.label }}
               </q-chip>
             </template>
 
             <template v-slot:no-option>
               <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
+                <q-item-section class="text-grey">Sin resultados</q-item-section>
               </q-item>
             </template>
           </q-select>
@@ -341,13 +341,14 @@
             <div class="row q-mb-md">
 
               <!-- Importe sin IVA -->
-              <q-input type="number" outlined step="any" stack-label prefix="$" class="col"
-                v-model="amountWithoutIva" label="Importe sin IVA" />
+              <q-input type="number" outlined step="any" stack-label prefix="$" class="col" v-model="amountWithoutIva"
+                label="Importe sin IVA" />
 
               <q-separator inset class="self-center q-ma-none" style="width: 3%;" />
 
               <!-- IVA -->
-              <q-select class="col q-mr-md" prefix="%" outlined stack-label v-model="iva" :options="optionsIva" label="IVA" />
+              <q-select class="col q-mr-md" prefix="%" outlined stack-label v-model="iva" :options="optionsIva"
+                label="IVA" />
 
               <!-- Costo mas bajo -->
               <q-input outlined stack-label step="any" prefix="$" type="number" class="col" v-model="lowestCost"
@@ -467,7 +468,6 @@ import { customNotify, handleCustomError } from "src/helpers/errors";
 import * as XLSX from "xlsx-js-style";
 import { api } from "src/boot/axios";
 import axios from "axios";
-import { suppliers } from "src/helpers/suppliers";
 import { useQuasar } from "quasar";
 
 export default defineComponent({
@@ -484,18 +484,20 @@ export default defineComponent({
     const dialogButton = ref();
     const dialogLoading = ref(false);
     const columnFilter = ref(false);
-
     const selectSuppliers = ref([]);
-    const optionsSelectSuppliers = ref(suppliers);
-    const optionsIva = [{label:"10.5", value: 10.5}, {label:"21", value: 21}]
 
+    // const optionsSelectSuppliers = ref(suppliers);
+    const allSuppliers = ref([]);
+    const optionsSelectSuppliers = ref([]);
+
+    const optionsIva = [{ label: "10.5", value: 10.5 }, { label: "21", value: 21 }]
     const index = ref();
     const nro = ref();
     const description = ref();
     const amountWithoutIva = ref();
     const iva21 = ref();
     const iva10 = ref();
-    const iva = ref({label:"21", value: 21})
+    const iva = ref({ label: "21", value: 21 })
     const offerWithoutIva = ref();
     const increases = ref();
     const lastModification = ref();
@@ -506,6 +508,8 @@ export default defineComponent({
     const suc2 = ref(0);
     const depo = ref(0);
     const visibleColumns = ref([]);
+
+
 
     const columns = [
       {
@@ -641,29 +645,23 @@ export default defineComponent({
     });
 
     // MOUNTED
-    onMounted(() => {
-      // Trae las columnas filtradas guardadas en el Local Storage
+    onMounted(async () => {
       visibleColumns.value = LocalStorage.getItem("prodColFilters");
 
-      // Carga de Tabla
-      api
-        .get("/api/product_detail")
-        .then((response) => {
-          dataTable.value = response.data;
-          loadingScreen.value = false;
-          function exportExcel(dataTable) {
-            let data = XLSX.utils.json_to_sheet(dataTable);
-            const workbook = XLSX.utils.book_new();
-            const filename = "devschile-admins";
-            XLSX.utils.book_append_sheet(workbook, data, filename);
-            XLSX.writeFile(workbook, `${filename}.xlsx`);
-          }
-          //exportExcel(response.data);
-        })
-        .catch((error) => {
-          handleCustomError(error.message);
-        });
+      try {
+        // Cargar proveedores
+        await getSuppliers();
+
+        // Cargar productos
+        const response = await api.get("/api/product_detail");
+        dataTable.value = response.data;
+      } catch (error) {
+        handleCustomError(error.message);
+      } finally {
+        loadingScreen.value = false;
+      }
     });
+
 
     // WATCH
     watch(dialog, (newValue, OldValue) => {
@@ -721,6 +719,19 @@ export default defineComponent({
     });
 
     // FUNCIONES
+    const getSuppliers = async () => {
+      try {
+        const response = await api.get("/api/provedor");
+        allSuppliers.value = response.data.map((prov) => ({
+          value: prov.id,
+          label: `${prov.nombre} (${prov.id})`,
+        }));
+        optionsSelectSuppliers.value = allSuppliers.value;
+      } catch (error) {
+        handleCustomError(error.message);
+      }
+    };
+
 
     const clearIfZero = (inputName) => {
       if (inputName === "depo" && depo.value === 0) {
@@ -745,9 +756,13 @@ export default defineComponent({
     const filterFnSuppliers = (val, update) => {
       update(() => {
         const needle = val.toLowerCase();
-        optionsSelectSuppliers.value = suppliers.filter((v) => {
-          return v.label.toLowerCase().indexOf(needle) > -1;
-        });
+        if (needle === "") {
+          optionsSelectSuppliers.value = allSuppliers.value;
+        } else {
+          optionsSelectSuppliers.value = allSuppliers.value.filter((v) =>
+            v.label.toLowerCase().includes(needle)
+          );
+        }
       });
     };
 
@@ -842,7 +857,7 @@ export default defineComponent({
         selectSuppliers.value = [];
 
         if (data.nro) {
-          suppliers.forEach((s) => {
+          optionsSelectSuppliers.value.forEach((s) => {
             data.nro.split(" ").forEach((n) => {
               if (n == s.value) {
                 selectSuppliers.value.push(s);
@@ -1025,7 +1040,6 @@ export default defineComponent({
       suc1,
       suc2,
       depo,
-      suppliers,
       iva,
       columnFilter,
       open_dialog_delete,

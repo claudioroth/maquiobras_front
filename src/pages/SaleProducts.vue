@@ -4,7 +4,7 @@
     <div class="q-mx-md">
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
         <q-btn class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
-          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /> Nueva Venta
+          @click="open_dialog('create')"><q-icon name="shopping_cart" class="q-mr-sm" /><div class="q-pt-xs">Nueva Venta</div>
         </q-btn>
 
         <q-space />
@@ -420,6 +420,7 @@ export default defineComponent({
         .get(rol == 3 || rol == 2 ? `/api/${parceBranch1[branch]}` : "/api/ventas")
         .then((response) => {
           sales.value = response.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
           sales.value.forEach((sale, index) => {
             sale.showPopup = false;
             sale.index = index + 1;

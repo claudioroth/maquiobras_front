@@ -22,7 +22,7 @@
 
   <!-- TABLA -->
   <div class="q-pa-md">
-    <q-table flat separator="cell" v-if="!loadingScreen" bordered dense title="ABM Usuarios" :rows="controles"
+    <q-table flat separator="cell" v-if="!loadingScreen" bordered dense :title="userRol == 1 ? 'ABM Usuarios' : 'Lista de Usuarios'" :rows="controles"
       :columns="columns.filter(col => col.name !== 'actions' || userRol === 1)" :loading="loadingTable" row-key="id"
       :filter="filter" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary"
       no-hover class="no-shadow text-grey-7 my-sticky-header-table"

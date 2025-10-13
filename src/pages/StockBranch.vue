@@ -85,7 +85,7 @@
               />
             </q-banner>
           </q-popup-proxy>
-          <q-icon name="filter_alt" class="q-mr-sm" /> filtro columnas
+          <q-icon name="filter_alt" class="q-mr-sm" /> <div class="q-pt-xs">filtro columnas</div>
         </q-btn>
 
         <q-space />

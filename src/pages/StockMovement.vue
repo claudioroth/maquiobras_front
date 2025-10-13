@@ -52,8 +52,8 @@
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       color="primary"
-      class="no-shadow text-grey-7"
-      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`"
+      class="no-shadow text-grey-7 my-sticky-header-table"
+      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ; font-size:12px`"
     >
       <!-- <template v-slot:top-right>
         <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
@@ -67,6 +67,14 @@
         <q-td :props="props">
           <div>
             <q-badge color="red-7" :label="props.row.retiro" />
+          </div>
+        </q-td>
+      </template>
+
+            <template v-slot:body-cell-producto="props">
+        <q-td :props="props">
+          <div class="text-left" style="font-size: 12px;">
+          {{ props.row.producto }}
           </div>
         </q-td>
       </template>
