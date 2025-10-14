@@ -37,8 +37,8 @@
         <q-td :props="props">
           <div>
             <!-- {{ props.row  }} -->
-            <q-btn label="productos" color="primary" dense outline style="padding-top: 6px" class="q-px-sm"
-              icon="shopping_cart" size="sm" @click="openProductsPopup[props.row.index]" />
+            <q-btn label="productos" color="primary" dense outline class="q-px-md q-py-xs" icon="handyman" size="sm"
+              @click="openProductsPopup[props.row.index]" />
             <q-popup-proxy v-model="showPopup[props.row.id]" transition-show="scale" transition-hide="scale"
               class="no-shadow q-pa-none q-mt-md" style="border: 1px solid #ebebeb; margin-top: 10px !important">
               <q-card class="bg-grey-2 q-pa-none">
@@ -123,8 +123,8 @@
             </q-select>
 
             <!-- Remito -->
-            <q-input outlined class="col" v-model="remito" placeholder="Ej: 0001 - 00000001" dense label="Remito" mask="#### - ########" unmasked-value
-              :rules="[
+            <q-input outlined class="col" v-model="remito" placeholder="Ej: 0001 - 00000001" dense label="Remito"
+              mask="#### - ########" unmasked-value :rules="[
                 val => !!val || '',
                 val => val.length === 12 || ''
               ]" />
@@ -316,6 +316,7 @@ export default defineComponent({
     const cart = ref([]);
     const products = ref([]);
     const completeAlert = ref(false);
+    const rol = SessionStorage.getItem("rol");
 
     const pagination = ref({
       rowsPerPage: 0,
@@ -424,10 +425,12 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
+      console.log(userBranch)
       api
-        .get(`/api/ingreso${userBranch ? `/${userBranch}` : "s"}`)
+        // .get(`/api/ingreso${userBranch ? `/${userBranch}` : "s"}`)
+        .get(rol == 1 ? "/api/ingresos" : `/api/ingreso/${userBranch}`)
         .then((response) => {
-          income.value = response.data;
+          income.value = response.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
           loadingScreen.value = false;
         })
         .catch((error) => {
@@ -464,9 +467,9 @@ export default defineComponent({
     // Refresca la tabla principal
     const get_data = () => {
       api
-        .get(`/api/ingreso${userBranch ? `/${userBranch}` : "s"}`)
+        .get(rol == 1 ? "/api/ingresos" : `/api/ingreso/${userBranch}`)
         .then((response) => {
-          income.value = response.data;
+          income.value = response.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
           loadingScreen.value = false;
           loadingTable.value = false;
         })
@@ -574,9 +577,15 @@ export default defineComponent({
     };
 
     const onReset = () => {
+      // Limpiar campos del formulario
       semiAdmin.value = null;
       remito.value = null;
-      // destination.value = null;
+      cart.value = [];
+
+      // Resetear validaciones si usás <q-form ref="formRef">
+      if (formRef?.value) {
+        formRef.value.resetValidation();
+      }
     };
 
     const parseRemito = (input) => {
