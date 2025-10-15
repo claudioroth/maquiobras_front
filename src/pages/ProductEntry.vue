@@ -32,7 +32,6 @@
         </q-input>
       </template> -->
 
-
       <template v-slot:body-cell-producto="props">
         <q-td :props="props">
           <div>

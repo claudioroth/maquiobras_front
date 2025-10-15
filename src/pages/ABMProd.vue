@@ -4,7 +4,8 @@
     <div class="q-mx-md">
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
         <q-btn class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
-          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" /><div class="q-pt-xs">Nuevo Producto</div>
+          @click="open_dialog('create')"><q-icon name="construction" class="q-mr-sm" />
+          <div class="q-pt-xs">Nuevo Producto</div>
         </q-btn>
 
         <q-btn class="q-mr-md q-px-lg" outline push color="grey-7" size="md">
@@ -18,11 +19,14 @@
                 <q-toggle class="col-12" v-model="visibleColumns" val="iva_21" label="IVA 21%" />
                 <q-toggle class="col-12" v-model="visibleColumns" val="iva_10" label="IVA10%" />
                 <q-toggle class="col-12" v-model="visibleColumns" val="oferta_sin_iva" label="Oferta sin IVA" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="oferta_costo" label="Oferta costo" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="rentabilidad" label="Rentabilidad" />
+                <q-toggle class="col-12" v-model="visibleColumns" val="costo_mas_bajo" label="Costo mas bajo" />
                 <q-toggle class="col-12" v-model="visibleColumns" val="aumento" label="Aumento" />
                 <q-toggle class="col-12" v-model="visibleColumns" val="ultimo_modif" label="Ultima modificacion" />
-                <q-toggle class="col-12" v-model="visibleColumns" val="oferta_costo" label="Oferta costo" />
-                <q-toggle class="col-12" v-model="visibleColumns" val="costo_mas_bajo" label="Costo mas bajo" />
-                <q-toggle class="col-12" v-model="visibleColumns" val="rentabilidad" label="Rentabilidad" />
+
+
+
                 <!-- <q-toggle v-model="visibleColumns" val="stock" label="Iron" /> -->
               </div>
               <q-select v-else v-model="visibleColumns" multiple borderless dense options-dense
@@ -30,7 +34,8 @@
                 style="min-width: 150px" />
             </q-banner>
           </q-popup-proxy>
-          <q-icon name="filter_alt" class="q-mr-sm" /> <div class="q-pt-xs">filtro columnas</div>
+          <q-icon name="filter_alt" class="q-mr-sm" />
+          <div class="q-pt-xs">filtro columnas</div>
         </q-btn>
 
         <q-space />
@@ -583,6 +588,28 @@ export default defineComponent({
         sortable: true,
       },
       {
+        name: "oferta_costo",
+        label: "Oferta Costo",
+        field: "oferta_costo",
+        align: "center",
+        sortable: true,
+      },
+      {
+        name: "rentabilidad",
+        label: "Rentabilidad",
+        field: "rentabilidad",
+        align: "center",
+        sortable: true,
+      },
+
+      {
+        name: "costo_mas_bajo",
+        label: "Costo mas Bajo",
+        field: "costo_mas_bajo",
+        align: "center",
+        sortable: true,
+      },
+      {
         name: "aumento",
         label: "Aumento",
         field: "aumento",
@@ -597,20 +624,7 @@ export default defineComponent({
         sortable: true,
       },
 
-      {
-        name: "oferta_costo",
-        label: "Oferta Costo",
-        field: "oferta_costo",
-        align: "center",
-        sortable: true,
-      },
-      {
-        name: "costo_mas_bajo",
-        label: "Costo mas Bajo",
-        field: "costo_mas_bajo",
-        align: "center",
-        sortable: true,
-      },
+
       // {
       //   name: "lista_vieja",
       //   label: "Lista Vieja",
@@ -618,13 +632,7 @@ export default defineComponent({
       //   align: "center",
       //   sortable: true,
       // },
-      {
-        name: "rentabilidad",
-        label: "Rentabilidad",
-        field: "rentabilidad",
-        align: "center",
-        sortable: true,
-      },
+
       {
         name: "modify",
         align: "center",

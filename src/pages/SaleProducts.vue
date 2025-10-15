@@ -4,7 +4,8 @@
     <div class="q-mx-md">
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
         <q-btn class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
-          @click="open_dialog('create')"><q-icon name="shopping_cart" class="q-mr-sm" /><div class="q-pt-xs">Nueva Venta</div>
+          @click="open_dialog('create')"><q-icon name="shopping_cart" class="q-mr-sm" />
+          <div class="q-pt-xs">Nueva Venta</div>
         </q-btn>
 
         <q-space />
@@ -34,8 +35,8 @@
       <template v-slot:body-cell-ventas="props">
         <q-td :props="props">
           <div>
-            <q-btn label="productos" color="primary" dense outline style="padding-top: 6px" class="q-px-sm"
-              icon="shopping_cart" size="sm" @click="openProductsPopup[props.row.index]" />
+            <q-btn label="productos" color="primary" dense outline class="q-px-md q-py-xs" icon="handyman" size="sm"
+              @click="openProductsPopup[props.row.index]" />
             <q-popup-proxy v-model="showPopup[props.row.index]" transition-show="scale" transition-hide="scale"
               class="no-shadow q-pa-none q-mt-md" style="border: 1px solid #ebebeb; margin-top: 10px !important">
               <q-card class="bg-grey-2 q-pa-none">
