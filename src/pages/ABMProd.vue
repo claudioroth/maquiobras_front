@@ -257,7 +257,7 @@
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form @submit="
+        <q-form @submit.prevent="
           dialogTitle == 'Nuevo Producto'
             ? create_product()
             : modify_product()
@@ -353,7 +353,7 @@
 
               <!-- IVA -->
               <q-select class="col q-mr-md" prefix="%" outlined stack-label v-model="iva" :options="optionsIva"
-                label="IVA" />
+                label="IVA" :disable="!ivaEnabled" />
 
               <!-- Costo mas bajo -->
               <q-input outlined stack-label step="any" prefix="$" type="number" class="col" v-model="lowestCost"
@@ -364,13 +364,13 @@
             <div class="row q-mb-md">
               <!-- Oferta Costo -->
               <q-input type="number" outlined step="any" stack-label prefix="$" class="col" v-model="offerCost"
-                label="Oferta Costo" />
+                label="Oferta Costo" :rules="[validateCost]" />
 
               <div class="self-center q-mx-xs text-grey-7">×</div>
 
               <!-- Rentabilidad -->
               <q-input outlined step="any" type="number" stack-label class="col inputNumber" v-model="costEffectiveness"
-                label="Rentabilidad" />
+                label="Rentabilidad" :rules="[validateProfitability]" />
 
               <div class="self-center q-mx-xs text-grey-7">=</div>
 
@@ -648,6 +648,7 @@ export default defineComponent({
         sortable: true,
       },
     ];
+
     const pagination = ref({
       rowsPerPage: 0,
     });
@@ -719,6 +720,14 @@ export default defineComponent({
       LocalStorage.set("prodColFilters", visibleColumns.value);
     });
 
+    watch([offerCost, costEffectiveness], ([costo, rent]) => {
+      if (costo && rent) {
+        offerWithoutIva.value = costo * rent;
+      } else {
+        offerWithoutIva.value = null;
+      }
+    });
+
     // COMPUTER
     const stock = computed(() => {
       return [suc1.value, suc2.value, depo.value]
@@ -726,7 +735,22 @@ export default defineComponent({
         .reduce((acc, value) => acc + value, 0);
     });
 
+    const ivaEnabled = computed(() => {
+      return Number(amountWithoutIva.value) > 0
+    })
+
     // FUNCIONES
+
+    const validateCost = (val) => {
+      if ((!val || val <= 0) && costEffectiveness.value > 0) return false;
+      return true;
+    };
+
+    const validateProfitability = (val) => {
+      if ((!val || val <= 0) && offerCost.value > 0) return false;
+      return true;
+    };
+
     const getSuppliers = async () => {
       try {
         const response = await api.get("/api/provedor");
@@ -904,22 +928,26 @@ export default defineComponent({
         });
       }
 
-      amountWithoutIva.value = amountWithoutIva.value
-        ? amountWithoutIva.value
-        : 0;
-      offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
+      console.log(iva.value.value)
+      // IMPORTE SIN IVA
+      amountWithoutIva.value = amountWithoutIva.value ? amountWithoutIva.value : 0;
+
+
+      // OFERTA COSTO
       offerCost.value = offerCost.value ? offerCost.value : 0;
+
       lowestCost.value = lowestCost.value ? lowestCost.value : 0;
-      costEffectiveness.value = costEffectiveness.value
-        ? costEffectiveness.value
-        : 0;
+      costEffectiveness.value = costEffectiveness.value ? costEffectiveness.value : 0;
+
+      // OFERTA SIN IVA
+      offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
 
       const data = {
         nro: nroList.join(" "),
         descripcion: description.value,
         importe_sin_iva: amountWithoutIva.value,
-        iva_21: amountWithoutIva.value * 1.21,
-        iva_10: amountWithoutIva.value * 1.105,
+        iva_21: iva.value.value == 21 ? amountWithoutIva.value * 1.21 : 0,
+        iva_10: iva.value.value == 10.5 ? amountWithoutIva.value * 1.105 : 0,
         oferta_sin_iva: offerWithoutIva.value,
         aumento: increases.value ? convertDateFormat(increases.value) : null,
         ultimo_modif: lastModification.value
@@ -934,20 +962,23 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      api.post("/api/product_detail", data).then((response) => {
-        api.get("/api/product_detail").then((response) => {
-          dataTable.value = response.data;
-          dialog.value = false;
+      console.log(data)
+      dialogLoading.value = false;
 
-          $q.notify({
-            icon: "done",
-            message: "El producto se creo correctamente",
-            position: "bottom",
-            timeout: 2000,
-          });
-          dialogLoading.value = false;
-        });
-      });
+      // api.post("/api/product_detail", data).then((response) => {
+      //   api.get("/api/product_detail").then((response) => {
+      //     dataTable.value = response.data;
+      //     dialog.value = false;
+
+      //     $q.notify({
+      //       icon: "done",
+      //       message: "El producto se creo correctamente",
+      //       position: "bottom",
+      //       timeout: 2000,
+      //     });
+      //     dialogLoading.value = false;
+      //   });
+      // });
     };
 
     // Modificar Producto
@@ -1038,6 +1069,7 @@ export default defineComponent({
       amountWithoutIva,
       iva21,
       iva10,
+      ivaEnabled,
       offerWithoutIva,
       increases,
       lastModification,
@@ -1058,6 +1090,8 @@ export default defineComponent({
       optionsIva,
       dialogLoadingDelete,
       onReset,
+   validateCost,
+   validateProfitability
     };
   },
 });
