@@ -50,9 +50,9 @@
 
   <!-- TABLA -->
   <div class="q-pa-md" style="overflow-x: scroll">
-    <q-table v-if="!loadingScreen" flat dense bordered title="ABM de Productos" :rows="dataTable" :columns="columns"
-      row-key="id" :loading="loadingTable" :filter="filter" virtual-scroll v-model:pagination="pagination"
-      :rows-per-page-options="[0]" separator="cell" color="primary"
+    <q-table v-if="!loadingScreen" flat dense bordered title="ABM de Productos" :rows="filteredData" :columns="columns"
+      row-key="id" :loading="loadingTable" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]"
+      separator="cell" color="primary"
       class="no-shadow text-grey-7 my-sticky-header-last-column-table my-sticky-header-table"
       :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ;`" :visible-columns="visibleColumns">
       <!-- Modify -->
@@ -289,7 +289,7 @@
 
           <div class="q-pa-md row" style="border: 1px solid rgb(206 206 206); border-radius: 4px">
             <!-- Aumento -->
-            <q-input outlined dense readonly class="col q-mr-md custom-readonly-input-g" v-model="increases"
+            <q-input outlined dense readonly class="col custom-readonly-input-g" v-model="increases"
               label="Aumento">
               <template v-slot:append>
                 <q-icon v-if="increases != null" name="close" @click.stop.prevent="increases = null"
@@ -307,7 +307,7 @@
             </q-input>
 
             <!-- Ultima Modificacion -->
-            <q-input outlined dense readonly class="col custom-readonly-input-g" v-model="lastModification"
+            <!-- <q-input outlined dense readonly class="col custom-readonly-input-g" v-model="lastModification"
               label="Ultima Modificacion">
               <template v-slot:append>
                 <q-icon v-if="lastModification != null" name="close" @click.stop.prevent="lastModification = null"
@@ -322,7 +322,7 @@
                   </q-popup-proxy>
                 </q-icon>
               </template>
-            </q-input>
+            </q-input> -->
           </div>
 
           <!-- Importes/Costos -->
@@ -505,7 +505,7 @@ export default defineComponent({
     const iva = ref({ label: "21", value: 21 })
     const offerWithoutIva = ref();
     const increases = ref();
-    const lastModification = ref();
+    // const lastModification = ref();
     const offerCost = ref();
     const lowestCost = ref();
     const costEffectiveness = ref();
@@ -683,7 +683,7 @@ export default defineComponent({
         iva10.value = null;
         offerWithoutIva.value = null;
         increases.value = null;
-        lastModification.value = null;
+        // lastModification.value = null;
         offerCost.value = null;
         lowestCost.value = null;
         costEffectiveness.value = null;
@@ -705,7 +705,7 @@ export default defineComponent({
         iva10.value = null;
         offerWithoutIva.value = null;
         increases.value = null;
-        lastModification.value = null;
+        // lastModification.value = null;
         offerCost.value = null;
         lowestCost.value = null;
         costEffectiveness.value = null;
@@ -738,6 +738,25 @@ export default defineComponent({
     const ivaEnabled = computed(() => {
       return Number(amountWithoutIva.value) > 0
     })
+
+    const filter = ref("");
+
+
+    const filteredData = computed(() => {
+      if (!filter.value) return dataTable.value;
+      const search = filter.value.toLowerCase();
+      const startsWith = dataTable.value
+        .filter(p => p.descripcion?.toLowerCase().startsWith(search))
+        .sort((a, b) => a.descripcion.localeCompare(b.descripcion));
+      const contains = dataTable.value
+        .filter(p =>
+          p.descripcion?.toLowerCase().includes(search) &&
+          !p.descripcion?.toLowerCase().startsWith(search)
+        )
+        .sort((a, b) => a.descripcion.localeCompare(b.descripcion));
+      return [...startsWith, ...contains];
+    });
+
 
     // FUNCIONES
 
@@ -845,7 +864,7 @@ export default defineComponent({
       amountWithoutIva.value = null;
       offerWithoutIva.value = null;
       increases.value = null;
-      lastModification.value = null;
+      // lastModification.value = null;
       offerCost.value = null;
       lowestCost.value = null;
       costEffectiveness.value = null;
@@ -906,7 +925,7 @@ export default defineComponent({
         amountWithoutIva.value = data.importe_sin_iva;
         offerWithoutIva.value = data.oferta_sin_iva;
         increases.value = convertToDisplayFormat(data.aumento);
-        lastModification.value = convertToDisplayFormat(data.ultimo_modif);
+        // lastModification.value = convertToDisplayFormat(data.ultimo_modif);
         offerCost.value = data.oferta_costo;
         lowestCost.value = data.costo_mas_bajo;
         costEffectiveness.value = data.rentabilidad;
@@ -950,9 +969,9 @@ export default defineComponent({
         iva_10: iva.value.value == 10.5 ? amountWithoutIva.value * 1.105 : 0,
         oferta_sin_iva: offerWithoutIva.value,
         aumento: increases.value ? convertDateFormat(increases.value) : null,
-        ultimo_modif: lastModification.value
-          ? convertDateFormat(lastModification.value)
-          : null,
+        // ultimo_modif: lastModification.value
+        //   ? convertDateFormat(lastModification.value)
+        //   : null,
         oferta_costo: offerCost.value,
         costo_mas_bajo: lowestCost.value,
         rentabilidad: costEffectiveness.value,
@@ -965,20 +984,20 @@ export default defineComponent({
       console.log(data)
       dialogLoading.value = false;
 
-      // api.post("/api/product_detail", data).then((response) => {
-      //   api.get("/api/product_detail").then((response) => {
-      //     dataTable.value = response.data;
-      //     dialog.value = false;
+      api.post("/api/product_detail", data).then((response) => {
+        api.get("/api/product_detail").then((response) => {
+          dataTable.value = response.data;
+          dialog.value = false;
 
-      //     $q.notify({
-      //       icon: "done",
-      //       message: "El producto se creo correctamente",
-      //       position: "bottom",
-      //       timeout: 2000,
-      //     });
-      //     dialogLoading.value = false;
-      //   });
-      // });
+          $q.notify({
+            icon: "done",
+            message: "El producto se creo correctamente",
+            position: "bottom",
+            timeout: 2000,
+          });
+          dialogLoading.value = false;
+        });
+      });
     };
 
     // Modificar Producto
@@ -989,28 +1008,28 @@ export default defineComponent({
         nroList.push(n.value);
       });
 
-      amountWithoutIva.value = amountWithoutIva.value
-        ? amountWithoutIva.value
-        : 0;
-      offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
+      console.log(iva.value.value)
+      // IMPORTE SIN IVA
+      amountWithoutIva.value = amountWithoutIva.value ? amountWithoutIva.value : 0;
+      // OFERTA COSTO
       offerCost.value = offerCost.value ? offerCost.value : 0;
       lowestCost.value = lowestCost.value ? lowestCost.value : 0;
-      costEffectiveness.value = costEffectiveness.value
-        ? costEffectiveness.value
-        : 0;
+      costEffectiveness.value = costEffectiveness.value ? costEffectiveness.value : 0;
 
+      // OFERTA SIN IVA
+      offerWithoutIva.value = offerWithoutIva.value ? offerWithoutIva.value : 0;
       const data = {
         index: index.value,
         nro: nroList.join(" "),
         descripcion: description.value,
         importe_sin_iva: amountWithoutIva.value,
-        iva_21: amountWithoutIva.value * 1.21,
-        iva_10: amountWithoutIva.value * 1.105,
+        iva_21: iva.value.value == 21 ? amountWithoutIva.value * 1.21 : 0,
+        iva_10: iva.value.value == 10.5 ? amountWithoutIva.value * 1.105 : 0,
         oferta_sin_iva: offerWithoutIva.value,
         aumento: increases.value ? convertDateFormat(increases.value) : null,
-        ultimo_modif: lastModification.value
-          ? convertDateFormat(lastModification.value)
-          : null,
+        // ultimo_modif: lastModification.value
+        //   ? convertDateFormat(lastModification.value)
+        //   : null,
         oferta_costo: offerCost.value,
         costo_mas_bajo: lowestCost.value,
         rentabilidad: costEffectiveness.value,
@@ -1061,7 +1080,7 @@ export default defineComponent({
       dataTable,
       parse_datetime,
       parse_decimal,
-      filter: ref(""),
+      filter,
       loadingScreen,
       loadingTable,
       nro,
@@ -1072,7 +1091,7 @@ export default defineComponent({
       ivaEnabled,
       offerWithoutIva,
       increases,
-      lastModification,
+      // lastModification,
       offerCost,
       lowestCost,
       costEffectiveness,
@@ -1090,8 +1109,9 @@ export default defineComponent({
       optionsIva,
       dialogLoadingDelete,
       onReset,
-   validateCost,
-   validateProfitability
+      validateCost,
+      validateProfitability,
+      filteredData
     };
   },
 });
