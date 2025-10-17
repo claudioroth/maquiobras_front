@@ -106,7 +106,7 @@
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form ref="formRef" @submit.prevent="onSubmit" @reset="onReset" class="q-gutter-md">
+        <q-form ref="formRef" @submit.prevent="onSubmit" @keydown.enter.prevent @reset="onReset" class="q-gutter-md">
 
 
           <div class="row">
@@ -424,7 +424,6 @@ export default defineComponent({
     // MOUNTED
     onMounted(() => {
       // Carga de Tabla
-      console.log(userBranch)
       api
         // .get(`/api/ingreso${userBranch ? `/${userBranch}` : "s"}`)
         .get(rol == 1 ? "/api/ingresos" : `/api/ingreso/${userBranch}`)
@@ -512,7 +511,7 @@ export default defineComponent({
           selectSemiAdmin.value.push({ label: sm.user, value: sm.id });
         });
 
-        api.get(`/api/controlmix`).then((response) => {
+        api.get(`/api/allproducts`).then((response) => {
           response.data.productos.forEach((t) => {
             products.value.push({ label: t.descripcion, value: t.index });
           });
@@ -527,7 +526,6 @@ export default defineComponent({
 
     const openProductsPopup = (index) => {
       showPopup.value[index] = true;
-      console.log(showPopup.value);
     };
 
 
@@ -615,7 +613,6 @@ export default defineComponent({
         remito: remito.value ? parseRemito(remito.value) : null,
         productos: cart.value
       };
-      console.log(entries)
 
       formData.append("data", JSON.stringify(entries));
 

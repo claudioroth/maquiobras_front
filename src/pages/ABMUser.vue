@@ -340,7 +340,6 @@ export default defineComponent({
     };
 
     const branchName = (id) => {
-      // console.log(id)
       return id
       // ? branchOption.value.find((option) => option.value == id).label
       // : "-";

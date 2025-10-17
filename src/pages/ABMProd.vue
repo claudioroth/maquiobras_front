@@ -178,10 +178,11 @@
       <!-- Ultima Modificacion -->
       <template v-slot:body-cell-ultimo_modif="props">
         <q-td v-if="props.row.ultimo_modif" :props="props">
-          <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
+
           <div>
+            {{ parse_datetime(props.row.ultimo_modif, "date") }}&ensp;
             <q-badge color="grey-3 text-grey-7">
-              {{ parse_datetime(props.row.ultimo_modif, "date") }}
+              {{ parse_datetime(props.row.ultimo_modif, "hours") }}
             </q-badge>
           </div>
         </q-td>
@@ -364,13 +365,13 @@
             <div class="row q-mb-md">
               <!-- Oferta Costo -->
               <q-input type="number" outlined step="any" stack-label prefix="$" class="col" v-model="offerCost"
-                label="Oferta Costo" :rules="[validateCost]" />
+                label="Oferta Costo"  />
 
               <div class="self-center q-mx-xs text-grey-7">×</div>
 
               <!-- Rentabilidad -->
               <q-input outlined step="any" type="number" stack-label class="col inputNumber" v-model="costEffectiveness"
-                label="Rentabilidad" :rules="[validateProfitability]" />
+                label="Rentabilidad"  />
 
               <div class="self-center q-mx-xs text-grey-7">=</div>
 
@@ -946,8 +947,6 @@ export default defineComponent({
           nroList.push(n.value);
         });
       }
-
-      console.log(iva.value.value)
       // IMPORTE SIN IVA
       amountWithoutIva.value = amountWithoutIva.value ? amountWithoutIva.value : 0;
 
@@ -981,7 +980,7 @@ export default defineComponent({
         depo: depo.value ? parseInt(depo.value) : 0,
       };
 
-      console.log(data)
+
       dialogLoading.value = false;
 
       api.post("/api/product_detail", data).then((response) => {
@@ -1008,7 +1007,6 @@ export default defineComponent({
         nroList.push(n.value);
       });
 
-      console.log(iva.value.value)
       // IMPORTE SIN IVA
       amountWithoutIva.value = amountWithoutIva.value ? amountWithoutIva.value : 0;
       // OFERTA COSTO

@@ -185,10 +185,11 @@
       <!-- Ultima Modificacion -->
       <template v-slot:body-cell-ultimo_modif="props">
         <q-td v-if="props.row.ultimo_modif" :props="props">
-          <!-- <div>{{ parse_datetime(props.row.ultimo_modif, "date") }}</div> -->
+
           <div>
+            {{ parse_datetime(props.row.ultimo_modif, "date") }}&ensp;
             <q-badge color="grey-3 text-grey-7">
-              {{ parse_datetime(props.row.ultimo_modif, "date") }}
+              {{ parse_datetime(props.row.ultimo_modif, "hours") }}
             </q-badge>
           </div>
         </q-td>

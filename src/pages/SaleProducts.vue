@@ -446,7 +446,6 @@ export default defineComponent({
 
     const openProductsPopup = (index) => {
       showPopup.value[index] = true;
-      console.log(showPopup.value);
     };
 
     // Abrir Dialog

@@ -2,30 +2,13 @@
   <!-- HEADER -->
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
-      <div
-        class="bg-white q-pa-md rounded-borders flex"
-        style="border: solid 1px #e0e0e0"
-      >
-        <q-btn
-          v-if="rol == 2"
-          class="q-mr-md q-px-lg"
-          size="md"
-          color="grey-7"
-          outline
-          :disable="loadingScreen"
-          @click="open_dialog('create')"
-          ><q-icon name="move_up" class="q-mr-sm" /> Mover Stock
+      <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
+        <q-btn v-if="rol == 2" class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
+          @click="open_dialog('create')"><q-icon name="move_up" class="q-mr-sm" /> Mover Stock
         </q-btn>
 
         <q-space />
-        <q-input
-          dense
-          outlined
-          :disable="loadingScreen"
-          debounce="300"
-          v-model="filter"
-          placeholder="Buscar"
-        >
+        <q-input dense outlined :disable="loadingScreen" debounce="300" v-model="filter" placeholder="Buscar">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -36,25 +19,11 @@
 
   <!-- TABLA -->
   <div class="q-pa-md">
-    <q-table
-      v-if="!loadingScreen"
-      flat
-      :loading="loadingTable"
-      bordered
-      dense
-      title="Movimiento de Stock"
-      :rows="controles"
-      :columns="columns"
-      row-key="id"
-      :filter="filter"
-      separator="cell"
-      virtual-scroll
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      color="primary"
+    <q-table v-if="!loadingScreen" flat :loading="loadingTable" bordered dense title="Movimiento de Stock"
+      :rows="controles" :columns="columns" row-key="id" :filter="filter" separator="cell" virtual-scroll
+      v-model:pagination="pagination" :rows-per-page-options="[0]" color="primary"
       class="no-shadow text-grey-7 my-sticky-header-table"
-      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ; font-size:12px`"
-    >
+      :style="`border: solid 1px #e0e0e0; height:${$q.screen.height - 190}px ; font-size:12px`">
       <!-- <template v-slot:top-right>
         <q-input dense debounce="300" v-model="filter" placeholder="Buscar">
           <template v-slot:append>
@@ -71,10 +40,10 @@
         </q-td>
       </template>
 
-            <template v-slot:body-cell-producto="props">
+      <template v-slot:body-cell-producto="props">
         <q-td :props="props">
           <div class="text-left" style="font-size: 12px;">
-          {{ props.row.producto }}
+            {{ props.row.producto }}
           </div>
         </q-td>
       </template>
@@ -92,16 +61,9 @@
     </q-table>
 
     <!-- LOADING SCREEN -->
-    <q-inner-loading
-      v-else
-      :showing="loadingScreen"
-      class="bg-white"
-      :style="`height:${
-        $q.screen.height - 190
-      }px; top:164px; right:16px; left:${
-        $q.screen.width < 1007 ? 16 : 256
-      }px;border: 1px solid rgb(224 224 224);border-radius:4px`"
-    >
+    <q-inner-loading v-else :showing="loadingScreen" class="bg-white" :style="`height:${$q.screen.height - 190
+      }px; top:164px; right:16px; left:${$q.screen.width < 1007 ? 16 : 256
+      }px;border: 1px solid rgb(224 224 224);border-radius:4px`">
       <q-spinner-puff size="50px" color="red-5" />
     </q-inner-loading>
   </div>
@@ -116,11 +78,7 @@
 
       <!-- body -->
       <q-card-section class="col q-pa-lg">
-        <q-form
-          @submit="create_withdrawal"
-          @reset="onReset"
-          class="q-gutter-md"
-        >
+        <q-form @submit="create_withdrawal" @reset="onReset" class="q-gutter-md">
           <!-- Usuario -->
           <!-- <q-select
             outlined
@@ -140,14 +98,8 @@
           </q-select> -->
 
           <!-- Sucursal -->
-          <q-select
-            outlined
-            v-model="branch"
-            input-debounce="0"
-            label="Sucursal"
-            :options="selectBranch"
-            :rules="[(val) => !!val || 'Seleccione una sucursal']"
-          >
+          <q-select outlined v-model="branch" input-debounce="0" label="Sucursal" :options="selectBranch"
+            :rules="[(val) => !!val || 'Seleccione una sucursal']">
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
@@ -156,15 +108,8 @@
           </q-select>
 
           <!-- Destino -->
-          <q-select
-            outlined
-            v-model="destination"
-            input-debounce="0"
-            label="Destino"
-            :disable="!branch"
-            :options="selectDestination"
-            :rules="[(val) => !!val || 'Seleccione un destino']"
-          >
+          <q-select outlined v-model="destination" input-debounce="0" label="Destino" :disable="!branch"
+            :options="selectDestination" :rules="[(val) => !!val || 'Seleccione un destino']">
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
@@ -173,18 +118,10 @@
           </q-select>
 
           <!-- Herramienta a Retirar -->
-          <q-select
-            outlined
-            v-model="tool"
-            use-input
-            :disable="branch ? false : true"
-            input-debounce="0"
-            label="Herramienta"
-            :options="optionsSelectTools"
-            @filter="filterFnTools"
+          <q-select outlined v-model="tool" use-input :disable="branch ? false : true" input-debounce="0"
+            label="Herramienta" :options="optionsSelectTools" @filter="filterFnTools"
             :hint="tool ? `Hay ${tool.amount} en stock` : null"
-            :rules="[(val) => !!val || 'Seleccione una herramienta']"
-          >
+            :rules="[(val) => !!val || 'Seleccione una herramienta']">
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
@@ -193,15 +130,9 @@
           </q-select>
 
           <!-- Cantidad -->
-          <q-select
-            outlined
-            v-model="amount"
-            :disable="tool ? (tool.amount == 0 ? true : false) : true"
-            input-debounce="0"
-            label="Cantidad"
-            :options="tool ? createNumberList(tool.amount) : null"
-            :rules="[(val) => !!val || 'Seleccione una cantidad']"
-          >
+          <q-select outlined v-model="amount" :disable="tool ? (tool.amount == 0 ? true : false) : true"
+            input-debounce="0" label="Cantidad" :options="tool ? createNumberList(tool.amount) : null"
+            :rules="[(val) => !!val || 'Seleccione una cantidad']">
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
@@ -212,19 +143,8 @@
           <!-- createNumberList -->
 
           <div>
-            <q-btn
-              label="Mover Stock"
-              type="submit"
-              unelevated
-              color="primary"
-            />
-            <q-btn
-              label="Reset"
-              type="reset"
-              color="primary"
-              flat
-              class="q-ml-sm"
-            />
+            <q-btn label="Mover Stock" type="submit" unelevated color="primary" />
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
           </div>
         </q-form>
       </q-card-section>
@@ -255,6 +175,7 @@ export default defineComponent({
     const dialogLoading = ref(true);
     const controles = ref([]);
     const tool = ref(null);
+
     const amount = ref(null);
     const branch = ref(null);
     const destination = ref(null);
@@ -335,10 +256,11 @@ export default defineComponent({
       amount.value = null;
     });
 
-    // Carga el selector de herramientas segun el local
     watch(branch, (newValue, OldValue) => {
       selectTools.value = [];
       tool.value = null;
+      destination.value = null; // 🔹 Limpia el destino al cambiar de sucursal
+
       let selectSuc = null;
       switch (newValue) {
         case "Local Galicia":
@@ -353,6 +275,7 @@ export default defineComponent({
         default:
           selectSuc = null;
       }
+
       if (selectSuc) {
         api.get(`/api/controlmix/${selectSuc}`).then((response) => {
           response.data.forEach((d) => {
@@ -371,6 +294,8 @@ export default defineComponent({
         });
       }
     });
+
+
 
     // COMPUTER
     const selectDestination = computed(() => {
@@ -536,4 +461,9 @@ export default defineComponent({
 .q-dialog__inner--minimized {
   padding-top: 0px !important;
 }
+</style>
+
+<style lang="sass" scoped>
+::v-deep(.q-table__progress)
+  transform: translateY(-19.5px) !important
 </style>

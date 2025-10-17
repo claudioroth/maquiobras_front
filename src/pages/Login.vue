@@ -121,9 +121,6 @@ export default defineComponent({
           password: this.userForm.password,
         });
 
-        // DEBUG (si falla, ver en consola qué viene)
-        // console.log('login response', data);
-
         const { id, user, rol, sucursal } = data;
 
         // Actualizamos el store (setUser guarda también en SessionStorage según tu store)
