@@ -3,7 +3,7 @@
   <div class="pt-header q-mt-md">
     <div class="q-mx-md">
       <div class="bg-white q-pa-md rounded-borders flex" style="border: solid 1px #e0e0e0">
-        <q-btn v-if="rol == 2" class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
+        <q-btn v-if="rol != 3" class="q-mr-md q-px-lg" size="md" color="grey-7" outline :disable="loadingScreen"
           @click="open_dialog('create')"><q-icon name="move_up" class="q-mr-sm" /> Mover Stock
         </q-btn>
 
@@ -465,5 +465,5 @@ export default defineComponent({
 
 <style lang="sass" scoped>
 ::v-deep(.q-table__progress)
-  transform: translateY(-19.5px) !important
+  transform: translateY(1px) !important
 </style>
